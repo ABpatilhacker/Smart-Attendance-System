@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+</head>
+<body>
+<div class="sidebar">
+  <h2>📚 Smart Attendance</h2>
+  <a href="#">🏠 Dashboard</a>
+  <a href="#" onclick="showTeachers()">👨‍🏫 Teachers</a>
+  <a href="#" onclick="showStudents()">🎓 Students</a>
+  <a href="#" onclick="logout()">🚪 Logout</a>
+</div>
+<div class="container">
+  <div id="content"></div>
+</div>
+
+<script>
+function logout(){auth.signOut().then(()=>location.href='index.html');}
+
+function showTeachers(){
+  const content = document.getElementById('content');
+  content.innerHTML = `<h2>Teachers</h2>
+    <input id="tname" placeholder="Name"><input id="temail" placeholder="Email"><button class="btn primary" onclick="addTeacher()">Add Teacher</button>
+    <ul id="teacher-list"></ul>`;
+  loadTeachers();
+}
+
+function addTeacher(){
+  const name = document.getElementById('tname').value;
+  const email = document.getElementById('temail').value;
+  const newTeacherRef = database.ref('users').push();
+  newTeacherRef.set({email:email,role:'teacher'});
+  database.ref('teachers/'+newTeacherRef.key).set({name:name,subjects:{}});
+  alert('Teacher Added!'); loadTeachers();
+}
+
+function loadTeachers(){
+  const list = document.getElementById('teacher-list'); if(!list) return;
+  list.innerHTML='';
+  database.ref('teachers').once('value').then(snap=>{
+    snap.forEach(t=>{
+      const li = document.createElement('li'); li.textContent = t.val().name + ' ('+t.key+')';
+      list.appendChild(li);
+    });
+  });
+}
+
+function showStudents(){
+  const content = document.getElementById('content');
+  content.innerHTML = `<h2>Students</h2>
+    <input id="sname" placeholder="Name"><input id="semail" placeholder="Email"><button class="btn primary" onclick="addStudent()">Add Student</button>
+    <ul id="student-list"></ul>`;
+  loadStudents();
+}
+
+function addStudent(){
+  const name = document.getElementById('sname').value;
+  const email = document.getElementById('semail').value;
+  const newStudentRef = database.ref('users').push();
+  newStudentRef.set({email:email,role:'student'});
+  database.ref('students/'+newStudentRef.key).set({name:name,attendance:{}});
+  alert('Student Added!'); loadStudents();
+}
+
+function loadStudents(){
+  const list = document.getElementById('student-list'); if(!list) return;
+  list.innerHTML='';
+  database.ref('students').once('value').then(snap=>{
+    snap.forEach(s=>{
+      const li = document.createElement('li'); li.textContent = s.val().name + ' ('+s.key+')';
+      list.appendChild(li);
+    });
+  });
+}
+</script>
+</body>
+</html>
