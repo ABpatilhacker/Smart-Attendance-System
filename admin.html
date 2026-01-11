@@ -1,36 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Admin Dashboard</title>
+
+  <!-- MUST for mobile -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="dashboard.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="firebase.js"></script>
+
+  <!-- JS -->
+  <script defer src="dashboard.js"></script>
+  <script defer src="admin.js"></script>
 </head>
+
 <body>
+
+<!-- TOP BAR (ONLY ONE ☰ BUTTON) -->
 <div class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <h2>Admin Dashboard</h2>
 </div>
+
 <div class="layout">
 
-  <div class="sidebar" id="sidebar">
-    <h2>Admin Panel</h2>
-    <button onclick="showDashboard()">🏠 Dashboard</button>
-    <button onclick="showTeachers()">👨‍🏫 Teachers</button>
-    <button onclick="showClasses()">🏫 Classes</button>
-    <button onclick="logout()">🚪 Logout</button>
-  </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <h3>📘 Smart Attendance</h3>
 
-  <div class="main">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <div id="content" class="card">
+    <a href="#" onclick="showDashboard()">🏠 Dashboard</a>
+    <a href="#" onclick="showPending()">⏳ Approvals</a>
+    <a href="#" onclick="showTeachers()">👨‍🏫 Teachers</a>
+    <a href="#" onclick="showClasses()">🏫 Classes</a>
+
+    <a href="#" class="logout" onclick="logout()">🚪 Logout</a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="content">
+    <div class="card">
       <h2>Welcome Admin 👋</h2>
       <p>Manage teachers, students and classes.</p>
     </div>
-  </div>
+  </main>
 
 </div>
 
-<script src="dashboard.js"></script>
-<script src="admin.js"></script>
 </body>
 </html>
