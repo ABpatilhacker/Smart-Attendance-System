@@ -1,23 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login / Sign Up</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-  <script src="firebase.js"></script>
-  <script defer src="login.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login / Sign Up</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+<script defer src="login.js"></script>
 </head>
 <body>
-  <div class="login-box">
-    <h2 id="role-title">Login</h2>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button class="btn primary" id="login-btn">Login</button>
-    <button class="btn secondary" id="signup-btn">Sign Up</button>
+
+<div class="login-container">
+  <h1>Smart Attendance System</h1>
+
+  <div class="tabs">
+    <button id="login-tab" class="active-tab">Login</button>
+    <button id="signup-tab">Sign Up</button>
   </div>
+
+  <div id="login-box" class="form-box">
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-password" placeholder="Password">
+    <button class="btn primary" id="login-btn">Login</button>
+  </div>
+
+  <div id="signup-box" class="form-box hidden">
+    <input type="text" id="signup-name" placeholder="Full Name">
+    <input type="email" id="signup-email" placeholder="Email">
+    <input type="password" id="signup-password" placeholder="Password">
+    <select id="signup-role">
+      <option value="student">Student</option>
+      <option value="teacher">Teacher</option>
+    </select>
+    <button class="btn primary" id="signup-btn">Sign Up</button>
+  </div>
+</div>
+
+<script>
+const loginTab = document.getElementById('login-tab');
+const signupTab = document.getElementById('signup-tab');
+const loginBox = document.getElementById('login-box');
+const signupBox = document.getElementById('signup-box');
+
+loginTab.addEventListener('click', () => {
+  loginTab.classList.add('active-tab');
+  signupTab.classList.remove('active-tab');
+  loginBox.classList.remove('hidden');
+  signupBox.classList.add('hidden');
+});
+
+signupTab.addEventListener('click', () => {
+  signupTab.classList.add('active-tab');
+  loginTab.classList.remove('active-tab');
+  signupBox.classList.remove('hidden');
+  loginBox.classList.add('hidden');
+});
+</script>
+
 </body>
 </html>
