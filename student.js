@@ -1,16 +1,18 @@
-function loadAttendance(uid, cls, subject) {
-  db.ref(`attendance/${cls}/${subject}`).once("value", snap => {
-    let total = 0, present = 0;
+function logout(){auth.signOut().then(()=>location.href='index.html');}
 
-    snap.forEach(day => {
-      total++;
-      if (day.val()[uid] === "P") present++;
+function showAttendance(){
+  const uid = auth.currentUser.uid;
+  const content = document.getElementById('content');
+  database.ref('students/'+uid+'/attendance').once('value').then(snap=>{
+    let html = '<h2>My Attendance</h2><ul>';
+    snap.forEach(cls=>{
+      html += `<li>${cls.key}: `;
+      cls.forEach(date=>{
+        html += `${date.key}: ${date.val()} | `;
+      });
+      html+='</li>';
     });
-
-    document.getElementById("percent").innerText =
-      ((present / total) * 100).toFixed(2) + "%";
+    html+='</ul>';
+    content.innerHTML = html;
   });
-}function logout(){
-  firebase.auth().signOut();
-  location.href = "index.html";
 }
