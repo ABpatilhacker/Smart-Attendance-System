@@ -12,3 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     location.href = "index.html";
   };
 });
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  sidebar.classList.toggle("open");
+}
