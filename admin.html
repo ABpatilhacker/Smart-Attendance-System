@@ -1,154 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
+
 <link rel="stylesheet" href="style.css">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 <script src="firebase.js"></script>
+<script defer src="admin.js"></script>
 </head>
+
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar">
-  <h2>📚 Admin Panel</h2>
-  <a href="#" onclick="showDashboard()">🏠 Dashboard</a>
-  <a href="#" onclick="showTeachers()">👨‍🏫 Manage Teachers</a>
-  <a href="#" onclick="showStudents()">🎓 Manage Students</a>
-  <a href="#" onclick="logout()">🚪 Logout</a>
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <h2>📘 Smart Attendance</h2>
+    <button onclick="showClasses()">🏫 Classes</button>
+    <button onclick="showTeachers()">👨‍🏫 Teachers</button>
+    <button onclick="logout()">🚪 Logout</button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <div id="content">
+      <h2>Welcome Admin 👋</h2>
+      <p>Select an option from sidebar</p>
+    </div>
+  </div>
+
 </div>
 
-<!-- Main Content -->
-<div class="container">
-  <div id="content"></div>
-</div>
-
-<script>
-function logout() {
-  auth.signOut().then(() => location.href='index.html');
-}
-
-/* ===== DASHBOARD ===== */
-function showDashboard() {
-  const content = document.getElementById('content');
-  content.innerHTML = `<h2>Welcome, Admin!</h2>
-    <p>Use the sidebar to manage teachers and students.</p>`;
-}
-
-/* ===== TEACHERS ===== */
-function showTeachers() {
-  const content = document.getElementById('content');
-  content.innerHTML = `
-    <h2>Manage Teachers</h2>
-    <input id="tname" placeholder="Teacher Name">
-    <input id="temail" placeholder="Email">
-    <input id="tclass" placeholder="Class (e.g., 10A)">
-    <input id="tsubject" placeholder="Subject (e.g., Math)">
-    <button class="btn primary" onclick="addTeacher()">Add Teacher</button>
-    <ul id="teacher-list"></ul>
-  `;
-  loadTeachers();
-}
-
-function addTeacher() {
-  const name = document.getElementById('tname').value.trim();
-  const email = document.getElementById('temail').value.trim();
-  const tclass = document.getElementById('tclass').value.trim();
-  const tsubject = document.getElementById('tsubject').value.trim();
-
-  if(!name || !email || !tclass || !tsubject) { alert("Fill all fields!"); return; }
-
-  // Add to Users
-  const newUserRef = database.ref('users').push();
-  newUserRef.set({email: email, role: 'teacher'});
-
-  // Add teacher in teachers node
-  database.ref('teachers/' + newUserRef.key).set({
-    name: name,
-    classes: {
-      [tclass]: {
-        subject: tsubject,
-        students: {}
-      }
-    }
-  });
-
-  alert('Teacher Added and assigned to class & subject!');
-  loadTeachers();
-}
-
-function loadTeachers() {
-  const list = document.getElementById('teacher-list');
-  if(!list) return;
-  list.innerHTML = '';
-  database.ref('teachers').once('value').then(snap => {
-    snap.forEach(t => {
-      const teacher = t.val();
-      const li = document.createElement('li');
-      li.innerHTML = `<strong>${teacher.name}</strong> (${t.key})<br>
-        Classes: ${teacher.classes ? Object.keys(teacher.classes).map(c => `${c} [${teacher.classes[c].subject}]`).join(', ') : "No Classes"}`;
-      list.appendChild(li);
-    });
-  });
-}
-
-/* ===== STUDENTS ===== */
-function showStudents() {
-  const content = document.getElementById('content');
-  content.innerHTML = `
-    <h2>Manage Students</h2>
-    <input id="sname" placeholder="Student Name">
-    <input id="semail" placeholder="Email">
-    <input id="sclass" placeholder="Class (e.g., 10A)">
-    <button class="btn primary" onclick="addStudent()">Add Student</button>
-    <ul id="student-list"></ul>
-  `;
-  loadStudents();
-}
-
-function addStudent() {
-  const name = document.getElementById('sname').value.trim();
-  const email = document.getElementById('semail').value.trim();
-  const sclass = document.getElementById('sclass').value.trim();
-
-  if(!name || !email || !sclass) { alert("Fill all fields!"); return; }
-
-  // Add to Users
-  const newUserRef = database.ref('users').push();
-  newUserRef.set({email: email, role: 'student'});
-
-  // Add student in students node
-  database.ref('students/' + newUserRef.key).set({
-    name: name,
-    class: sclass,
-    attendance: {}
-  });
-
-  alert('Student Added!');
-  loadStudents();
-}
-
-function loadStudents() {
-  const list = document.getElementById('student-list');
-  if(!list) return;
-  list.innerHTML = '';
-  database.ref('students').once('value').then(snap => {
-    snap.forEach(s => {
-      const student = s.val();
-      const li = document.createElement('li');
-      li.innerHTML = `<strong>${student.name}</strong> (${s.key}) - Class: ${student.class}`;
-      list.appendChild(li);
-    });
-  });
-}
-
-// Load dashboard by default
-showDashboard();
-</script>
 </body>
 </html>
