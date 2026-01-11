@@ -51,6 +51,10 @@ body {
   z-index: 1000;
 }
 
+.sidebar {
+  transform: translateX(-100%);
+}
+
 .sidebar.open {
   transform: translateX(0);
 }
