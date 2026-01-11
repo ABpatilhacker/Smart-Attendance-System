@@ -1,26 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Teacher Dashboard</title>
 <link rel="stylesheet" href="style.css">
+
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 <script src="firebase.js"></script>
-<script defer src="teacher.js"></script>
+<script src="teacher.js"></script>
 </head>
+
 <body>
 <div class="layout">
+
   <div class="sidebar">
     <h2>👨‍🏫 Teacher</h2>
-    <button onclick="showClasses()">🏫 Classes</button>
-    <button onclick="logout()">🚪 Logout</button>
+    <button onclick="loadClasses()">My Classes</button>
+    <button onclick="logout()">Logout</button>
   </div>
+
   <div class="main">
-    <div id="content"><h2>Welcome Teacher 👋</h2></div>
+    <div id="content">
+      <h2>Welcome Teacher 👋</h2>
+      <p>Select class to mark attendance</p>
+    </div>
   </div>
+
 </div>
 </body>
 </html>
