@@ -27,6 +27,7 @@ body {
   min-height: 100vh;
   background: linear-gradient(135deg, #eef2ff, #f8fafc);
   color: #111827;
+  animation: fadeIn 0.6s ease-in-out 
 }
 
 /* ================= HOME PAGE ================= */
@@ -89,9 +90,14 @@ body {
   color: #111827;
 }
 
+.btn {
+  position: relative;
+  overflow: hidden;
+}
+
 .btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
 }
 
 /* ================= INPUTS ================= */
@@ -151,7 +157,8 @@ select:focus {
 
 .sidebar button:hover,
 .sidebar a:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255,255,255,0.28);
+  transform: translateX(6px);
 }
 
 /* ================= MAIN ================= */
@@ -168,7 +175,9 @@ select:focus {
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
   margin-bottom: 20px;
 }
-
+.card {
+  animation: slideUp 0.6s ease forwards;
+}
 /* ================= LIST ================= */
 ul {
   list-style: none;
@@ -183,30 +192,36 @@ li {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}li {
+  animation: slideUp 0.4s ease forwards;
 }
 
 /* ================= ATTENDANCE ================= */
-.attendance-btns {
-  display: flex;
-  gap: 8px;
-}
-
-.present {
-  background: #22c55e;
-  color: white;
-}
-
+.present,
 .absent {
-  background: #ef4444;
-  color: white;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
+/* Press effect */
+.present:active,
+.absent:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+  background-color: rgba(34,197,94,0.9); /* for present */
+}
+
+/* Specific for absent */
+.absent:active {
+  background-color: rgba(239,68,68,0.9);
+}
+
+/* Optional: highlight when selected */
 .present.active {
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.35);
+  box-shadow: 0 0 10px rgba(34,197,94,0.6);
 }
 
 .absent.active {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.35);
+  box-shadow: 0 0 10px rgba(239,68,68,0.6);
 }
 
 /* ================= MOBILE ================= */
