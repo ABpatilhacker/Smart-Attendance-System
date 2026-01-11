@@ -1,11 +1,16 @@
-/* ===== LAYOUT ===== */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f4f6fb;
+}
+
+/* Layout */
 .layout {
   display: flex;
   min-height: 100vh;
-  background: #f4f6f9;
 }
 
-/* ===== SIDEBAR ===== */
+/* Sidebar */
 .sidebar {
   width: 240px;
   background: linear-gradient(180deg, #4f46e5, #6366f1);
@@ -16,7 +21,7 @@
 
 .sidebar h2 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .sidebar button {
@@ -28,13 +33,14 @@
   background: rgba(255,255,255,0.15);
   color: white;
   cursor: pointer;
+  font-size: 15px;
 }
 
 .sidebar button:hover {
   background: rgba(255,255,255,0.25);
 }
 
-/* ===== MAIN ===== */
+/* Main */
 .main {
   flex: 1;
   padding: 20px;
@@ -51,7 +57,15 @@
   margin-bottom: 15px;
 }
 
-/* ===== MOBILE ===== */
+/* Content card */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* Mobile */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
