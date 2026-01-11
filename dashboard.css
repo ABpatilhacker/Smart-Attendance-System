@@ -182,3 +182,45 @@ body {
     display: block;
   }
 }
+/* ===== SIDEBAR BASE ===== */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 240px;
+  height: 100%;
+  background: linear-gradient(180deg, #4f46e5, #6366f1);
+  padding: 20px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 1001;
+}
+
+/* ===== OPEN STATE ===== */
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* ===== MAIN CONTENT ===== */
+.main {
+  padding: 20px;
+}
+
+/* ===== TOP BAR ===== */
+.topbar {
+  height: 60px;
+  background: #4f46e5;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 0 15px;
+}
+
+.menu-btn {
+  font-size: 24px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
