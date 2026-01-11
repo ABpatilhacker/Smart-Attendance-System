@@ -2,82 +2,117 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: Arial, sans-serif;
 }
 
 body {
-  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  background: #f5f7fb;
 }
 
-/* TOP BAR */
-.topbar {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 15px;
-  background: linear-gradient(90deg, #4f46e5, #6366f1);
-  color: white;
-}
-
-.menu-btn {
-  font-size: 22px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-/* LAYOUT */
+/* ===== Layout ===== */
 .layout {
   display: flex;
+  min-height: 100vh;
 }
 
-/* SIDEBAR */
+/* ===== Sidebar ===== */
 .sidebar {
-  width: 220px;
-  background: #1e293b;
+  width: 240px;
+  background: linear-gradient(180deg, #5f5cff, #6a11cb);
   color: white;
-  height: 100vh;
   padding: 20px;
   position: fixed;
   left: 0;
-  top: 60px;
+  top: 0;
+  height: 100%;
+  transform: translateX(-100%);
   transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
 }
 
 .sidebar button {
   width: 100%;
   padding: 12px;
   margin-bottom: 10px;
-  background: #334155;
   border: none;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.15);
   color: white;
-  border-radius: 6px;
   cursor: pointer;
+  text-align: left;
 }
 
 .sidebar button:hover {
-  background: #475569;
+  background: rgba(255,255,255,0.3);
 }
 
-/* MAIN */
+/* ===== Menu Button ===== */
+.menu-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1100;
+  font-size: 22px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #5f5cff;
+  color: white;
+  cursor: pointer;
+}
+
+/* ===== Main Content ===== */
 .main {
-  margin-left: 220px;
-  padding: 20px;
-  width: 100%;
+  flex: 1;
+  margin-left: 0;
+  padding: 80px 20px;
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
+#content h2 {
+  margin-bottom: 10px;
+}
 
-  .sidebar.open {
-    transform: translateX(0);
-  }
+#content p {
+  color: #555;
+}
 
-  .main {
-    margin-left: 0;
-  }
+/* ===== Cards / Forms ===== */
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.primary {
+  background: #5f5cff;
+  color: white;
+}
+
+ul {
+  list-style: none;
+  margin-top: 10px;
+}
+
+ul li {
+  background: white;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 6px;
 }
