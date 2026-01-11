@@ -1,34 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Teacher Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
-
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-<script src="firebase.js"></script>
-<script src="teacher.js"></script>
+<link rel="stylesheet" href="dashboard.css">
+<script defer src="dashboard.js"></script>
 </head>
-
 <body>
+
 <div class="layout">
 
-  <div class="sidebar">
-    <h2>👨‍🏫 Teacher</h2>
-    <button onclick="loadClasses()">My Classes</button>
+  <div class="sidebar closed">
+    <h2>Teacher</h2>
+    <button onclick="showDashboard()">Dashboard</button>
+    <button onclick="showAttendance()">Mark Attendance</button>
+    <button onclick="showReports()">Reports</button>
     <button onclick="logout()">Logout</button>
   </div>
 
-  <div class="main">
-    <div id="content">
-      <h2>Welcome Teacher 👋</h2>
-      <p>Select class to mark attendance</p>
+  <div class="main full">
+    <div class="topbar">
+      <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+      <span class="title">Teacher Dashboard</span>
+    </div>
+
+    <div id="content" class="card">
+      <h3>Welcome Teacher 👨‍🏫</h3>
+      <p>Select a class to mark attendance</p>
     </div>
   </div>
 
 </div>
+
+<script>
+function showDashboard(){
+  content.innerHTML = "<h3>Dashboard</h3>";
+}
+function showAttendance(){
+  content.innerHTML = "<h3>Attendance</h3><p>Mark students present/absent</p>";
+}
+function showReports(){
+  content.innerHTML = "<h3>Reports</h3><p>View attendance stats</p>";
+}
+function logout(){
+  alert("Logout logic here");
+}
+</script>
+
 </body>
 </html>
