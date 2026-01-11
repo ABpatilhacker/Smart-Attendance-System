@@ -1,35 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Smart Attendance</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Sign Up</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="firebase.js"></script>
+  <script defer src="login.js"></script>
 </head>
 <body>
-
-<div class="login-box">
-
-  <h2 id="title">Login</h2>
-
-  <input type="text" id="name" placeholder="Full Name" style="display:none;">
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-
-  <select id="role" style="display:none;">
-    <option value="student">Student</option>
-    <option value="teacher">Teacher</option>
-  </select>
-
-  <button class="btn primary" id="login-btn">Login</button>
-  <button class="btn secondary" id="signup-btn" style="display:none;">Sign Up</button>
-
-  <p class="switch">
-    <span id="toggle-text">New user?</span>
-    <a href="#" onclick="toggleForm()">Sign up here</a>
-  </p>
-
-</div>
-
-<script src="login.js"></script>
+  <div class="login-box">
+    <h2 id="role-title">Login</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button class="btn primary" id="login-btn">Login</button>
+    <button class="btn secondary" id="signup-btn">Sign Up</button>
+  </div>
 </body>
+</html>
