@@ -7,14 +7,31 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="home">
-    <h1>📚 Smart Attendance System</h1>
-    <p>Login or Sign Up as:</p>
-    <div class="role-buttons">
-      <button class="btn primary" onclick="location.href='login.html?role=admin'">Admin</button>
-      <button class="btn primary" onclick="location.href='login.html?role=teacher'">Teacher</button>
-      <button class="btn primary" onclick="location.href='login.html?role=student'">Student</button>
+  <div class="home-container">
+    <div class="hero">
+      <h1>📚 Smart Attendance System</h1>
+      <p>Login as your role to manage or view attendance</p>
+    </div>
+
+    <div class="role-cards">
+      <div class="card role-card" onclick="location.href='login.html?role=admin'">
+        <img src="https://img.icons8.com/color/96/000000/admin-settings-male.png" alt="Admin">
+        <h2>Admin</h2>
+        <p>Manage teachers, classes and approve sign-ups</p>
+      </div>
+      <div class="card role-card" onclick="location.href='login.html?role=teacher'">
+        <img src="https://img.icons8.com/color/96/000000/teacher.png" alt="Teacher">
+        <h2>Teacher</h2>
+        <p>Mark attendance and view your classes</p>
+      </div>
+      <div class="card role-card" onclick="location.href='login.html?role=student'">
+        <img src="https://img.icons8.com/color/96/000000/student-male.png" alt="Student">
+        <h2>Student</h2>
+        <p>Check your attendance and reports</p>
+      </div>
     </div>
   </div>
+
+  <!-- Add any animations script here if needed -->
 </body>
 </html>
