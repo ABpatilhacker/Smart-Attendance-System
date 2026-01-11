@@ -1,34 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Smart Attendance System</title>
-
-  <!-- CSS LINK (THIS WAS MISSING) -->
+  <title>Smart Attendance</title>
   <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
-  <div class="home-wrapper">
-    <div class="home-card">
-<link rel="stylesheet" href="style.css">
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="logo">
-
-      <h1>Smart Attendance System</h1>
-      <p>Digital • Secure • Real-Time Attendance</p>
-
-      <div class="role-buttons">
-        <button class="btn primary" onclick="goLogin('admin')">Admin Login</button>
-        <button class="btn secondary" onclick="goLogin('teacher')">Teacher Login</button>
-        <button class="btn warning" onclick="goLogin('student')">Student Login</button>
-      </div>
-
+  <div class="home">
+    <h1>📚 Smart Attendance System</h1>
+    <p>Login or Sign Up as:</p>
+    <div class="role-buttons">
+      <button class="btn primary" onclick="location.href='login.html?role=admin'">Admin</button>
+      <button class="btn primary" onclick="location.href='login.html?role=teacher'">Teacher</button>
+      <button class="btn primary" onclick="location.href='login.html?role=student'">Student</button>
     </div>
   </div>
-
-  <script>
-    function goLogin(role){
-      location.href = "login.html?role=" + role;
-    }
-  </script>
 </body>
+</html>
