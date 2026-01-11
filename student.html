@@ -1,48 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Dashboard</title>
 <link rel="stylesheet" href="dashboard.css">
-<script defer src="dashboard.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+<script defer src="student.js"></script>
 </head>
 <body>
 
 <div class="layout">
 
-  <div class="sidebar closed">
-    <h2>Student</h2>
-    <button onclick="showDashboard()">Dashboard</button>
-    <button onclick="showAttendance()">My Attendance</button>
-    <button onclick="logout()">Logout</button>
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <h2>🎓 Student Panel</h2>
+    <button onclick="showDashboard()">🏠 Dashboard</button>
+    <button onclick="showAttendance()">📊 Attendance</button>
+    <button onclick="logout()">🚪 Logout</button>
   </div>
 
-  <div class="main full">
-    <div class="topbar">
-      <span class="menu-btn" onclick="toggleSidebar()">☰</span>
-      <span class="title">Student Dashboard</span>
-    </div>
-
-    <div id="content" class="card">
-      <h3>Welcome Student 🎓</h3>
-      <p>Your attendance summary will appear here</p>
+  <!-- MAIN CONTENT -->
+  <div class="main">
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</button>
+    <div id="content">
+      <h2>Welcome Student 👋</h2>
+      <p>Use the sidebar to view your attendance records.</p>
     </div>
   </div>
 
 </div>
 
 <script>
-function showDashboard(){
-  content.innerHTML = "<h3>Dashboard</h3>";
+const auth = firebase.auth();
+const database = firebase.database();
+
+// ===== Toggle Sidebar =====
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
 }
-function showAttendance(){
-  content.innerHTML = "<h3>Attendance</h3><p>Subject-wise attendance %</p>";
+
+// ===== Logout =====
+function logout() {
+  auth.signOut().then(() => location.href='index.html');
 }
-function logout(){
-  alert("Logout logic here");
+
+// ===== Dashboard =====
+function showDashboard() {
+  document.getElementById('content').innerHTML = `
+    <h2>Dashboard</h2>
+    <p>Welcome Student! Check your attendance using the sidebar.</p>
+  `;
 }
+
+// ===== Show Attendance =====
+function showAttendance() {
+  const content = document.getElementById('content');
+  content.innerHTML = `<h2>My Attendance</h2><div id="attendance-list"></div>`;
+  loadAttendance();
+}
+
+function loadAttendance() {
+  const uid = auth.currentUser.uid;
+  const list = document.getElementById('attendance-list');
+  list.innerHTML = '';
+
+  database.ref('teachers').once('value').then(snap => {
+    snap.forEach(tSnap => {
+      const subjects = tSnap.val().subjects || {};
+      Object.keys(subjects).forEach(cls => {
+        const students = subjects[cls].students || {};
+        if(students[uid]) {
+          const div = document.createElement('div');
+          div.classList.add('card');
+          div.innerHTML = `<h3>${cls} (${subjects[cls].subject})</h3>`;
+          
+          const ul = document.createElement('ul');
+          const attendance = students[uid].attendance || {};
+          if(Object.keys(attendance).length === 0) {
+            ul.innerHTML = '<li>No attendance marked yet</li>';
+          } else {
+            Object.keys(attendance).forEach(date => {
+              const li = document.createElement('li');
+              li.textContent = `${date}: ${attendance[date].toUpperCase()}`;
+              ul.appendChild(li);
+            });
+          }
+          div.appendChild(ul);
+          list.appendChild(div);
+        }
+      });
+    });
+  });
+}
+
+// ===== Check Auth =====
+auth.onAuthStateChanged(user => {
+  if(!user) location.href='index.html';
+});
 </script>
-<script defer src="dashboard.js"></script>
-<script defer src="student.js"></script>
 </body>
 </html>
