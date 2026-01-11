@@ -1,56 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
+
 <link rel="stylesheet" href="dashboard.css">
-<script defer src="dashboard.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script src="firebase.js"></script>
+<script defer src="admin.js"></script>
 </head>
 <body>
 
-<div class="layout">
-<button class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</button>
-  <div class="sidebar closed">
-    <h2>Admin Panel</h2>
-    <button onclick="showDashboard()">Dashboard</button>
-    <button onclick="showApprovals()">Approvals</button>
-    <button onclick="showTeachers()">Teachers</button>
-    <button onclick="showClasses()">Classes</button>
-    <button onclick="logout()">Logout</button>
-  </div>
-
-  <div class="main full">
-    <div class="topbar">
-      <span class="menu-btn" onclick="toggleSidebar()">☰</span>
-      <span class="title">Admin Dashboard</span>
-    </div>
-
-    <div id="content" class="card">
-      <h3>Welcome Admin 👑</h3>
-      <p>Manage users, teachers and classes.</p>
-    </div>
-  </div>
-
+<!-- Sidebar -->
+<div class="sidebar">
+  <h2>📘 Smart Attendance</h2>
+  <button onclick="showDashboard()">🏠 Dashboard</button>
+  <button onclick="showPending()">⏳ Pending Approval</button>
+  <button onclick="showTeachers()">👨‍🏫 Teachers</button>
+  <button onclick="showClasses()">🏫 Classes & Subjects</button>
+  <button onclick="logout()">🚪 Logout</button>
 </div>
 
-<script>
-function showDashboard(){
-  content.innerHTML = "<h3>Dashboard</h3><p>Overview of system</p>";
-}
-function showApprovals(){
-  content.innerHTML = "<h3>Pending Approvals</h3><p>Approve teachers/students</p>";
-}
-function showTeachers(){
-  content.innerHTML = "<h3>Teachers</h3><p>Add & manage teachers</p>";
-}
-function showClasses(){
-  content.innerHTML = "<h3>Classes</h3><p>Assign subjects</p>";
-}
-function logout(){
-  alert("Logout logic here");
-}
-</script>
-<script defer src="dashboard.js"></script>
-<script defer src="admin.js"></script>
+<!-- Main content -->
+<div class="main">
+  <button class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</button>
+  <div id="content">
+    <h2>Welcome Admin 👋</h2>
+    <p>Select an option from the sidebar</p>
+  </div>
+</div>
+
 </body>
 </html>
