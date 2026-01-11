@@ -1,138 +1,76 @@
-/* ===== DESKTOP VIEW ===== */
-.sidebar {
-  width: 240px;
-  height: 100vh;
-  background: #1e293b;
-  color: white;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-.main {
-  margin-left: 240px;
-  padding: 20px;
+body {
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+}
+
+/* TOP BAR */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+  color: white;
 }
 
 .menu-btn {
-  display: none;
-}
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f4f6fb;
+  font-size: 22px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
 }
 
-/* Layout */
+/* LAYOUT */
 .layout {
   display: flex;
-  min-height: 100vh;
 }
 
-/* Sidebar */
+/* SIDEBAR */
 .sidebar {
-  width: 240px;
-  background: linear-gradient(180deg, #4f46e5, #6366f1);
+  width: 220px;
+  background: #1e293b;
   color: white;
+  height: 100vh;
   padding: 20px;
+  position: fixed;
+  left: 0;
+  top: 60px;
   transition: transform 0.3s ease;
-}
-
-.sidebar h2 {
-  text-align: center;
-  margin-bottom: 25px;
 }
 
 .sidebar button {
   width: 100%;
   padding: 12px;
   margin-bottom: 10px;
+  background: #334155;
   border: none;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.15);
   color: white;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 15px;
 }
 
 .sidebar button:hover {
-  background: rgba(255,255,255,0.25);
+  background: #475569;
 }
 
-/* Main */
+/* MAIN */
 .main {
-  flex: 1;
+  margin-left: 220px;
   padding: 20px;
+  width: 100%;
 }
 
-.menu-btn {
-  display: none;
-  font-size: 22px;
-  padding: 8px 12px;
-  border: none;
-  background: #4f46e5;
-  color: white;
-  border-radius: 6px;
-  margin-bottom: 15px;
-}
-
-/* Content card */
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-}
-
-/* Mobile */
+/* MOBILE */
 @media (max-width: 768px) {
   .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100%;
     transform: translateX(-100%);
-    z-index: 1000;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .menu-btn {
-    display: inline-block;
-  }
-}
-/* ===== MOBILE SIDEBAR TOGGLE ===== */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100%;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 1000;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-}
-/* ===== MOBILE VIEW ===== */
-@media (max-width: 768px) {
-
-  body {
-    overflow-x: hidden;
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 240px;
-    height: 100vh;
-    background: #1e293b;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 1000;
   }
 
   .sidebar.open {
@@ -141,86 +79,5 @@ body {
 
   .main {
     margin-left: 0;
-    width: 100%;
-    padding: 15px;
   }
-
-  .menu-btn {
-    display: block;
-  }
-}
-/* ===== MOBILE VIEW ===== */
-@media (max-width: 768px) {
-
-  body {
-    overflow-x: hidden;
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 240px;
-    height: 100vh;
-    background: #1e293b;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 1000;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .main {
-    margin-left: 0;
-    width: 100%;
-    padding: 15px;
-  }
-
-  .menu-btn {
-    display: block;
-  }
-}
-/* ===== SIDEBAR BASE ===== */
-.sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 240px;
-  height: 100%;
-  background: linear-gradient(180deg, #4f46e5, #6366f1);
-  padding: 20px;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  z-index: 1001;
-}
-
-/* ===== OPEN STATE ===== */
-.sidebar.open {
-  transform: translateX(0);
-}
-
-/* ===== MAIN CONTENT ===== */
-.main {
-  padding: 20px;
-}
-
-/* ===== TOP BAR ===== */
-.topbar {
-  height: 60px;
-  background: #4f46e5;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 0 15px;
-}
-
-.menu-btn {
-  font-size: 24px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
 }
