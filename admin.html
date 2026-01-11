@@ -1,39 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Admin Dashboard | Smart Attendance</title>
+  <link rel="stylesheet" href="style.css">
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script src="firebase.js"></script>
-<script defer src="admin.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="firebase.js"></script>
+
+  <script defer src="admin.js"></script>
 </head>
 <body>
 
-<div class="layout">
+<div class="dashboard">
 
   <!-- SIDEBAR -->
-  <div class="sidebar">
-    <h2>📘 Smart Attendance</h2>
-    <button onclick="showDashboard()">🏠 Dashboard</button>
-    <button onclick="showPending()">🕒 Pending Approval</button>
-    <button onclick="showTeachers()">👨‍🏫 Teachers</button>
-    <button onclick="showClasses()">🏫 Classes</button>
-    <button onclick="logout()">🚪 Logout</button>
-  </div>
-
-  <!-- MAIN CONTENT -->
-  <div class="main">
-    <div id="content">
-      <h2>Welcome Admin 👋</h2>
-      <p>Select an option from the sidebar</p>
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="logo">🛠️</span>
+      <h2>Admin Panel</h2>
     </div>
-  </div>
 
+    <nav>
+      <a class="active" onclick="showSection('dashboard')">📊 Dashboard</a>
+      <a onclick="showSection('approvals')">✅ Approvals</a>
+      <a onclick="showSection('users')">👥 Users</a>
+      <a onclick="showSection('classes')">🏫 Classes</a>
+      <a onclick="showSection('assign')">📚 Assign Subject</a>
+    </nav>
+
+    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <h1>Admin Dashboard</h1>
+      <div class="user-chip">👤 Admin</div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page active-page">
+      <div class="stats">
+        <div class="stat-card">
+          <h3>Total Teachers</h3>
+          <p id="totalTeachers">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Total Students</h3>
+          <p id="totalStudents">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Pending Requests</h3>
+          <p id="pendingUsers">0</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- APPROVALS -->
+    <section id="approvals" class="page">
+      <h2>Pending Approvals</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="approvalList"></tbody>
+      </table>
+    </section>
+
+    <!-- USERS -->
+    <section id="users" class="page">
+      <h2>All Users</h2>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="userList"></tbody>
+      </table>
+    </section>
+
+    <!-- CLASSES -->
+    <section id="classes" class="page">
+      <h2>Create Class</h2>
+      <div class="form-card">
+        <input id="className" placeholder="Class Name">
+        <button class="btn primary" onclick="createClass()">Create</button>
+      </div>
+    </section>
+
+    <!-- ASSIGN SUBJECT -->
+    <section id="assign" class="page">
+      <h2>Assign Subject to Teacher</h2>
+      <div class="form-card">
+        <input id="teacherId" placeholder="Teacher UID">
+        <input id="subjectName" placeholder="Subject Name">
+        <button class="btn primary" onclick="assignSubject()">Assign</button>
+      </div>
+    </section>
+
+  </main>
 </div>
+
 </body>
 </html>
