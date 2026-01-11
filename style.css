@@ -636,3 +636,38 @@ body {
   border-radius: 10px;
   border: 1px solid #cbd5f5;
 }
+/* ===== MOBILE FIX ===== */
+@media (max-width: 768px) {
+
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 10px;
+  }
+
+  .sidebar h2 {
+    width: 100%;
+    text-align: center;
+    font-size: 18px;
+  }
+
+  .sidebar button {
+    width: 45%;
+    margin: 6px 0;
+    font-size: 14px;
+  }
+
+  .main {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+  }
+}
