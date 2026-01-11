@@ -1,3 +1,19 @@
+/* ===== DESKTOP VIEW ===== */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: #1e293b;
+  color: white;
+}
+
+.main {
+  margin-left: 240px;
+  padding: 20px;
+}
+
+.menu-btn {
+  display: none;
+}
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
@@ -98,5 +114,71 @@ body {
 
   .sidebar.open {
     transform: translateX(0);
+  }
+}
+/* ===== MOBILE VIEW ===== */
+@media (max-width: 768px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 100vh;
+    background: #1e293b;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+  }
+
+  .menu-btn {
+    display: block;
+  }
+}
+/* ===== MOBILE VIEW ===== */
+@media (max-width: 768px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 100vh;
+    background: #1e293b;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main {
+    margin-left: 0;
+    width: 100%;
+    padding: 15px;
+  }
+
+  .menu-btn {
+    display: block;
   }
 }
