@@ -1,32 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Attendance System</title>
-<link rel="stylesheet" href="style.css">
-</head>
+<body>
+  <div class="home-wrapper">
+    <div class="home-card">
 
-<body class="home-body">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="logo">
 
-<div class="home-container">
-  <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="home-logo">
-  <h1>Smart Attendance System</h1>
-  <p>Digital • Secure • Real-Time Attendance</p>
+      <h1>Smart Attendance System</h1>
+      <p>Digital • Secure • Real-Time Attendance</p>
 
-  <div class="role-buttons">
-    <button class="role-btn admin" onclick="goLogin('admin')">Admin</button>
-    <button class="role-btn teacher" onclick="goLogin('teacher')">Teacher</button>
-    <button class="role-btn student" onclick="goLogin('student')">Student</button>
+      <div class="role-buttons">
+        <button class="btn primary" onclick="goLogin('admin')">Admin Login</button>
+        <button class="btn secondary" onclick="goLogin('teacher')">Teacher Login</button>
+        <button class="btn warning" onclick="goLogin('student')">Student Login</button>
+      </div>
+
+    </div>
   </div>
-</div>
 
-<script>
-function goLogin(role){
-  localStorage.setItem("loginRole", role);
-  window.location.href = "login.html";
-}
-</script>
-
+  <script>
+    function goLogin(role){
+      location.href = "login.html?role=" + role;
+    }
+  </script>
 </body>
-</html>
