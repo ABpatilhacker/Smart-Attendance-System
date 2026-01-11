@@ -586,3 +586,53 @@ body {
     padding: 25px;
   }
 }
+/* ===== ADMIN PAGES ===== */
+.page {
+  display: none;
+  animation: slideUp 0.5s ease;
+}
+
+.active-page {
+  display: block;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.data-table th,
+.data-table td {
+  padding: 14px;
+  text-align: left;
+}
+
+.data-table th {
+  background: #1e293b;
+  color: white;
+}
+
+.data-table tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.form-card {
+  max-width: 400px;
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.form-card input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+}
