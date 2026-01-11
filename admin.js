@@ -18,3 +18,6 @@ function showClasses() {
     <p>Manage classes and subjects.</p>
   `;
 }
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+}
