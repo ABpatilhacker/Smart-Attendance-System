@@ -210,3 +210,47 @@ th {
     width: 100%;
   }
 }
+/* ===== HOME PAGE ===== */
+.home-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg,#eef2ff,#f8fafc);
+}
+
+.home-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+.logo {
+  width: 110px;
+  margin-bottom: 15px;
+}
+
+.home-card h1 {
+  font-size: 1.8rem;
+  margin-bottom: 6px;
+}
+
+.home-card p {
+  color: #6b7280;
+  margin-bottom: 25px;
+}
+
+.role-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.role-buttons .btn {
+  font-size: 15px;
+  padding: 12px;
+}
