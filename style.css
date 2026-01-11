@@ -1,3 +1,97 @@
+/* ===== HOME HEADER ===== */
+.home-header {
+  text-align: center;
+  padding: 80px 20px 40px;
+  background: linear-gradient(135deg, #4f46e5, #6366f1, #a78bfa);
+  color: white;
+  border-radius: 0 0 50% 50% / 0 0 10% 10%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  animation: fadeIn 1s ease;
+}
+
+.home-header h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.home-header p {
+  font-size: 1.2rem;
+  color: #e0e7ff;
+}
+
+/* ===== ROLE CARDS ===== */
+.home-cards {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 25px;
+  padding: 50px 20px;
+  flex-wrap: wrap;
+}
+
+.role-card {
+  background: white;
+  width: 280px;
+  padding: 30px 20px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.role-card h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.role-card p {
+  color: #4b5563;
+  font-size: 1rem;
+}
+
+/* Hover effect */
+.role-card:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+
+/* Different colors for roles */
+.admin-card { background: linear-gradient(135deg, #f97316, #facc15); color: white; }
+.teacher-card { background: linear-gradient(135deg, #3b82f6, #06b6d4); color: white; }
+.student-card { background: linear-gradient(135deg, #10b981, #3b82f6); color: white; }
+
+/* ===== HERO BACKGROUND (optional) ===== */
+.hero-bg {
+  background: url('images/attendance.png') no-repeat center;
+  background-size: contain;
+  height: 300px;
+  margin: 0 auto 50px;
+  animation: slideUp 1s ease forwards;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px);}
+  100% { opacity: 1; transform: translateY(0);}
+}
+
+@keyframes slideUp {
+  0% { opacity: 0; transform: translateY(50px);}
+  100% { opacity: 1; transform: translateY(0);}
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width: 900px){
+  .home-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  .role-card {
+    width: 90%;
+  }
+  .hero-bg { height: 200px; }
+}
 /* ================= RESET ================= */
 * {
   margin: 0;
