@@ -23,9 +23,9 @@ function showDashboard() {
 function showPending() {
   const content = document.getElementById('content');
   content.innerHTML = `<h2>Pending Users</h2><ul id="pending-list"></ul>`;
-  const list = document.getElementById('pending-list');
-  list.innerHTML='';
   database.ref('users').orderByChild('status').equalTo('pending').once('value').then(snap=>{
+    const list = document.getElementById('pending-list');
+    list.innerHTML='';
     snap.forEach(p=>{
       const li=document.createElement('li');
       li.textContent = `${p.val().name} (${p.val().role})`;
