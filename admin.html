@@ -17,12 +17,15 @@
 
 <body>
 
+<!-- Toggle Button -->
 <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
 <div class="layout">
 
+  <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
-    <h2>📘 Smart Attendance</h2>
+    <h2>Admin Panel</h2>
+
     <button onclick="showDashboard()">🏠 Dashboard</button>
     <button onclick="showTeachers()">👨‍🏫 Teachers</button>
     <button onclick="showStudents()">🎓 Students</button>
@@ -30,6 +33,7 @@
     <button onclick="logout()">🚪 Logout</button>
   </div>
 
+  <!-- MAIN CONTENT -->
   <div class="main">
     <div id="content">
       <h2>Welcome Admin 👋</h2>
@@ -38,6 +42,10 @@
   </div>
 
 </div>
+
+<!-- JS FILES -->
+<script src="dashboard.js"></script>
+<script src="admin.js"></script>
 
 </body>
 </html>
