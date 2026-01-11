@@ -1,32 +1,57 @@
-function logout(){auth.signOut().then(()=>location.href='index.html');}
+const auth = firebase.auth();
+const database = firebase.database();
 
-function showClasses(){
-  const content = document.getElementById('content');
+function logout() {
+  auth.signOut().then(()=>location.href="index.html");
+}
+
+auth.onAuthStateChanged(user => {
+  if(!user) location.href="login.html";
+});
+
+function loadClasses() {
   const uid = auth.currentUser.uid;
-  database.ref('teachers/'+uid+'/classes').once('value').then(snap=>{
-    content.innerHTML = '<h2>Your Classes</h2><ul id="class-list"></ul>';
-    const ul = document.getElementById('class-list');
-    snap.forEach(c=>{
-      const li = document.createElement('li');
-      li.innerHTML = c.key + ` <button class="btn primary" onclick="markAttendance('${c.key}')">Mark Attendance</button>`;
-      ul.appendChild(li);
+  const content = document.getElementById("content");
+  content.innerHTML = "<h2>My Classes</h2>";
+
+  database.ref("classes").once("value").then(snapshot => {
+    snapshot.forEach(cls => {
+      const className = cls.key;
+      cls.child("subjects").forEach(sub => {
+        if(sub.val().teacherId === uid) {
+          const btn = document.createElement("button");
+          btn.className = "btn primary";
+          btn.textContent = className + " - " + sub.key;
+          btn.onclick = () => markAttendance(className, sub.key);
+          content.appendChild(btn);
+        }
+      });
     });
   });
 }
 
-function markAttendance(className){
-  const studentsRef = database.ref('classes/'+className+'/students');
-  studentsRef.once('value').then(snap=>{
-    let html = `<h2>${className} Attendance</h2><ul>`;
-    snap.forEach(s=>{
-      html += `<li>${s.key}: <button class="btn present" onclick="setAttendance('${className}','${s.key}','present',this)">Present</button> <button class="btn absent" onclick="setAttendance('${className}','${s.key}','absent',this)">Absent</button></li>`;
+function markAttendance(className, subject) {
+  const content = document.getElementById("content");
+  content.innerHTML = `<h2>${className} - ${subject}</h2><ul id="student-list"></ul>`;
+
+  const list = document.getElementById("student-list");
+
+  database.ref(`classes/${className}/subjects/${subject}/students`)
+    .once("value").then(students => {
+      students.forEach(stu => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span>${stu.key}</span>
+          <div class="attendance-btns">
+            <button class="present" onclick="saveAttendance('${className}','${subject}','${stu.key}','present')">Present</button>
+            <button class="absent" onclick="saveAttendance('${className}','${subject}','${stu.key}','absent')">Absent</button>
+          </div>`;
+        list.appendChild(li);
+      });
     });
-    html+='</ul>';
-    document.getElementById('content').innerHTML = html;
-  });
 }
 
-function setAttendance(className, studentUID, status, btn){
-  database.ref('students/'+studentUID+'/attendance/'+className+'/'+new Date().toISOString().split('T')[0]).set(status);
-  alert('Marked '+status);
+function saveAttendance(className, subject, studentId, status) {
+  const date = new Date().toISOString().slice(0,10);
+  database.ref(`classes/${className}/subjects/${subject}/attendance/${date}/${studentId}`).set(status);
 }
