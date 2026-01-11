@@ -18,29 +18,32 @@
 <body>
 
 <!-- Toggle Button -->
-<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+<button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
-<div class="layout">
+<div class="sidebar" id="sidebar">
+  <h2>Admin Panel</h2>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar" id="sidebar">
-    <h2>Admin Panel</h2>
+  <button onclick="showSection('dashboard')">Dashboard</button>
+  <button onclick="showSection('teachers')">Teachers</button>
+  <button onclick="showSection('students')">Students</button>
+  <button onclick="toggleSidebar()">Close ❌</button>
+</div>
 
-    <button onclick="showDashboard()">🏠 Dashboard</button>
-    <button onclick="showTeachers()">👨‍🏫 Teachers</button>
-    <button onclick="showStudents()">🎓 Students</button>
-    <button onclick="showClasses()">🏫 Classes</button>
-    <button onclick="logout()">🚪 Logout</button>
+<div class="main">
+  <div id="dashboard" class="card section">
+    <h2>Dashboard</h2>
+    <p>Overview of system</p>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <div class="main">
-    <div id="content">
-      <h2>Welcome Admin 👋</h2>
-      <p>Use sidebar to manage system</p>
-    </div>
+  <div id="teachers" class="card section" style="display:none">
+    <h2>Teachers</h2>
+    <p>Manage teachers here</p>
   </div>
 
+  <div id="students" class="card section" style="display:none">
+    <h2>Students</h2>
+    <p>Manage students here</p>
+  </div>
 </div>
 
 <!-- JS FILES -->
