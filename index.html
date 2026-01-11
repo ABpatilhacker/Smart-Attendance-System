@@ -3,16 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Attendance</title>
+<title>Smart Attendance System</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<div class="home">
-  <h1>📚 Smart Attendance System</h1>
-  <p>Login as:</p>
+
+<body class="home-body">
+
+<div class="home-container">
+  <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="home-logo">
+  <h1>Smart Attendance System</h1>
+  <p>Digital • Secure • Real-Time Attendance</p>
+
   <div class="role-buttons">
-    <button class="btn primary" onclick="location.href='login.html'">Login</button>
+    <button class="role-btn admin" onclick="goLogin('admin')">Admin</button>
+    <button class="role-btn teacher" onclick="goLogin('teacher')">Teacher</button>
+    <button class="role-btn student" onclick="goLogin('student')">Student</button>
   </div>
 </div>
+
+<script>
+function goLogin(role){
+  localStorage.setItem("loginRole", role);
+  window.location.href = "login.html";
+}
+</script>
+
 </body>
 </html>
