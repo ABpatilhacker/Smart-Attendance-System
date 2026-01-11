@@ -4,37 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
-
 <link rel="stylesheet" href="dashboard.css">
-  <link rel="stylesheet" href="style.css">
-
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
 <script src="firebase.js"></script>
 <script defer src="admin.js"></script>
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar">
-  <h2>📘 Smart Attendance</h2>
-  <button onclick="showDashboard()">🏠 Dashboard</button>
-  <button onclick="showPending()">⏳ Pending Approval</button>
-  <button onclick="showTeachers()">👨‍🏫 Teachers</button>
-  <button onclick="showClasses()">🏫 Classes & Subjects</button>
-  <button onclick="logout()">🚪 Logout</button>
-</div>
+<div class="layout">
+  <div class="sidebar" id="sidebar">
+    <h2>📘 Smart Attendance</h2>
+    <button onclick="toggleSidebar()">☰</button>
+    <button onclick="showDashboard()">🏠 Dashboard</button>
+    <button onclick="showTeachers()">👨‍🏫 Teachers</button>
+    <button onclick="showClasses()">🏫 Classes</button>
+    <button onclick="showPending()">⏳ Pending Approvals</button>
+    <button onclick="logout()">🚪 Logout</button>
+  </div>
 
-<!-- Main content -->
-<div class="main">
-  <button class="sidebar-toggle" onclick="toggleSidebar()">☰ Menu</button>
-  <div id="content">
-    <h2>Welcome Admin 👋</h2>
-    <p>Select an option from the sidebar</p>
+  <div class="main">
+    <div id="content">
+      <h2>Welcome Admin 👋</h2>
+      <p>Select an option from the sidebar to manage teachers, students, and classes.</p>
+    </div>
   </div>
 </div>
+
+<script>
+function toggleSidebar(){
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('closed');
+}
+</script>
 
 </body>
 </html>
