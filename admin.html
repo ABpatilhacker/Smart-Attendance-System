@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
 
-<link rel="stylesheet" href="dashboard.css" />
+<link rel="stylesheet" href="dashboard.css">
 
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -17,26 +17,24 @@
 
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h2>Smart Attendance</h2>
-</div>
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
 <div class="layout">
 
-  <!-- SIDEBAR -->
   <div class="sidebar" id="sidebar">
+    <h2>📘 Smart Attendance</h2>
     <button onclick="showDashboard()">🏠 Dashboard</button>
     <button onclick="showTeachers()">👨‍🏫 Teachers</button>
+    <button onclick="showStudents()">🎓 Students</button>
     <button onclick="showClasses()">🏫 Classes</button>
     <button onclick="logout()">🚪 Logout</button>
   </div>
 
-  <!-- MAIN CONTENT -->
-  <div class="main" id="content">
-    <h2>Welcome Admin 👋</h2>
-    <p>Select an option from the sidebar</p>
+  <div class="main">
+    <div id="content">
+      <h2>Welcome Admin 👋</h2>
+      <p>Use sidebar to manage system</p>
+    </div>
   </div>
 
 </div>
