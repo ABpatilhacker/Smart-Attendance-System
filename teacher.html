@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,49 +9,18 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script src="firebase.js"></script>
+<script defer src="teacher.js"></script>
 </head>
 <body>
-<div class="sidebar">
-  <h2>📚 Teacher Panel</h2>
-  <a href="#">🏠 Dashboard</a>
-  <a href="#" onclick="logout()">🚪 Logout</a>
+<div class="layout">
+  <div class="sidebar">
+    <h2>👨‍🏫 Teacher</h2>
+    <button onclick="showClasses()">🏫 Classes</button>
+    <button onclick="logout()">🚪 Logout</button>
+  </div>
+  <div class="main">
+    <div id="content"><h2>Welcome Teacher 👋</h2></div>
+  </div>
 </div>
-<div class="container">
-  <h2>Mark Attendance</h2>
-  <ul id="students-list"></ul>
-  <button class="btn primary" onclick="printReport()">📄 Print Report</button>
-</div>
-
-<script>
-function logout(){auth.signOut().then(()=>location.href='index.html');}
-
-function loadStudents(){
-  database.ref('students').once('value').then(snap=>{
-    const ul = document.getElementById('students-list');
-    ul.innerHTML='';
-    snap.forEach(s=>{
-      const li = document.createElement('li');
-      li.innerHTML = `<span>${s.val().name}</span>
-        <div class="attendance-btns">
-          <button class="btn present" onclick="mark(this,'present','${s.key}')">Present</button>
-          <button class="btn absent" onclick="mark(this,'absent','${s.key}')">Absent</button>
-        </div>`;
-      ul.appendChild(li);
-    });
-  });
-}
-loadStudents();
-
-function mark(btn,status,sid){
-  btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const today = new Date().toISOString().split('T')[0];
-  database.ref('students/'+sid+'/attendance/'+today).set(status);
-}
-
-function printReport(){
-  window.print();
-}
-</script>
 </body>
 </html>
