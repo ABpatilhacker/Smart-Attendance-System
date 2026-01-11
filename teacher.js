@@ -1,57 +1,99 @@
 const auth = firebase.auth();
 const database = firebase.database();
 
-function logout() {
-  auth.signOut().then(()=>location.href="index.html");
+// ===== Toggle Sidebar =====
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
 }
 
-auth.onAuthStateChanged(user => {
-  if(!user) location.href="login.html";
-});
+// ===== Logout =====
+function logout() {
+  auth.signOut().then(() => location.href='index.html');
+}
 
-function loadClasses() {
+// ===== Dashboard =====
+function showDashboard() {
+  document.getElementById('content').innerHTML = `
+    <h2>Dashboard</h2>
+    <p>Welcome Teacher! Use the sidebar to view classes and mark attendance.</p>
+  `;
+}
+
+// ===== Classes View =====
+function showClasses() {
+  const content = document.getElementById('content');
+  content.innerHTML = `<h2>My Classes</h2><div id="classes-list"></div>`;
+  loadTeacherClasses();
+}
+
+function loadTeacherClasses() {
   const uid = auth.currentUser.uid;
-  const content = document.getElementById("content");
-  content.innerHTML = "<h2>My Classes</h2>";
+  const list = document.getElementById('classes-list');
+  list.innerHTML = '';
 
-  database.ref("classes").once("value").then(snapshot => {
-    snapshot.forEach(cls => {
-      const className = cls.key;
-      cls.child("subjects").forEach(sub => {
-        if(sub.val().teacherId === uid) {
-          const btn = document.createElement("button");
-          btn.className = "btn primary";
-          btn.textContent = className + " - " + sub.key;
-          btn.onclick = () => markAttendance(className, sub.key);
-          content.appendChild(btn);
-        }
-      });
+  database.ref('teachers/' + uid + '/subjects').once('value').then(snap => {
+    if(!snap.exists()) return list.innerHTML = '<p>No classes assigned yet.</p>';
+    snap.forEach(clsSnap => {
+      const cls = clsSnap.key;
+      const subject = clsSnap.val().subject;
+      const students = clsSnap.val().students || {};
+
+      const div = document.createElement('div');
+      div.classList.add('card');
+      div.innerHTML = `<h3>${cls} (${subject})</h3>
+        <ul id="students-${cls}"></ul>`;
+      
+      list.appendChild(div);
+
+      const ul = div.querySelector('ul');
+      if(Object.keys(students).length === 0) {
+        ul.innerHTML = '<li>No students added yet.</li>';
+      } else {
+        Object.keys(students).forEach(sid => {
+          const li = document.createElement('li');
+          li.textContent = students[sid].name;
+
+          const presentBtn = document.createElement('button');
+          presentBtn.textContent = 'Present';
+          presentBtn.classList.add('present');
+          presentBtn.onclick = () => markAttendance(cls, sid, 'present', presentBtn, absentBtn);
+
+          const absentBtn = document.createElement('button');
+          absentBtn.textContent = 'Absent';
+          absentBtn.classList.add('absent');
+          absentBtn.onclick = () => markAttendance(cls, sid, 'absent', presentBtn, absentBtn);
+
+          const btnDiv = document.createElement('div');
+          btnDiv.classList.add('attendance-btns');
+          btnDiv.appendChild(presentBtn);
+          btnDiv.appendChild(absentBtn);
+
+          li.appendChild(btnDiv);
+          ul.appendChild(li);
+        });
+      }
     });
   });
 }
 
-function markAttendance(className, subject) {
-  const content = document.getElementById("content");
-  content.innerHTML = `<h2>${className} - ${subject}</h2><ul id="student-list"></ul>`;
+// ===== Mark Attendance =====
+function markAttendance(cls, studentId, status, presentBtn, absentBtn) {
+  const today = new Date().toISOString().slice(0,10);
+  const uid = auth.currentUser.uid;
 
-  const list = document.getElementById("student-list");
-
-  database.ref(`classes/${className}/subjects/${subject}/students`)
-    .once("value").then(students => {
-      students.forEach(stu => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <span>${stu.key}</span>
-          <div class="attendance-btns">
-            <button class="present" onclick="saveAttendance('${className}','${subject}','${stu.key}','present')">Present</button>
-            <button class="absent" onclick="saveAttendance('${className}','${subject}','${stu.key}','absent')">Absent</button>
-          </div>`;
-        list.appendChild(li);
-      });
+  database.ref(`teachers/${uid}/subjects/${cls}/students/${studentId}/attendance/${today}`).set(status)
+    .then(() => {
+      if(status === 'present') {
+        presentBtn.classList.add('active');
+        absentBtn.classList.remove('active');
+      } else {
+        absentBtn.classList.add('active');
+        presentBtn.classList.remove('active');
+      }
     });
 }
 
-function saveAttendance(className, subject, studentId, status) {
-  const date = new Date().toISOString().slice(0,10);
-  database.ref(`classes/${className}/subjects/${subject}/attendance/${date}/${studentId}`).set(status);
-}
+// ===== Check Auth =====
+auth.onAuthStateChanged(user => {
+  if(!user) location.href='index.html';
+});
