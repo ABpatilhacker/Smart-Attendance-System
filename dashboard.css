@@ -6,24 +6,19 @@
 }
 
 body {
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  color: #fff;
-  min-height: 100vh;
+  background: #f5f7fb;
+  color: #0f172a;
 }
+
 
 /* Top Bar */
 .topbar {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 15px 20px;
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .topbar h1 {
-  font-size: 18px;
-  font-weight: 600;
+  color: #0f172a;
 }
 
 .menu-btn {
@@ -36,17 +31,19 @@ body {
 
 /* Sidebar */
 .sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 280px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(18px);
-  padding: 20px;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease;
-  z-index: 1000;
+.sidebar {
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+}
+
+.sidebar nav button {
+  background: #ffffff;
+  color: #1e293b;
+  border: 1px solid #e5e7eb;
+}
+
+.sidebar nav button:hover {
+  background: #eef2ff;
 }
 
 .sidebar.open {
@@ -122,12 +119,10 @@ body {
 }
 
 .card {
-  background: rgba(255,255,255,0.12);
-  padding: 20px;
-  border-radius: 16px;
-  margin-bottom: 15px;
-}
-
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
 /* Desktop */
 @media (min-width: 769px) {
   .sidebar {
@@ -145,4 +140,12 @@ body {
   .menu-btn {
     display: none;
   }
+  }
+/* Primary button style */
+.primary {
+  background: #4f46e5;
+  color: #ffffff;
+}
+  .primary:hover {
+  background: #4338ca;
   }
