@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-
-  <!-- VERY IMPORTANT FOR MOBILE -->
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Smart Attendance System</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="login.css">
 
   <!-- Firebase -->
@@ -16,18 +12,38 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
-
 <body>
 
-  <div class="login-wrapper">
-    <h2>Smart Attendance System</h2>
+  <div class="auth-card">
+    <h2 id="form-title">Login</h2>
 
-    <input type="email" id="login-email" placeholder="Email">
-    <input type="password" id="login-password" placeholder="Password">
+    <!-- LOGIN FORM -->
+    <div id="login-form">
+      <input type="email" id="login-email" placeholder="Email">
+      <input type="password" id="login-password" placeholder="Password">
+      <button id="login-btn">Login</button>
+    </div>
 
-    <button id="login-btn">Login</button>
+    <!-- SIGNUP FORM -->
+    <div id="signup-form" class="hidden">
+      <input type="email" id="signup-email" placeholder="Email">
+      <input type="password" id="signup-password" placeholder="Password">
+
+      <select id="signup-role">
+        <option value="">Select Role</option>
+        <option value="admin">Admin</option>
+        <option value="teacher">Teacher</option>
+        <option value="student">Student</option>
+      </select>
+
+      <button id="signup-btn">Create Account</button>
+    </div>
 
     <p id="error-msg"></p>
+
+    <p class="toggle-text">
+      <span id="toggle-btn">Create an account</span>
+    </p>
   </div>
 
   <script src="login.js"></script>
