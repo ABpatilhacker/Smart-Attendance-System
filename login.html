@@ -1,42 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Attendance | Login / Sign Up</title>
-<link rel="stylesheet" href="login.css">
-
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script src="firebase.js"></script>
-<script defer src="login.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Attendance System - Login</title>
+  <link rel="stylesheet" href="login.css">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="firebase.js"></script>
+  <script defer src="login.js"></script>
 </head>
 <body>
 
-<div class="login-container">
-  <div class="card login-card">
-    <div class="logo">
-      <h1>📘 Smart Attendance</h1>
-    </div>
+<div class="login-wrapper">
 
+  <!-- LEFT SIDE INFO / IMAGE -->
+  <div class="login-info">
+    <h1>Smart Attendance System</h1>
+    <p>Track your attendance, manage teachers, students, and classes easily. Designed for schools and colleges, accessible on desktop and mobile.</p>
+    <img src="attendance-illustration.svg" alt="Attendance illustration">
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div class="login-form">
     <div class="tabs">
       <button id="login-tab" class="active-tab">Login</button>
       <button id="signup-tab">Sign Up</button>
     </div>
 
-    <!-- LOGIN BOX -->
     <div id="login-box" class="form-box">
-      <input type="email" id="login-email" placeholder="Email" />
-      <input type="password" id="login-password" placeholder="Password" />
+      <input type="email" id="login-email" placeholder="Email">
+      <input type="password" id="login-password" placeholder="Password">
       <button class="btn primary" id="login-btn">Login</button>
     </div>
 
-    <!-- SIGNUP BOX -->
     <div id="signup-box" class="form-box hidden">
-      <input type="text" id="signup-name" placeholder="Full Name" />
-      <input type="email" id="signup-email" placeholder="Email" />
-      <input type="password" id="signup-password" placeholder="Password" />
+      <input type="text" id="signup-name" placeholder="Full Name">
+      <input type="email" id="signup-email" placeholder="Email">
+      <input type="password" id="signup-password" placeholder="Password">
       <select id="signup-role">
         <option value="student">Student</option>
         <option value="teacher">Teacher</option>
@@ -47,24 +50,24 @@
 </div>
 
 <script>
-const loginTab = document.getElementById('login-tab');
-const signupTab = document.getElementById('signup-tab');
-const loginBox = document.getElementById('login-box');
-const signupBox = document.getElementById('signup-box');
+  const loginTab = document.getElementById('login-tab');
+  const signupTab = document.getElementById('signup-tab');
+  const loginBox = document.getElementById('login-box');
+  const signupBox = document.getElementById('signup-box');
 
-loginTab.addEventListener('click', () => {
-  loginTab.classList.add('active-tab');
-  signupTab.classList.remove('active-tab');
-  loginBox.classList.remove('hidden');
-  signupBox.classList.add('hidden');
-});
+  loginTab.addEventListener('click', () => {
+    loginTab.classList.add('active-tab');
+    signupTab.classList.remove('active-tab');
+    loginBox.classList.remove('hidden');
+    signupBox.classList.add('hidden');
+  });
 
-signupTab.addEventListener('click', () => {
-  signupTab.classList.add('active-tab');
-  loginTab.classList.remove('active-tab');
-  signupBox.classList.remove('hidden');
-  loginBox.classList.add('hidden');
-});
+  signupTab.addEventListener('click', () => {
+    signupTab.classList.add('active-tab');
+    loginTab.classList.remove('active-tab');
+    signupBox.classList.remove('hidden');
+    loginBox.classList.add('hidden');
+  });
 </script>
 
 </body>
