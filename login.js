@@ -1,8 +1,8 @@
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+console.log("login.js loaded");
 
+/* =======================
+   FIREBASE INITIALIZATION
+======================= */
 const firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
@@ -13,49 +13,100 @@ const firebaseConfig = {
   appId: "1:168700970246:web:392156387db81e92544a87"
 };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
+// Prevent re-initialization error
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
-  // 🔹 Login button
-  document.getElementById("login-btn").addEventListener("click", async () => {
-    const email = document.getElementById("login-email").value.trim();
-    const password = document.getElementById("login-password").value.trim();
+const auth = firebase.auth();
+const db = firebase.database();
 
-    if (!email || !password) {
-      alert("Please enter email and password");
-      return;
-    }
+/* =======================
+   DOM READY
+======================= */
+document.addEventListener("DOMContentLoaded", () => {
 
-    try {
-      // 🔹 Sign in
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const uid = userCredential.user.uid;
+  /* =======================
+     LOGIN
+  ======================= */
+  const loginBtn = document.getElementById("login-btn");
 
-      // 🔹 Get role from database
-      const userRef = ref(db, "users/" + uid);
-      const snapshot = await get(userRef);
+  if (loginBtn) {
+    loginBtn.addEventListener("click", () => {
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value.trim();
 
-      if (!snapshot.exists()) {
-        alert("User role not found in database");
+      if (!email || !password) {
+        alert("Please enter email and password");
         return;
       }
 
-      const role = snapshot.val().role;
+      auth.signInWithEmailAndPassword(email, password)
+        .then((cred) => {
+          const uid = cred.user.uid;
+          return db.ref("users/" + uid).once("value");
+        })
+        .then((snap) => {
+          if (!snap.exists()) {
+            alert("Role not assigned. Contact admin.");
+            auth.signOut();
+            return;
+          }
 
-      // 🔹 Redirect based on role
-      if (role === "admin") {
-        window.location.href = "admin.html";
-      } else if (role === "teacher") {
-        window.location.href = "teacher.html";
-      } else if (role === "student") {
-        window.location.href = "student.html";
-      } else {
-        alert("Invalid role");
+          const role = snap.val().role;
+
+          if (role === "admin") {
+            window.location.href = "admin.html";
+          } else if (role === "teacher") {
+            window.location.href = "teacher.html";
+          } else if (role === "student") {
+            window.location.href = "student.html";
+          } else {
+            alert("Invalid role");
+          }
+        })
+        .catch((err) => {
+          alert(err.message);
+        });
+    });
+  }
+
+  /* =======================
+     SIGN UP
+  ======================= */
+  const signupBtn = document.getElementById("signup-btn");
+
+  if (signupBtn) {
+    signupBtn.addEventListener("click", () => {
+      const name = document.getElementById("signup-name").value.trim();
+      const email = document.getElementById("signup-email").value.trim();
+      const password = document.getElementById("signup-password").value.trim();
+      const role = document.getElementById("signup-role").value;
+
+      if (!name || !email || !password) {
+        alert("Please fill all fields");
+        return;
       }
 
-    } catch (error) {
-      alert(error.message);
-    }
-  });
-</script>
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((cred) => {
+          const uid = cred.user.uid;
+
+          return db.ref("users/" + uid).set({
+            name: name,
+            email: email,
+            role: role,        // student / teacher
+            status: "active"   // you can change to "pending" later
+          });
+        })
+        .then(() => {
+          alert("Signup successful. You can login now.");
+          location.reload();
+        })
+        .catch((err) => {
+          alert(err.message);
+        });
+    });
+  }
+
+});
