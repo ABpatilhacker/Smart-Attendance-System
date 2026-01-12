@@ -1,3 +1,4 @@
+/* ===== Reset & Fonts ===== */
 * {
   margin: 0;
   padding: 0;
@@ -6,44 +7,50 @@
 }
 
 body {
-  background: #f5f7fb;
+  background: #f0f4f8;
   color: #0f172a;
 }
 
-
-/* Top Bar */
+/* ===== Topbar ===== */
 .topbar {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+  color: #ffffff;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  z-index: 1000;
 }
 
 .topbar h1 {
-  color: #0f172a;
+  font-size: 22px;
+  font-weight: 700;
 }
 
 .menu-btn {
-  font-size: 22px;
+  font-size: 24px;
   background: none;
   border: none;
-  color: white;
+  color: #ffffff;
   cursor: pointer;
 }
 
-/* Sidebar */
+/* ===== Sidebar ===== */
 .sidebar {
-.sidebar {
-  background: #ffffff;
-  border-right: 1px solid #e5e7eb;
-}
-
-.sidebar nav button {
-  background: #ffffff;
-  color: #1e293b;
-  border: 1px solid #e5e7eb;
-}
-
-.sidebar nav button:hover {
-  background: #eef2ff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100%;
+  background: #1e293b;
+  padding: 30px 20px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.1);
 }
 
 .sidebar.open {
@@ -53,7 +60,7 @@ body {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 30px;
 }
 
@@ -64,27 +71,38 @@ body {
 .logo span {
   font-size: 18px;
   font-weight: 700;
+  color: #ffffff;
 }
 
+/* Sidebar buttons */
 .sidebar nav button {
   width: 100%;
   padding: 14px;
   margin-bottom: 12px;
   border-radius: 12px;
   border: none;
-  background: rgba(255,255,255,0.15);
-  color: white;
+  background: rgba(255,255,255,0.05);
+  color: #ffffff;
   font-size: 15px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   transition: all 0.2s;
 }
 
 .sidebar nav button:hover {
-  background: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.15);
 }
 
-.sidebar .logout {
-  background: rgba(255,0,0,0.25);
+.sidebar nav button.logout {
+  margin-top: auto;
+  background: rgba(239,68,68,0.25);
+  color: #ef4444;
+}
+
+.sidebar nav button.logout:hover {
+  background: rgba(239,68,68,0.35);
 }
 
 /* Overlay */
@@ -103,14 +121,16 @@ body {
   pointer-events: all;
 }
 
-/* Main Content */
+/* ===== Main Content ===== */
 .main {
-  padding: 30px 20px;
+  padding: 30px 25px;
+  transition: margin-left 0.3s;
 }
 
 .main h2 {
-  font-size: 26px;
-  margin-bottom: 5px;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .subtitle {
@@ -118,34 +138,110 @@ body {
   margin-bottom: 25px;
 }
 
+/* ===== Dashboard Cards ===== */
 .card {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 25px 20px;
+  margin-bottom: 20px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-/* Desktop */
-@media (min-width: 769px) {
-  .sidebar {
-    transform: translateX(0);
-  }
+  transition: transform 0.2s;
+}
 
-  .overlay {
-    display: none;
-  }
+.card:hover {
+  transform: translateY(-5px);
+}
 
-  .main {
-    margin-left: 280px;
-  }
+.card h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .menu-btn {
-    display: none;
-  }
-  }
-/* Primary button style */
+.card p {
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+/* ===== Buttons ===== */
 .primary {
   background: #4f46e5;
   color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
 }
-  .primary:hover {
+
+.primary:hover {
   background: #4338ca;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 220px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .main {
+    margin-left: 0;
+  }
+
+  .menu-btn {
+    display: block;
+  }
+}
+
+/* ===== Table for Pending Approvals ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  background: #eef2ff;
+  font-weight: 600;
+}
+
+td button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+td button.approve {
+  background: #22c55e;
+  color: white;
+}
+
+td button.reject {
+  background: #ef4444;
+  color: white;
+}
+
+/* Smooth animations for sidebar & cards */
+@keyframes slideUp {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  animation: slideUp 0.5s ease forwards;
   }
