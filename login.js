@@ -10,40 +10,75 @@ const firebaseConfig = {
 };
 
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Login logic
-document.getElementById("login-btn").addEventListener("click", function () {
+// Elements
+const loginForm = document.getElementById("login-form");
+const signupForm = document.getElementById("signup-form");
+const toggleBtn = document.getElementById("toggle-btn");
+const title = document.getElementById("form-title");
+const errorMsg = document.getElementById("error-msg");
+
+let isLogin = true;
+
+// 🔁 TOGGLE FORM
+toggleBtn.addEventListener("click", () => {
+  isLogin = !isLogin;
+  loginForm.classList.toggle("hidden");
+  signupForm.classList.toggle("hidden");
+
+  title.innerText = isLogin ? "Login" : "Sign Up";
+  toggleBtn.innerText = isLogin ? "Create an account" : "Already have an account?";
+  errorMsg.innerText = "";
+});
+
+// 🔐 LOGIN
+document.getElementById("login-btn").addEventListener("click", () => {
   const email = document.getElementById("login-email").value;
   const password = document.getElementById("login-password").value;
-  const errorMsg = document.getElementById("error-msg");
 
   if (!email || !password) {
-    errorMsg.innerText = "Please enter email and password";
+    errorMsg.innerText = "Fill all fields";
     return;
   }
 
   firebase.auth().signInWithEmailAndPassword(email, password)
-    .then((cred) => {
-      const uid = cred.user.uid;
-
+    .then(res => {
+      const uid = res.user.uid;
       return firebase.database().ref("users/" + uid).once("value");
     })
-    .then((snapshot) => {
-      if (!snapshot.exists()) {
-        errorMsg.innerText = "User role not found";
-        return;
-      }
-
+    .then(snapshot => {
       const role = snapshot.val().role;
 
-      if (role === "admin") window.location.href = "admin.html";
-      else if (role === "teacher") window.location.href = "teacher.html";
-      else if (role === "student") window.location.href = "student.html";
+      if (role === "admin") location.href = "admin.html";
+      else if (role === "teacher") location.href = "teacher.html";
+      else if (role === "student") location.href = "student.html";
       else errorMsg.innerText = "Invalid role";
     })
-    .catch((error) => {
-      errorMsg.innerText = error.message;
-    });
+    .catch(err => errorMsg.innerText = err.message);
+});
+
+// 🆕 SIGNUP
+document.getElementById("signup-btn").addEventListener("click", () => {
+  const email = document.getElementById("signup-email").value;
+  const password = document.getElementById("signup-password").value;
+  const role = document.getElementById("signup-role").value;
+
+  if (!email || !password || !role) {
+    errorMsg.innerText = "Fill all fields";
+    return;
+  }
+
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(res => {
+      return firebase.database().ref("users/" + res.user.uid).set({
+        email: email,
+        role: role
+      });
+    })
+    .then(() => {
+      errorMsg.style.color = "#b2ffb2";
+      errorMsg.innerText = "Account created! Please login.";
+    })
+    .catch(err => errorMsg.innerText = err.message);
 });
