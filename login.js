@@ -10,27 +10,11 @@ const firebaseConfig = {
 };
 
 
+
 firebase.initializeApp(firebaseConfig);
 
-// Elements
-const loginForm = document.getElementById("login-form");
-const signupForm = document.getElementById("signup-form");
-const toggleBtn = document.getElementById("toggle-btn");
-const title = document.getElementById("form-title");
-const errorMsg = document.getElementById("error-msg");
-
-let isLogin = true;
-
-// 🔁 TOGGLE FORM
-toggleBtn.addEventListener("click", () => {
-  isLogin = !isLogin;
-  loginForm.classList.toggle("hidden");
-  signupForm.classList.toggle("hidden");
-
-  title.innerText = isLogin ? "Login" : "Sign Up";
-  toggleBtn.innerText = isLogin ? "Create an account" : "Already have an account?";
-  errorMsg.innerText = "";
-});
+const auth = firebase.auth();
+const db = firebase.database();
 
 // 🔐 LOGIN
 document.getElementById("login-btn").addEventListener("click", () => {
@@ -38,47 +22,40 @@ document.getElementById("login-btn").addEventListener("click", () => {
   const password = document.getElementById("login-password").value;
 
   if (!email || !password) {
-    errorMsg.innerText = "Fill all fields";
+    alert("Please fill all fields");
     return;
   }
 
-  firebase.auth().signInWithEmailAndPassword(email, password)
-    .then(res => {
-      const uid = res.user.uid;
-      return firebase.database().ref("users/" + uid).once("value");
-    })
-    .then(snapshot => {
-      const role = snapshot.val().role;
+  auth.signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const uid = userCredential.user.uid;
 
-      if (role === "admin") location.href = "admin.html";
-      else if (role === "teacher") location.href = "teacher.html";
-      else if (role === "student") location.href = "student.html";
-      else errorMsg.innerText = "Invalid role";
-    })
-    .catch(err => errorMsg.innerText = err.message);
-});
+      // 🔎 FETCH ROLE FROM DATABASE
+      db.ref("users/" + uid).once("value")
+        .then((snapshot) => {
+          const data = snapshot.val();
 
-// 🆕 SIGNUP
-document.getElementById("signup-btn").addEventListener("click", () => {
-  const email = document.getElementById("signup-email").value;
-  const password = document.getElementById("signup-password").value;
-  const role = document.getElementById("signup-role").value;
+          if (!data || !data.role) {
+            alert("Role not assigned!");
+            return;
+          }
 
-  if (!email || !password || !role) {
-    errorMsg.innerText = "Fill all fields";
-    return;
-  }
-
-  firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then(res => {
-      return firebase.database().ref("users/" + res.user.uid).set({
-        email: email,
-        role: role
-      });
+          // 🚀 ROLE BASED REDIRECT
+          if (data.role === "admin") {
+            window.location.href = "admin.html";
+          }
+          else if (data.role === "teacher") {
+            window.location.href = "teacher.html";
+          }
+          else if (data.role === "student") {
+            window.location.href = "student.html";
+          }
+          else {
+            alert("Invalid role");
+          }
+        });
     })
-    .then(() => {
-      errorMsg.style.color = "#b2ffb2";
-      errorMsg.innerText = "Account created! Please login.";
-    })
-    .catch(err => errorMsg.innerText = err.message);
+    .catch((error) => {
+      alert(error.message);
+    });
 });
