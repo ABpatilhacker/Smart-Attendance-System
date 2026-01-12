@@ -59,3 +59,30 @@ document.getElementById("login-btn").addEventListener("click", () => {
       alert(error.message);
     });
 });
+document.getElementById("signup-btn").addEventListener("click", () => {
+  const email = document.getElementById("signup-email").value;
+  const password = document.getElementById("signup-password").value;
+  const role = document.getElementById("signup-role").value;
+
+  if (!email || !password || !role) {
+    alert("Fill all fields");
+    return;
+  }
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const uid = userCredential.user.uid;
+
+      // 💾 SAVE ROLE IN DATABASE
+      db.ref("users/" + uid).set({
+        email: email,
+        role: role
+      });
+
+      alert("Account created successfully");
+      showLogin();
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+});
