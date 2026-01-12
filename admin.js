@@ -20,8 +20,46 @@ function logout() {
 function showDashboard() {
   document.getElementById("content").innerHTML = `
     <h2>Admin Dashboard</h2>
-    <p>Manage approvals, classes and teachers</p>
+    <p>System overview</p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Total Users</h3>
+        <p id="totalUsers">—</p>
+      </div>
+
+      <div class="card">
+        <h3>Pending Requests</h3>
+        <p id="pendingCount">—</p>
+      </div>
+
+      <div class="card">
+        <h3>Teachers</h3>
+        <p id="teacherCount">—</p>
+      </div>
+
+      <div class="card">
+        <h3>Students</h3>
+        <p id="studentCount">—</p>
+      </div>
+    </div>
   `;
+
+  db.ref("users").once("value").then(s => {
+    document.getElementById("totalUsers").innerText = s.numChildren();
+  });
+
+  db.ref("pendingUsers").once("value").then(s => {
+    document.getElementById("pendingCount").innerText = s.exists() ? s.numChildren() : 0;
+  });
+
+  db.ref("teachers").once("value").then(s => {
+    document.getElementById("teacherCount").innerText = s.exists() ? s.numChildren() : 0;
+  });
+
+  db.ref("students").once("value").then(s => {
+    document.getElementById("studentCount").innerText = s.exists() ? s.numChildren() : 0;
+  });
 }
 
 /* ===== PENDING APPROVAL ===== */
