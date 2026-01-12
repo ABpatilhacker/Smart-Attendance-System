@@ -9,80 +9,27 @@ const firebaseConfig = {
   appId: "1:168700970246:web:392156387db81e92544a87"
 };
 
+function login() {
+  const email = login-email.value.trim();
+  const password = login-password.value.trim();
 
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then(cred => {
+      const uid = cred.user.uid;
 
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.database();
-
-// 🔐 LOGIN
-document.getElementById("login-btn").addEventListener("click", () => {
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
-
-  if (!email || !password) {
-    alert("Please fill all fields");
-    return;
-  }
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      const uid = userCredential.user.uid;
-
-      // 🔎 FETCH ROLE FROM DATABASE
-      db.ref("users/" + uid).once("value")
-        .then((snapshot) => {
-          const data = snapshot.val();
-
-          if (!data || !data.role) {
-            alert("Role not assigned!");
+      firebase.database().ref("users/" + uid).once("value")
+        .then(snap => {
+          if (!snap.exists()) {
+            alert("Account not approved by admin");
             return;
           }
 
-          // 🚀 ROLE BASED REDIRECT
-          if (data.role === "admin") {
-            window.location.href = "admin.html";
-          }
-          else if (data.role === "teacher") {
-            window.location.href = "teacher.html";
-          }
-          else if (data.role === "student") {
-            window.location.href = "student.html";
-          }
-          else {
-            alert("Invalid role");
-          }
+          const role = snap.val().role;
+
+          if (role === "admin") location.href = "admin.html";
+          else if (role === "teacher") location.href = "teacher.html";
+          else location.href = "student.html";
         });
     })
-    .catch((error) => {
-      alert(error.message);
-    });
-});
-document.getElementById("signup-btn").addEventListener("click", () => {
-  const email = document.getElementById("signup-email").value;
-  const password = document.getElementById("signup-password").value;
-  const role = document.getElementById("signup-role").value;
-
-  if (!email || !password || !role) {
-    alert("Fill all fields");
-    return;
-  }
-
-  auth.createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      const uid = userCredential.user.uid;
-
-      // 💾 SAVE ROLE IN DATABASE
-      db.ref("users/" + uid).set({
-        email: email,
-        role: role
-      });
-
-      alert("Account created successfully");
-      showLogin();
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
-});
+    .catch(err => alert(err.message));
+}
