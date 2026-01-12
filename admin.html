@@ -1,48 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | Smart Attendance</title>
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- Dashboard CSS -->
+<link rel="stylesheet" href="dashboard.css">
 
-  <link rel="stylesheet" href="dashboard.css">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<!-- Admin JS -->
+<script defer src="admin.js"></script>
 </head>
+
 <body>
-
-  <!-- Top Bar -->
-  <header class="topbar">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <h1>Smart Attendance</h1>
-  </header>
-
   <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="logo">
-      <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" alt="logo">
-      <span>Admin Panel</span>
+      <img src="logo.png" alt="Logo">
+      <span>Smart Attendance</span>
     </div>
-
     <nav>
       <button onclick="handleMenu('dashboard')">📊 Dashboard</button>
       <button onclick="handleMenu('pending')">⏳ Pending Approvals</button>
-      <button onclick="handleMenu('classes')">🏫 Classes</button>
+      <button onclick="handleMenu('teachers')">👨‍🏫 Teachers</button>
+      <button onclick="handleMenu('classes')">🏫 Classes & Subjects</button>
       <button class="logout" onclick="logout()">🚪 Logout</button>
     </nav>
-  </aside>
+  </div>
+
+  <!-- Overlay for mobile toggle -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <h1>Admin Dashboard</h1>
+  </div>
 
   <!-- Main Content -->
-  <main id="content" class="main">
-    <h2>Welcome Admin 👋</h2>
-    <p class="subtitle">Use the sidebar to manage the system.</p>
-
-    <div id="view">
-      <!-- Dynamic content loads here -->
+  <div class="main" id="view">
+    <div class="card">
+      <h2>Welcome Admin 👋</h2>
+      <p>Select an option from the sidebar to manage teachers, students, and classes.</p>
     </div>
-  </main>
+  </div>
 
-  <script src="admin.js"></script>
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
+      authDomain: "smart-attendance-system-17e89.firebaseapp.com",
+      databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
+      projectId: "smart-attendance-system-17e89",
+      storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
+      messagingSenderId: "168700970246",
+      appId: "1:168700970246:web:392156387db81e92544a87"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
 </body>
 </html>
