@@ -108,3 +108,17 @@ function loadClasses() {
     });
   });
 }
+// Overlay
+const overlay = document.createElement("div");
+overlay.className = "overlay";
+document.body.appendChild(overlay);
+
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+  overlay.classList.toggle("show");
+}
+
+overlay.addEventListener("click", () => {
+  document.getElementById("sidebar").classList.remove("open");
+  overlay.classList.remove("show");
+});
