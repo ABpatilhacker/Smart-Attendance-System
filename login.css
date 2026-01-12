@@ -1,55 +1,77 @@
 * {
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: "Segoe UI", sans-serif;
 }
 
 body {
   margin: 0;
   height: 100vh;
-  background: linear-gradient(135deg, #5f6cff, #6a11cb);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.login-wrapper {
-  background: white;
-  padding: 25px;
+.auth-card {
   width: 90%;
-  max-width: 350px;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  max-width: 360px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
   text-align: center;
+  color: #fff;
 }
 
-.login-wrapper h2 {
+.auth-card h2 {
   margin-bottom: 20px;
 }
 
-.login-wrapper input {
+.auth-card input,
+.auth-card select {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin: 10px 0;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border-radius: 8px;
+  border: none;
+  outline: none;
 }
 
-.login-wrapper button {
+.auth-card button {
   width: 100%;
-  padding: 10px;
-  background: #5f6cff;
-  color: white;
+  padding: 12px;
+  margin-top: 10px;
+  background: #00e0ff;
+  color: #000;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-.login-wrapper button:hover {
-  background: #4b55d4;
+.auth-card button:hover {
+  background: #00bcd4;
+}
+
+.toggle-text {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.toggle-text span {
+  color: #00e0ff;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
 }
 
 #error-msg {
-  color: red;
+  color: #ffb3b3;
   margin-top: 10px;
+  font-size: 14px;
 }
