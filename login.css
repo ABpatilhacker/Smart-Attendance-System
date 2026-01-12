@@ -1,25 +1,123 @@
+/* ===== BODY & BACKGROUND ===== */
+body.auth-bg {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+}
+
+/* ===== LOGIN CARD ===== */
+.auth-card {
+  background: white;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 16px;
+  padding: 40px 30px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+  text-align: center;
+  animation: fadeInUp 0.7s ease forwards;
+}
+
+/* ===== HEADINGS ===== */
 .auth-card h2 {
-  font-size: 26px;
-  margin-bottom: 5px;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #111827;
 }
 
-.sub-text {
-  color: #666;
-  margin-bottom: 20px;
+.auth-card .sub-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 25px;
 }
 
+/* ===== INPUTS ===== */
 .auth-card input {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  outline: none;
   font-size: 15px;
+  transition: all 0.3s ease;
 }
 
+.auth-card input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 5px rgba(79, 70, 229, 0.3);
+}
+
+/* ===== BUTTONS ===== */
 .auth-card .btn {
   width: 100%;
-  margin-top: 10px;
+  padding: 12px 15px;
+  margin-top: 15px;
+  border-radius: 10px;
   font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.link-text a {
+.auth-card .btn.primary {
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+  color: white;
+  box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+}
+
+.auth-card .btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+}
+
+/* ===== SIGNUP LINK ===== */
+.auth-card .link-text {
+  margin-top: 18px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.auth-card .link-text a {
   color: #4f46e5;
   font-weight: 600;
   text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.auth-card .link-text a:hover {
+  text-decoration: underline;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width: 480px) {
+  .auth-card {
+    padding: 30px 20px;
+  }
+
+  .auth-card h2 {
+    font-size: 24px;
+  }
+
+  .auth-card .btn {
+    font-size: 15px;
+  }
 }
