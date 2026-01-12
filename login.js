@@ -1,68 +1,63 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const loginBtn = document.getElementById("login-btn");
-  const msg = document.getElementById("login-msg");
+console.log("login.js loaded");
 
-  loginBtn.addEventListener("click", () => {
-    const email = document.getElementById("login-email").value.trim();
-    const password = document.getElementById("login-password").value.trim();
+const auth = firebase.auth();
+const db = firebase.database();
 
-    if (!email || !password) {
-      msg.innerText = "❌ Please enter email and password";
-      msg.style.color = "red";
-      return;
-    }
+document.getElementById("login-btn").addEventListener("click", () => {
+  const email = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value.trim();
 
-    msg.innerText = "⏳ Logging in...";
-    msg.style.color = "black";
+  if (!email || !password) {
+    alert("Please enter email and password");
+    return;
+  }
 
-    firebase.auth().signInWithEmailAndPassword(email, password)
-      .then((userCred) => {
-        const uid = userCred.user.uid;
+  auth.signInWithEmailAndPassword(email, password)
+    .then((cred) => {
+      const uid = cred.user.uid;
 
-        // Get role from database
-        firebase.database().ref("users/" + uid).once("value")
-          .then((snapshot) => {
-            if (!snapshot.exists()) {
-              msg.innerText = "❌ Account not found. Please sign up.";
-              msg.style.color = "red";
-              firebase.auth().signOut();
-              return;
-            }
+      return db.ref("users/" + uid).once("value");
+    })
+    .then((snapshot) => {
 
-            const data = snapshot.val();
-            const role = data.role;
+      if (!snapshot.exists()) {
+        alert("User record not found. Contact admin.");
+        auth.signOut();
+        return;
+      }
 
-            if (!role) {
-              msg.innerText = "❌ Role not assigned. Contact admin.";
-              msg.style.color = "red";
-              return;
-            }
+      const user = snapshot.val();
 
-            // Redirect based on role
-            if (role === "admin") {
-              window.location.href = "admin.html";
-            } 
-            else if (role === "teacher") {
-              window.location.href = "teacher.html";
-            } 
-            else if (role === "student") {
-              window.location.href = "student.html";
-            } 
-            else {
-              msg.innerText = "❌ Invalid role assigned";
-              msg.style.color = "red";
-            }
-          });
-      })
-      .catch((error) => {
-        if (error.code === "auth/user-not-found") {
-          msg.innerText = "❌ User not found. Please sign up.";
-        } else if (error.code === "auth/wrong-password") {
-          msg.innerText = "❌ Incorrect password";
-        } else {
-          msg.innerText = "❌ " + error.message;
-        }
-        msg.style.color = "red";
-      });
-  });
+      // 🔴 CHECK ADMIN APPROVAL
+      if (user.status !== "approved") {
+        alert("Your account is not approved by admin yet.");
+        auth.signOut();
+        return;
+      }
+
+      // ✅ ROLE BASED REDIRECT
+      if (user.role === "admin") {
+        window.location.href = "admin.html";
+      }
+      else if (user.role === "teacher") {
+        window.location.href = "teacher.html";
+      }
+      else if (user.role === "student") {
+        window.location.href = "student.html";
+      }
+      else {
+        alert("Invalid role assigned.");
+        auth.signOut();
+      }
+
+    })
+    .catch((error) => {
+      if (error.code === "auth/user-not-found") {
+        alert("User not found. Please Sign Up first.");
+      } else if (error.code === "auth/wrong-password") {
+        alert("Wrong password");
+      } else {
+        alert(error.message);
+      }
+    });
 });
