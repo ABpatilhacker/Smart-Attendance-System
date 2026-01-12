@@ -2,77 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login | Smart Attendance System</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <!-- Firebase Config -->
+  <script src="firebase.js"></script>
+
+  <!-- Login JS -->
+  <script defer src="login.js"></script>
 </head>
-
 <body>
 
   <div class="login-container">
-    <div class="logo-box">
-  <div class="logo-circle">📚</div>
-  <h1>Smart Attendance</h1>
-  <p class="subtitle">Manage attendance smartly & easily</p>
-    </div>
-    <!-- Tabs -->
-    <div class="tabs">
-      <button id="login-tab" class="active-tab">Login</button>
-      <button id="signup-tab">Sign Up</button>
-    </div>
+    <h2>Smart Attendance System</h2>
+    <p class="subtitle">Login to continue</p>
 
-    <!-- LOGIN BOX -->
-    <div id="login-box" class="form-box">
+    <div class="form-box">
       <input type="email" id="login-email" placeholder="Email" />
       <input type="password" id="login-password" placeholder="Password" />
-      <button class="btn primary" id="login-btn">Login</button>
-    </div>
-
-    <!-- SIGNUP BOX -->
-    <div id="signup-box" class="form-box hidden">
-      <input type="text" id="signup-name" placeholder="Full Name" />
-      <input type="email" id="signup-email" placeholder="Email" />
-      <input type="password" id="signup-password" placeholder="Password" />
-
-      <select id="signup-role">
-        <option value="student">Student</option>
-        <option value="teacher">Teacher</option>
-      </select>
-
-      <button class="btn primary" id="signup-btn">Sign Up</button>
-      <p class="note">⏳ Account will be activated after admin approval</p>
+      <button id="login-btn">Login</button>
+      <p id="login-msg"></p>
     </div>
   </div>
 
-  <!-- TAB SWITCH SCRIPT -->
-  <script>
-    const loginTab = document.getElementById("login-tab");
-    const signupTab = document.getElementById("signup-tab");
-    const loginBox = document.getElementById("login-box");
-    const signupBox = document.getElementById("signup-box");
-
-    loginTab.onclick = () => {
-      loginTab.classList.add("active-tab");
-      signupTab.classList.remove("active-tab");
-      loginBox.classList.remove("hidden");
-      signupBox.classList.add("hidden");
-    };
-
-    signupTab.onclick = () => {
-      signupTab.classList.add("active-tab");
-      loginTab.classList.remove("active-tab");
-      signupBox.classList.remove("hidden");
-      loginBox.classList.add("hidden");
-    };
-  </script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-<script src="firebase.js"></script>
-<script src="login.js"></script>
 </body>
 </html>
