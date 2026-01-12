@@ -1,81 +1,104 @@
-/* Reset & fonts */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-body { background: linear-gradient(135deg,#6366f1,#4f46e5); min-height:100vh; display:flex; justify-content:center; align-items:center; }
+/* RESET & BASIC */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Arial, sans-serif; }
+body { min-height:100vh; background: linear-gradient(135deg,#4f46e5,#6366f1); color:#1f2937; display:flex; align-items:center; justify-content:center; }
 
-/* Wrapper */
-.login-wrapper { width: 100%; max-width: 400px; margin: 20px; }
-
-/* Card */
-.login-card {
-  background: #ffffff;
-  border-radius: 20px;
-  padding: 30px 25px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.1);
-  text-align: center;
-  animation: fadeIn 0.8s ease;
-}
-
-/* Logo */
-.login-card .logo img { width: 70px; margin-bottom: 15px; }
-.login-card .logo h1 { color:#4f46e5; margin-bottom: 20px; font-size:1.8rem; }
-
-/* Tabs */
-.tabs {
+/* LOGIN WRAPPER */
+.login-wrapper {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
+  max-width: 900px;
+  width: 90%;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
 }
+
+/* LEFT INFO / IMAGE */
+.login-info {
+  flex:1;
+  background: linear-gradient(135deg,#6366f1,#4f46e5);
+  color:white;
+  padding: 50px 30px;
+  display:flex;
+  flex-direction: column;
+  justify-content:center;
+  text-align:center;
+}
+
+.login-info h1 { font-size:2.2rem; margin-bottom:10px; }
+.login-info p { font-size:1rem; margin-bottom:30px; line-height:1.5; }
+.login-info img { width:80%; margin:auto; }
+
+/* LOGIN FORM */
+.login-form {
+  flex:1;
+  padding: 50px 30px;
+  display:flex;
+  flex-direction: column;
+  justify-content:center;
+  background:#f9fafb;
+}
+
+.tabs {
+  display:flex;
+  gap:15px;
+  justify-content:center;
+  margin-bottom:30px;
+}
+
 .tabs button {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  background: #e5e7eb;
-  color: #4b5563;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  padding:10px 25px;
+  border:none;
+  background:#e5e7eb;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+  transition:0.3s;
 }
+
 .tabs button.active-tab {
-  background: #4f46e5;
-  color: white;
-  box-shadow: 0 5px 15px rgba(79,70,229,0.4);
+  background: linear-gradient(90deg,#4f46e5,#6366f1);
+  color:white;
 }
 
-/* Forms */
-.form-box { display: flex; flex-direction: column; gap: 15px; }
-.form-box.hidden { display: none; }
-.form-box input, .form-box select {
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  outline: none;
-  font-size: 14px;
-  transition: 0.3s;
+.form-box {
+  display:flex;
+  flex-direction: column;
+  gap:15px;
 }
-.form-box input:focus, .form-box select:focus { border-color: #6366f1; }
 
-/* Buttons */
-.btn {
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
+.hidden { display:none; }
+
+input, select {
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #d1d5db;
+  outline:none;
+  font-size:1rem;
 }
+
+input:focus, select:focus { border-color:#4f46e5; }
+
 .btn.primary {
-  background: #4f46e5;
-  color: white;
+  padding:12px;
+  background: linear-gradient(90deg,#4f46e5,#6366f1);
+  color:white;
+  font-weight:600;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.3s;
 }
-.btn.primary:hover { background: #6366f1; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(79,70,229,0.3); }
 
-/* Animations */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
 
-/* Responsive */
-@media(max-width: 480px){
-  .login-card { padding: 25px 20px; border-radius: 15px; }
-  .login-card .logo h1 { font-size: 1.6rem; }
+/* RESPONSIVE */
+@media(max-width:768px) {
+  .login-wrapper { flex-direction: column; width:95%; }
+  .login-info { padding:30px; }
+  .login-form { padding:30px; }
+  .login-info img { width:60%; }
 }
