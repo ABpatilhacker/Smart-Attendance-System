@@ -156,3 +156,13 @@ input {
   border: none;
   margin: 10px 0;
 }
+@media (max-width: 768px) {
+  .main {
+    padding-left: 20px;
+  }
+
+  .sidebar {
+    width: 85%;
+    max-width: 300px;
+  }
+}
