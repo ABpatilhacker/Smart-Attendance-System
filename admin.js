@@ -1,147 +1,110 @@
 const auth = firebase.auth();
-const database = firebase.database();
+const db = firebase.database();
 
+/* ===== AUTH CHECK ===== */
+auth.onAuthStateChanged(user => {
+  if (!user) location.href = "login.html";
+});
+
+/* ===== SIDEBAR ===== */
 function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("open");
 }
 
+/* ===== LOGOUT ===== */
 function logout() {
-  auth.signOut().then(() => location.href = "index.html");
+  auth.signOut().then(() => location.href = "login.html");
 }
 
-/* ================= DASHBOARD ================= */
+/* ===== DASHBOARD ===== */
 function showDashboard() {
   document.getElementById("content").innerHTML = `
     <h2>Admin Dashboard</h2>
-    <p>Manage teachers, students, classes & subjects</p>
+    <p>Manage approvals, classes and teachers</p>
   `;
 }
 
-/* ================= TEACHERS ================= */
-function showTeachers() {
-  document.getElementById("content").innerHTML = `
-    <h2>Teachers</h2>
-    <input id="tname" placeholder="Teacher Name">
-    <input id="temail" placeholder="Email">
-    <button class="btn primary" onclick="addTeacher()">Add Teacher</button>
-    <ul id="teacherList"></ul>
-  `;
-  loadTeachers();
-}
+/* ===== PENDING APPROVAL ===== */
+function showPending() {
+  const content = document.getElementById("content");
+  content.innerHTML = `<h2>Pending Users</h2><ul id="pendingList"></ul>`;
 
-function addTeacher() {
-  const name = tname.value.trim();
-  const email = temail.value.trim();
-  if (!name || !email) return alert("Fill all fields");
-
-  const id = database.ref("teachers").push().key;
-
-  database.ref("teachers/" + id).set({
-    name,
-    email,
-    classes: {}
-  });
-
-  alert("Teacher Added");
-  loadTeachers();
-}
-
-function loadTeachers() {
-  const list = document.getElementById("teacherList");
-  if (!list) return;
+  const list = document.getElementById("pendingList");
   list.innerHTML = "";
 
-  database.ref("teachers").once("value", snap => {
-    snap.forEach(t => {
+  db.ref("pendingUsers").once("value").then(snap => {
+    if (!snap.exists()) {
+      list.innerHTML = "<li>No pending users</li>";
+      return;
+    }
+
+    snap.forEach(child => {
+      const u = child.val();
+      const uid = child.key;
+
       const li = document.createElement("li");
-      li.textContent = t.val().name + " (" + t.val().email + ")";
+      li.innerHTML = `
+        ${u.name} (${u.role})
+        <button onclick="approveUser('${uid}')">Approve</button>
+      `;
       list.appendChild(li);
     });
   });
 }
 
-/* ================= STUDENTS ================= */
-function showStudents() {
-  document.getElementById("content").innerHTML = `
-    <h2>Students</h2>
-    <input id="sname" placeholder="Student Name">
-    <input id="sroll" placeholder="Roll Number">
-    <input id="sclass" placeholder="Class">
-    <button class="btn primary" onclick="addStudent()">Add Student</button>
-    <ul id="studentList"></ul>
-  `;
-  loadStudents();
-}
+function approveUser(uid) {
+  db.ref("pendingUsers/" + uid).once("value").then(snap => {
+    const user = snap.val();
 
-function addStudent() {
-  const name = sname.value.trim();
-  const roll = sroll.value.trim();
-  const cls = sclass.value.trim();
-  if (!name || !roll || !cls) return alert("Fill all fields");
-
-  const id = database.ref("students").push().key;
-
-  database.ref("students/" + id).set({
-    name,
-    roll,
-    class: cls,
-    attendance: {}
-  });
-
-  alert("Student Added");
-  loadStudents();
-}
-
-function loadStudents() {
-  const list = document.getElementById("studentList");
-  if (!list) return;
-  list.innerHTML = "";
-
-  database.ref("students").once("value", snap => {
-    snap.forEach(s => {
-      const li = document.createElement("li");
-      li.textContent = s.val().name + " (" + s.val().class + ")";
-      list.appendChild(li);
+    db.ref("users/" + uid).set({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      approved: true
     });
+
+    if (user.role === "teacher") {
+      db.ref("teachers/" + uid).set({ name: user.name });
+    }
+
+    if (user.role === "student") {
+      db.ref("students/" + uid).set({ name: user.name });
+    }
+
+    db.ref("pendingUsers/" + uid).remove();
+    alert("User approved");
+    showPending();
   });
 }
 
-/* ================= CLASSES ================= */
+/* ===== CLASSES ===== */
 function showClasses() {
   document.getElementById("content").innerHTML = `
-    <h2>Assign Class & Subject</h2>
-    <input id="classname" placeholder="Class">
-    <input id="subjectname" placeholder="Subject">
-    <select id="teacherSelect"></select>
-    <button class="btn primary" onclick="assignClass()">Assign</button>
+    <h2>Classes</h2>
+    <input id="className" placeholder="Class Name">
+    <button onclick="addClass()">Add Class</button>
+    <ul id="classList"></ul>
   `;
-  loadTeacherDropdown();
+  loadClasses();
 }
 
-function loadTeacherDropdown() {
-  const select = document.getElementById("teacherSelect");
-  select.innerHTML = "<option value=''>Select Teacher</option>";
+function addClass() {
+  const name = document.getElementById("className").value;
+  if (!name) return alert("Enter class name");
 
-  database.ref("teachers").once("value", snap => {
-    snap.forEach(t => {
-      const opt = document.createElement("option");
-      opt.value = t.key;
-      opt.textContent = t.val().name;
-      select.appendChild(opt);
+  db.ref("classes/" + name).set({ subjects: {} });
+  loadClasses();
+}
+
+function loadClasses() {
+  const list = document.getElementById("classList");
+  list.innerHTML = "";
+
+  db.ref("classes").once("value").then(snap => {
+    snap.forEach(c => {
+      const li = document.createElement("li");
+      li.textContent = c.key;
+      list.appendChild(li);
     });
   });
-}
-
-function assignClass() {
-  const cls = classname.value.trim();
-  const subject = subjectname.value.trim();
-  const teacherId = teacherSelect.value;
-
-  if (!cls || !subject || !teacherId) return alert("Fill all fields");
-
-  database.ref(`teachers/${teacherId}/classes/${cls}`).set({
-    subject
-  });
-
-  alert("Class Assigned");
 }
