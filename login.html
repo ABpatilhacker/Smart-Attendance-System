@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
+<title>Login | Smart Attendance</title>
 
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="login.css">
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
@@ -17,7 +18,8 @@
 <body class="auth-bg">
 
 <div class="auth-card">
-  <h2>Login</h2>
+  <h2>Welcome Back 👋</h2>
+  <p class="sub-text">Login to continue</p>
 
   <input type="email" id="login-email" placeholder="Email">
   <input type="password" id="login-password" placeholder="Password">
@@ -25,8 +27,8 @@
   <button class="btn primary" onclick="login()">Login</button>
 
   <p class="link-text">
-    Don’t have an account?
-    <a href="signup.html">Sign Up</a>
+    New here?
+    <a href="signup.html">Create account</a>
   </p>
 </div>
 
