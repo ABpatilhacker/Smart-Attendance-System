@@ -1,35 +1,87 @@
-// 🔥 Firebase Config (PUT YOUR REAL CONFIG HERE)
-const firebaseConfig = {
-  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-  projectId: "smart-attendance-system-17e89",
-  storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
-  messagingSenderId: "168700970246",
-  appId: "1:168700970246:web:392156387db81e92544a87"
-};
+console.log("login.js loaded");
 
-function login() {
-  const email = login-email.value.trim();
-  const password = login-password.value.trim();
+// ====== Firebase references ======
+const auth = firebase.auth();
+const database = firebase.database();
 
-  firebase.auth().signInWithEmailAndPassword(email, password)
-    .then(cred => {
+// ===== LOGIN =====
+document.getElementById("login-btn").addEventListener("click", () => {
+  const email = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value.trim();
+
+  if (!email || !password) {
+    alert("Please enter email and password");
+    return;
+  }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then((cred) => {
       const uid = cred.user.uid;
 
-      firebase.database().ref("users/" + uid).once("value")
-        .then(snap => {
+      // Check user role and approval
+      database.ref("users/" + uid).once("value")
+        .then((snap) => {
           if (!snap.exists()) {
-            alert("Account not approved by admin");
+            alert("User not found. Please Sign Up first.");
             return;
           }
 
-          const role = snap.val().role;
+          const userData = snap.val();
 
+          if (userData.status && userData.status === "pending") {
+            alert("Your account is pending admin approval. Please wait.");
+            auth.signOut();
+            return;
+          }
+
+          // Redirect based on role
+          const role = userData.role;
           if (role === "admin") location.href = "admin.html";
           else if (role === "teacher") location.href = "teacher.html";
-          else location.href = "student.html";
+          else if (role === "student") location.href = "student.html";
+          else alert("Invalid role. Contact admin.");
         });
     })
-    .catch(err => alert(err.message));
-}
+    .catch((err) => {
+      if (err.code === "auth/user-not-found") {
+        alert("User not found. Please Sign Up first.");
+      } else {
+        alert(err.message);
+      }
+    });
+});
+
+// ===== SIGN UP =====
+document.getElementById("signup-btn").addEventListener("click", () => {
+  const name = document.getElementById("signup-name").value.trim();
+  const email = document.getElementById("signup-email").value.trim();
+  const password = document.getElementById("signup-password").value.trim();
+  const role = document.getElementById("signup-role").value;
+
+  if (!name || !email || !password) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  // Create user in Firebase Authentication
+  auth.createUserWithEmailAndPassword(email, password)
+    .then((cred) => {
+      const uid = cred.user.uid;
+
+      // Save user data in Realtime Database with pending status
+      database.ref("users/" + uid).set({
+        name: name,
+        email: email,
+        role: role,
+        status: "pending" // Admin approval
+      });
+
+      alert("Sign Up successful! Wait for admin approval before login.");
+      
+      // Switch back to login tab
+      document.getElementById('login-tab').click();
+    })
+    .catch((err) => {
+      alert(err.message);
+    });
+});
