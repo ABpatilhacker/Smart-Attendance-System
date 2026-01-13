@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="dashboard.css" />
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+
+<body>
+
+<!-- Overlay -->
+<div id="overlay" class="overlay" onclick="closeSidebar()"></div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <h1>Smart Attendance – Admin</h1>
+</div>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="sidebar">
+  <div class="logo">
+    <span>📘 Smart Attendance</span>
+  </div>
+
+  <nav>
+    <button onclick="handleMenu('dashboard')">📊 Dashboard</button>
+    <button onclick="handleMenu('pending')">⏳ Pending Approvals</button>
+    <button onclick="handleMenu('classes')">🏫 Classes</button>
+    <button class="logout" onclick="logout()">🚪 Logout</button>
+  </nav>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div id="view"></div>
+</main>
+
+<!-- JS -->
+<script src="admin.js"></script>
+</body>
+</html>
