@@ -1,90 +1,122 @@
-// Sidebar logic
 function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("open");
-  document.getElementById("overlay").classList.toggle("show");
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
 }
 
 function closeSidebar() {
-  document.getElementById("sidebar").classList.remove("open");
-  document.getElementById("overlay").classList.remove("show");
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
 }
 
-// Menu handler
 function handleMenu(type) {
   closeSidebar();
 
   if (type === "dashboard") showDashboard();
   if (type === "pending") showPending();
   if (type === "classes") showClasses();
+  if (type === "teachers") showTeachers();
+  if (type === "students") showStudents();
+  if (type === "assign") showAssign();
 }
 
-// Dashboard view
+/* DASHBOARD */
 function showDashboard() {
-  document.getElementById("view").innerHTML = `
+  view.innerHTML = `
     <h2>📊 Dashboard</h2>
-    <p class="subtitle">System overview</p>
-
     <div class="stats-grid">
-      <div class="stat-card">
-        <h3>Total Teachers</h3>
-        <p>12</p>
-      </div>
-      <div class="stat-card">
-        <h3>Total Students</h3>
-        <p>240</p>
-      </div>
-      <div class="stat-card">
-        <h3>Classes</h3>
-        <p>8</p>
-      </div>
-      <div class="stat-card">
-        <h3>Pending Approvals</h3>
-        <p>3</p>
-      </div>
+      <div class="stat-card"><h3>Teachers</h3><p>12</p></div>
+      <div class="stat-card"><h3>Students</h3><p>240</p></div>
+      <div class="stat-card"><h3>Classes</h3><p>8</p></div>
+      <div class="stat-card"><h3>Pending</h3><p>3</p></div>
     </div>
   `;
 }
 
-// Pending approvals
+/* PENDING */
 function showPending() {
-  document.getElementById("view").innerHTML = `
+  view.innerHTML = `
     <h2>⏳ Pending Approvals</h2>
-
     <div class="card">
-      <b>teacher1@gmail.com</b> (Teacher)
-      <br><br>
-      <button class="primary">Approve</button>
-    </div>
-
-    <div class="card">
-      <b>student1@gmail.com</b> (Student)
-      <br><br>
+      teacher@gmail.com <br><br>
       <button class="primary">Approve</button>
     </div>
   `;
 }
 
-// Classes
+/* CLASSES */
 function showClasses() {
-  document.getElementById("view").innerHTML = `
+  view.innerHTML = `
     <h2>🏫 Classes</h2>
+    <div class="card">
+      BCA FY<br>BCA SY<br>BCA TY<br>BSc CS
+    </div>
+  `;
+}
+
+/* TEACHERS */
+function showTeachers() {
+  view.innerHTML = `
+    <h2>👨‍🏫 Teachers</h2>
 
     <div class="card">
+      <b>Add Teacher</b><br><br>
+      <input placeholder="Teacher Name"><br><br>
+      <input placeholder="Email"><br><br>
+      <button class="primary">Add</button>
+    </div>
+
+    <div class="card">
+      <b>Teachers List</b>
       <ul>
-        <li>BCA FY</li>
-        <li>BCA SY</li>
-        <li>BCA TY</li>
-        <li>BSc CS FY</li>
+        <li>Mr. Sharma</li>
+        <li>Ms. Patil</li>
       </ul>
     </div>
   `;
 }
 
-// Logout
-function logout() {
-  alert("Logged out successfully");
-  window.location.href = "login.html";
+/* STUDENTS */
+function showStudents() {
+  view.innerHTML = `
+    <h2>👨‍🎓 Students</h2>
+
+    <div class="card">
+      <b>Students List</b>
+      <ul>
+        <li>Rahul (BCA FY)</li>
+        <li>Aditi (BCA SY)</li>
+      </ul>
+    </div>
+  `;
 }
 
-// Load default view
+/* ASSIGN CLASSES */
+function showAssign() {
+  view.innerHTML = `
+    <h2>🏫 Assign Classes</h2>
+
+    <div class="card">
+      <select>
+        <option>Select Teacher</option>
+        <option>Mr. Sharma</option>
+        <option>Ms. Patil</option>
+      </select><br><br>
+
+      <select>
+        <option>Select Class</option>
+        <option>BCA FY</option>
+        <option>BCA SY</option>
+      </select><br><br>
+
+      <button class="primary">Assign</button>
+    </div>
+  `;
+}
+
+/* LOGOUT */
+function logout() {
+  alert("Logged out");
+  location.href = "login.html";
+}
+
 showDashboard();
