@@ -1,6 +1,10 @@
+if (!window.firebase) {
+  alert("Firebase not loaded");
+}
 // Firebase
-const auth = firebase.auth();
-const database = firebase.database();
+// USE THESE (from firebase.js)
+const auth = window.auth;
+const db = window.db;
 
 // Overlay & Sidebar toggle
 const overlay = document.querySelector(".overlay");
