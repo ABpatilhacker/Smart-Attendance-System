@@ -39,22 +39,59 @@ function logout() {
 
 // Dashboard view
 function showDashboard() {
-  document.getElementById("view").innerHTML = `
-    <div class="cards">
-      <div class="card">
-        <h2>📊 Total Teachers</h2>
-        <p id="total-teachers">0</p>
+  const view = document.getElementById("view");
+  view.innerHTML = `
+    <h2>📊 Dashboard Overview</h2>
+    <div class="cards-container">
+      <div class="card card-purple">
+        <div class="card-icon">👨‍🏫</div>
+        <div class="card-info">
+          <h3 id="total-teachers">0</h3>
+          <p>Teachers</p>
+        </div>
       </div>
-      <div class="card">
-        <h2>👨‍🎓 Total Students</h2>
-        <p id="total-students">0</p>
+      <div class="card card-blue">
+        <div class="card-icon">🧑‍🎓</div>
+        <div class="card-info">
+          <h3 id="total-students">0</h3>
+          <p>Students</p>
+        </div>
       </div>
-      <div class="card">
-        <h2>🏫 Total Classes</h2>
-        <p id="total-classes">0</p>
+      <div class="card card-orange">
+        <div class="card-icon">⏳</div>
+        <div class="card-info">
+          <h3 id="total-pending">0</h3>
+          <p>Pending Approvals</p>
+        </div>
+      </div>
+      <div class="card card-green">
+        <div class="card-icon">🏫</div>
+        <div class="card-info">
+          <h3 id="total-classes">0</h3>
+          <p>Classes</p>
+        </div>
       </div>
     </div>
   `;
+
+  // Load data from Firebase
+  db.ref("users").once("value").then((snap) => {
+    let teachers = 0, students = 0, pending = 0;
+    snap.forEach((u) => {
+      const user = u.val();
+      if (user.role === "teacher") teachers++;
+      if (user.role === "student") students++;
+      if (user.status === "pending") pending++;
+    });
+    document.getElementById("total-teachers").textContent = teachers;
+    document.getElementById("total-students").textContent = students;
+    document.getElementById("total-pending").textContent = pending;
+  });
+
+  db.ref("classes").once("value").then((snap) => {
+    document.getElementById("total-classes").textContent = snap.numChildren();
+  });
+}
 
   // Fetch counts from Firebase
   database.ref("teachers").once("value").then(snap=>{
