@@ -70,29 +70,33 @@ function showDashboard() {
 
 // Pending approvals
 function showPending() {
-  document.getElementById("view").innerHTML = `<div class="activity"><h3>⏳ Pending Approvals</h3><ul id="pending-list"></ul></div>`;
+function showPending() {
+  const view = document.getElementById("view");
+  view.innerHTML = `<h2>Pending Approvals</h2><ul id="pending-list"></ul>`;
+
   const list = document.getElementById("pending-list");
 
-  database.ref("pending").once("value").then(snap=>{
-    list.innerHTML = '';
-    snap.forEach(user=>{
-      const li = document.createElement("li");
-      li.textContent = `${user.val().name} (${user.val().role}) `;
-      const approveBtn = document.createElement("button");
-      approveBtn.classList.add("primary");
-      approveBtn.textContent = "Approve";
-      approveBtn.onclick = ()=>{
-        database.ref("users/"+user.key).set(user.val());
-        database.ref("pending/"+user.key).remove();
-        alert("User approved!");
-        showPending();
-      };
-      li.appendChild(approveBtn);
-      list.appendChild(li);
+  db.ref("users").once("value").then((snap) => {
+    list.innerHTML = "";
+    snap.forEach((u) => {
+      const user = u.val();
+      if (user.status === "pending") {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${user.name}</strong> (${user.role})
+          <button onclick="approveUser('${u.key}')">Approve</button>
+        `;
+        list.appendChild(li);
+      }
     });
   });
 }
 
+function approveUser(uid) {
+  db.ref("users/" + uid + "/status").set("approved");
+  alert("User approved");
+  showPending();
+}
 // Teachers view
 function showTeachers() {
   document.getElementById("view").innerHTML = `
