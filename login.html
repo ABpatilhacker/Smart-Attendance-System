@@ -2,49 +2,91 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - Smart Attendance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Attendance System | Login</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="login.css" />
 
-  <!-- Firebase (v9 compat ONLY) -->
+  <!-- Firebase (ONLY compat v9 – DO NOT CHANGE) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-  <!-- Your files -->
+  <!-- Firebase config -->
   <script src="firebase.js"></script>
-  <script defer src="admin.js"></script>
+
+  <!-- Login logic -->
+  <script defer src="login.js"></script>
 </head>
 
 <body>
 
-  <!-- Sidebar -->
-  <div id="sidebar" class="sidebar">
-    <div class="logo">
-      <span>📘 Smart Attendance</span>
+<div class="login-wrapper">
+
+  <!-- LEFT SIDE (INFO) -->
+  <div class="login-info">
+    <h1>Smart Attendance System</h1>
+    <p>
+      Manage students, teachers, classes and attendance  
+      in one powerful platform.
+    </p>
+    <div class="hero-icon">📊</div>
+  </div>
+
+  <!-- RIGHT SIDE (FORM) -->
+  <div class="login-form">
+
+    <div class="tabs">
+      <button id="login-tab" class="active-tab">Login</button>
+      <button id="signup-tab">Sign Up</button>
     </div>
-    <nav>
-      <button onclick="handleMenu('dashboard')">📊 Dashboard</button>
-      <button onclick="handleMenu('pending')">⏳ Pending Approvals</button>
-      <button onclick="handleMenu('teachers')">👨‍🏫 Teachers</button>
-      <button onclick="handleMenu('classes')">🏫 Classes</button>
-      <button class="logout" onclick="logout()">🚪 Logout</button>
-    </nav>
+
+    <!-- LOGIN -->
+    <div id="login-box" class="form-box">
+      <input type="email" id="login-email" placeholder="Email" />
+      <input type="password" id="login-password" placeholder="Password" />
+      <button class="btn primary" id="login-btn">Login</button>
+      <p class="hint">Admin approval required for teachers & students</p>
+    </div>
+
+    <!-- SIGN UP -->
+    <div id="signup-box" class="form-box hidden">
+      <input type="text" id="signup-name" placeholder="Full Name" />
+      <input type="email" id="signup-email" placeholder="Email" />
+      <input type="password" id="signup-password" placeholder="Password" />
+      <select id="signup-role">
+        <option value="student">Student</option>
+        <option value="teacher">Teacher</option>
+      </select>
+      <button class="btn primary" id="signup-btn">Create Account</button>
+      <p class="hint">Your account will be approved by admin</p>
+    </div>
+
   </div>
+</div>
 
-  <!-- Overlay -->
-  <div class="overlay" onclick="closeSidebar()"></div>
+<!-- TAB SWITCH SCRIPT (UI ONLY) -->
+<script>
+  const loginTab = document.getElementById("login-tab");
+  const signupTab = document.getElementById("signup-tab");
+  const loginBox = document.getElementById("login-box");
+  const signupBox = document.getElementById("signup-box");
 
-  <!-- Top Bar -->
-  <div class="topbar">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-    <h1>Admin Dashboard</h1>
-  </div>
+  loginTab.onclick = () => {
+    loginTab.classList.add("active-tab");
+    signupTab.classList.remove("active-tab");
+    loginBox.classList.remove("hidden");
+    signupBox.classList.add("hidden");
+  };
 
-  <!-- Main Content -->
-  <div class="main" id="view"></div>
+  signupTab.onclick = () => {
+    signupTab.classList.add("active-tab");
+    loginTab.classList.remove("active-tab");
+    signupBox.classList.remove("hidden");
+    loginBox.classList.add("hidden");
+  };
+</script>
 
 </body>
 </html>
