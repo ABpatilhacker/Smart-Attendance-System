@@ -1,5 +1,6 @@
-// Firebase v8 ONLY (important)
-var firebaseConfig = {
+// firebase.js
+
+const firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
   databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
@@ -12,6 +13,6 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Make services global
+// Make global (IMPORTANT)
 window.auth = firebase.auth();
 window.db = firebase.database();
