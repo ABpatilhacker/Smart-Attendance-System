@@ -1,56 +1,46 @@
 console.log("login.js loaded");
 
 // ---------- LOGIN ----------
-document.getElementById("login-btn").onclick = function () {
+document.getElementById("login-btn").addEventListener("click", () => {
   const email = document.getElementById("login-email").value.trim();
   const password = document.getElementById("login-password").value.trim();
 
   if (!email || !password) {
-    alert("Please enter email and password");
+    alert("Enter email and password");
     return;
   }
 
-  window.auth
-    .signInWithEmailAndPassword(email, password)
+  auth.signInWithEmailAndPassword(email, password)
     .then((cred) => {
       const uid = cred.user.uid;
 
-      // Get user data
-      window.db.ref("users/" + uid).once("value").then((snap) => {
+      db.ref("users/" + uid).once("value").then((snap) => {
         if (!snap.exists()) {
-          alert("User data missing. Contact admin.");
+          alert("Account not found. Please sign up.");
+          auth.signOut();
           return;
         }
 
-        const data = snap.val();
+        const user = snap.val();
 
-        // Admin approval check
-        if (data.status === "pending") {
+        if (user.status !== "approved") {
           alert("Your account is pending admin approval.");
-          window.auth.signOut();
+          auth.signOut();
           return;
         }
 
-        // Role-based redirect
-        if (data.role === "admin") {
+        // ROLE REDIRECT
+        if (user.role === "admin") {
           location.href = "admin.html";
-        } else if (data.role === "teacher") {
+        } else if (user.role === "teacher") {
           location.href = "teacher.html";
-        } else if (data.role === "student") {
-          location.href = "student.html";
         } else {
-          alert("Invalid role");
+          location.href = "student.html";
         }
       });
     })
-    .catch((err) => {
-      if (err.code === "auth/user-not-found") {
-        alert("User not found. Please Sign Up.");
-      } else {
-        alert(err.message);
-      }
-    });
-};
+    .catch((err) => alert(err.message));
+});
 
 // ---------- SIGN UP ----------
 document.getElementById("signup-btn").onclick = function () {
