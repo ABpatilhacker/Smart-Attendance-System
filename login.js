@@ -43,6 +43,7 @@ document.getElementById("login-btn").addEventListener("click", () => {
 });
 
 // ---------- SIGN UP ----------
+// ---------- SIGN UP ----------
 document.getElementById("signup-btn").onclick = function () {
   const name = document.getElementById("signup-name").value.trim();
   const email = document.getElementById("signup-email").value.trim();
@@ -54,22 +55,23 @@ document.getElementById("signup-btn").onclick = function () {
     return;
   }
 
-  window.auth
-    .createUserWithEmailAndPassword(email, password)
+  auth.createUserWithEmailAndPassword(email, password)
     .then((cred) => {
       const uid = cred.user.uid;
 
-      // Save user data (PENDING APPROVAL)
-      window.db.ref("users/" + uid).set({
+      // 👇 THIS IS THE IMPORTANT PART
+      const status = role === "admin" ? "approved" : "pending";
+
+      db.ref("users/" + uid).set({
         name: name,
         email: email,
         role: role,
-        status: role === "admin" ? "approved" : "pending",
+        status: status,
         createdAt: Date.now()
       });
 
       alert("Signup successful! Wait for admin approval.");
-      window.auth.signOut();
+      auth.signOut();
     })
     .catch((err) => alert(err.message));
 };
