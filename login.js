@@ -1,24 +1,20 @@
 // login.js
 
-const auth = window.auth;
+function loginUser() {
+  var email = document.getElementById("email").value;
+  var password = document.getElementById("password").value;
 
-document.getElementById("loginBtn").addEventListener("click", login);
-
-function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  if (!email || !password) {
-    alert("Please enter email and password");
+  if (email === "" || password === "") {
+    alert("Fill all fields");
     return;
   }
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
+  window.auth.signInWithEmailAndPassword(email, password)
+    .then(function () {
+      alert("Login successful");
       window.location.href = "admin.html";
     })
-    .catch(error => {
+    .catch(function (error) {
       alert(error.message);
-      console.error(error);
     });
 }
