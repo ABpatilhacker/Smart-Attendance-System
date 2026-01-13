@@ -70,32 +70,48 @@ function showDashboard() {
 
 // Pending approvals
 function showPending() {
-function showPending() {
   const view = document.getElementById("view");
-  view.innerHTML = `<h2>Pending Approvals</h2><ul id="pending-list"></ul>`;
+
+  view.innerHTML = `
+    <div class="card">
+      <h2>⏳ Pending Approvals</h2>
+      <p class="subtitle">Approve teachers and students before they can access the system</p>
+      <ul id="pending-list" class="pending-list"></ul>
+    </div>
+  `;
 
   const list = document.getElementById("pending-list");
 
   db.ref("users").once("value").then((snap) => {
     list.innerHTML = "";
+
+    let found = false;
+
     snap.forEach((u) => {
       const user = u.val();
       if (user.status === "pending") {
+        found = true;
+
         const li = document.createElement("li");
+        li.className = "pending-item";
         li.innerHTML = `
-          <strong>${user.name}</strong> (${user.role})
-          <button onclick="approveUser('${u.key}')">Approve</button>
+          <div>
+            <strong>${user.name}</strong>
+            <span class="role-badge ${user.role}">${user.role}</span>
+            <div class="email">${user.email}</div>
+          </div>
+          <button class="btn primary" onclick="approveUser('${u.key}')">
+            ✅ Approve
+          </button>
         `;
         list.appendChild(li);
       }
     });
-  });
-}
 
-function approveUser(uid) {
-  db.ref("users/" + uid + "/status").set("approved");
-  alert("User approved");
-  showPending();
+    if (!found) {
+      list.innerHTML = `<p class="empty">🎉 No pending approvals</p>`;
+    }
+  });
 }
 // Teachers view
 function showTeachers() {
@@ -189,6 +205,12 @@ function loadClasses() {
     });
   });
 }
+function approveUser(uid) {
+  if (!confirm("Approve this user?")) return;
 
+  db.ref("users/" + uid + "/status").set("approved").then(() => {
+    showPending();
+  });
+}
 // Load dashboard by default
 showDashboard();
