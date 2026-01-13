@@ -1,21 +1,17 @@
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-  const firebaseConfig = {
+// Firebase v8 ONLY (important)
+var firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
   databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
   projectId: "smart-attendance-system-17e89",
-  storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
+  storageBucket: "smart-attendance-system-17e89.appspot.com",
   messagingSenderId: "168700970246",
   appId: "1:168700970246:web:392156387db81e92544a87"
 };
 
-  firebase.initializeApp(firebaseConfig);
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 
-  const auth = firebase.auth();
-  const database = firebase.database();
-</script>
+// Make services global
+window.auth = firebase.auth();
+window.db = firebase.database();
