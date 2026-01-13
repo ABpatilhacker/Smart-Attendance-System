@@ -1,17 +1,10 @@
-const sidebar = document.getElementById("sidebar");
+// Firebase
+const auth = firebase.auth();
+const database = firebase.database();
+
+// Overlay & Sidebar toggle
 const overlay = document.querySelector(".overlay");
-const view = document.getElementById("view");
-
-// Data storage (in-memory)
-let teachers = [
-  { id: 1, name: "John Doe", email: "john@example.com", subject: "Math" },
-  { id: 2, name: "Jane Smith", email: "jane@example.com", subject: "Physics" }
-];
-
-let students = [
-  { id: 1, name: "Alice", email: "alice@example.com", class: "BCA FY" },
-  { id: 2, name: "Bob", email: "bob@example.com", class: "BCA SY" }
-];
+const sidebar = document.getElementById("sidebar");
 
 function toggleSidebar() {
   sidebar.classList.toggle("open");
@@ -23,259 +16,171 @@ function closeSidebar() {
   overlay.classList.remove("show");
 }
 
-function logout() {
-  alert("Logged out");
-  window.location.href = "login.html";
+overlay.addEventListener("click", closeSidebar);
+
+// Sidebar menu click handler
+function handleMenu(type) {
+  closeSidebar();
+
+  if(type === "dashboard") showDashboard();
+  if(type === "pending") showPending();
+  if(type === "teachers") showTeachers();
+  if(type === "classes") showClasses();
 }
 
-/* DASHBOARD */
-function loadDashboard() {
-  closeSidebar();
-  view.innerHTML = `
-    <h2>Overview</h2>
-    <p style="opacity:.7;margin-bottom:20px">Quick summary</p>
+// Logout
+function logout() {
+  auth.signOut().then(()=> location.href="login.html");
+}
 
+// Dashboard view
+function showDashboard() {
+  document.getElementById("view").innerHTML = `
     <div class="cards">
       <div class="card">
-        <div class="card-icon">👨‍🏫</div>
-        <p>Total Teachers</p>
-        <h2 class="count" data-target="${teachers.length}">0</h2>
+        <h2>📊 Total Teachers</h2>
+        <p id="total-teachers">0</p>
       </div>
-
       <div class="card">
-        <div class="card-icon">👩‍🎓</div>
-        <p>Total Students</p>
-        <h2 class="count" data-target="${students.length}">0</h2>
+        <h2>👨‍🎓 Total Students</h2>
+        <p id="total-students">0</p>
       </div>
-
       <div class="card">
-        <div class="card-icon">🏫</div>
-        <p>Total Classes</p>
-        <h2 class="count" data-target="8">0</h2>
-      </div>
-
-      <div class="card">
-        <div class="card-icon">📊</div>
-        <p>Avg Attendance</p>
-        <h2 class="count" data-target="92">0</h2>
+        <h2>🏫 Total Classes</h2>
+        <p id="total-classes">0</p>
       </div>
     </div>
+  `;
 
+  // Fetch counts from Firebase
+  database.ref("teachers").once("value").then(snap=>{
+    document.getElementById("total-teachers").textContent = snap.numChildren();
+  });
+  database.ref("students").once("value").then(snap=>{
+    document.getElementById("total-students").textContent = snap.numChildren();
+  });
+  database.ref("classes").once("value").then(snap=>{
+    document.getElementById("total-classes").textContent = snap.numChildren();
+  });
+}
+
+// Pending approvals
+function showPending() {
+  document.getElementById("view").innerHTML = `<div class="activity"><h3>⏳ Pending Approvals</h3><ul id="pending-list"></ul></div>`;
+  const list = document.getElementById("pending-list");
+
+  database.ref("pending").once("value").then(snap=>{
+    list.innerHTML = '';
+    snap.forEach(user=>{
+      const li = document.createElement("li");
+      li.textContent = `${user.val().name} (${user.val().role}) `;
+      const approveBtn = document.createElement("button");
+      approveBtn.classList.add("primary");
+      approveBtn.textContent = "Approve";
+      approveBtn.onclick = ()=>{
+        database.ref("users/"+user.key).set(user.val());
+        database.ref("pending/"+user.key).remove();
+        alert("User approved!");
+        showPending();
+      };
+      li.appendChild(approveBtn);
+      list.appendChild(li);
+    });
+  });
+}
+
+// Teachers view
+function showTeachers() {
+  document.getElementById("view").innerHTML = `
     <div class="activity">
-      <h3>Recent Activity</h3>
-      <ul>
-        <li>👨‍🏫 Teacher added</li>
-        <li>🏫 New class created</li>
-        <li>✅ Attendance updated</li>
-        <li>👩‍🎓 Student approved</li>
-      </ul>
+      <h3>👨‍🏫 Teachers</h3>
+      <input type="text" id="teacher-name" placeholder="Teacher Name">
+      <input type="email" id="teacher-email" placeholder="Teacher Email">
+      <button class="primary" onclick="addTeacher()">Add Teacher</button>
+      <ul id="teacher-list"></ul>
     </div>
   `;
-  animateCounters();
+  loadTeachers();
 }
 
-/* TEACHERS */
+function addTeacher() {
+  const name = document.getElementById("teacher-name").value;
+  const email = document.getElementById("teacher-email").value;
+  if(!name || !email) return alert("Fill all fields");
+
+  const ref = database.ref("teachers").push();
+  ref.set({name,email,subjects:{}});
+  alert("Teacher added!");
+  loadTeachers();
+}
+
 function loadTeachers() {
-  closeSidebar();
-  view.innerHTML = `
-    <h2>Teachers</h2>
-    <p style="opacity:.7;margin-bottom:15px">Add / Edit teachers here</p>
-    <button class="primary" onclick="showAddTeacherForm()">➕ Add Teacher</button>
-    <div id="teachers-list" style="margin-top:20px"></div>
-  `;
-  renderTeachers();
-}
-
-function renderTeachers() {
-  const list = document.getElementById("teachers-list");
-  if (!teachers.length) {
-    list.innerHTML = "<p>No teachers added yet.</p>";
-    return;
-  }
-  let html = `<table style="width:100%;border-collapse:collapse">
-    <tr style="background:#eef2ff">
-      <th style="padding:8px;text-align:left;">Name</th>
-      <th style="padding:8px;text-align:left;">Email</th>
-      <th style="padding:8px;text-align:left;">Subject</th>
-      <th style="padding:8px;text-align:left;">Actions</th>
-    </tr>`;
-  teachers.forEach(t => {
-    html += `<tr style="border-bottom:1px solid #e5e7eb">
-      <td style="padding:8px">${t.name}</td>
-      <td style="padding:8px">${t.email}</td>
-      <td style="padding:8px">${t.subject}</td>
-      <td style="padding:8px">
-        <button onclick="editTeacher(${t.id})">✏️ Edit</button>
-        <button onclick="deleteTeacher(${t.id})">🗑️ Delete</button>
-      </td>
-    </tr>`;
+  const list = document.getElementById("teacher-list");
+  list.innerHTML = '';
+  database.ref("teachers").once("value").then(snap=>{
+    snap.forEach(t=>{
+      const li = document.createElement("li");
+      li.textContent = t.val().name + " (" + t.val().email + ")";
+      list.appendChild(li);
+    });
   });
-  html += "</table>";
-  list.innerHTML = html;
 }
 
-function showAddTeacherForm() {
-  const list = document.getElementById("teachers-list");
-  list.innerHTML = `
-    <h3>Add New Teacher</h3>
-    <form id="teacher-form">
-      <input type="text" placeholder="Name" id="tname" required><br><br>
-      <input type="email" placeholder="Email" id="temail" required><br><br>
-      <input type="text" placeholder="Subject" id="tsubject" required><br><br>
-      <button type="submit" class="primary">Add Teacher</button>
-    </form>
+// Classes view
+function showClasses() {
+  document.getElementById("view").innerHTML = `
+    <div class="activity">
+      <h3>🏫 Classes & Subjects</h3>
+      <input type="text" id="class-name" placeholder="Class Name">
+      <input type="text" id="subject-name" placeholder="Subject Name">
+      <select id="teacher-select"><option value="">Select Teacher</option></select>
+      <button class="primary" onclick="addClassSubject()">Add Class</button>
+      <ul id="class-list"></ul>
+    </div>
   `;
-  document.getElementById("teacher-form").onsubmit = function(e) {
-    e.preventDefault();
-    const name = document.getElementById("tname").value;
-    const email = document.getElementById("temail").value;
-    const subject = document.getElementById("tsubject").value;
-    teachers.push({ id: Date.now(), name, email, subject });
-    loadTeachers();
-  };
+  loadTeachersDropdown();
+  loadClasses();
 }
 
-function editTeacher(id) {
-  const t = teachers.find(t => t.id === id);
-  const list = document.getElementById("teachers-list");
-  list.innerHTML = `
-    <h3>Edit Teacher</h3>
-    <form id="teacher-form">
-      <input type="text" placeholder="Name" id="tname" value="${t.name}" required><br><br>
-      <input type="email" placeholder="Email" id="temail" value="${t.email}" required><br><br>
-      <input type="text" placeholder="Subject" id="tsubject" value="${t.subject}" required><br><br>
-      <button type="submit" class="primary">Save Changes</button>
-    </form>
-  `;
-  document.getElementById("teacher-form").onsubmit = function(e) {
-    e.preventDefault();
-    t.name = document.getElementById("tname").value;
-    t.email = document.getElementById("temail").value;
-    t.subject = document.getElementById("tsubject").value;
-    loadTeachers();
-  };
-}
-
-function deleteTeacher(id) {
-  if(confirm("Are you sure you want to delete this teacher?")) {
-    teachers = teachers.filter(t => t.id !== id);
-    renderTeachers();
-  }
-}
-
-/* STUDENTS */
-function loadStudents() {
-  closeSidebar();
-  view.innerHTML = `
-    <h2>Students</h2>
-    <p style="opacity:.7;margin-bottom:15px">Add / Edit students here</p>
-    <button class="primary" onclick="showAddStudentForm()">➕ Add Student</button>
-    <div id="students-list" style="margin-top:20px"></div>
-  `;
-  renderStudents();
-}
-
-function renderStudents() {
-  const list = document.getElementById("students-list");
-  if (!students.length) {
-    list.innerHTML = "<p>No students added yet.</p>";
-    return;
-  }
-  let html = `<table style="width:100%;border-collapse:collapse">
-    <tr style="background:#eef2ff">
-      <th style="padding:8px;text-align:left;">Name</th>
-      <th style="padding:8px;text-align:left;">Email</th>
-      <th style="padding:8px;text-align:left;">Class</th>
-      <th style="padding:8px;text-align:left;">Actions</th>
-    </tr>`;
-  students.forEach(s => {
-    html += `<tr style="border-bottom:1px solid #e5e7eb">
-      <td style="padding:8px">${s.name}</td>
-      <td style="padding:8px">${s.email}</td>
-      <td style="padding:8px">${s.class}</td>
-      <td style="padding:8px">
-        <button onclick="editStudent(${s.id})">✏️ Edit</button>
-        <button onclick="deleteStudent(${s.id})">🗑️ Delete</button>
-      </td>
-    </tr>`;
+function loadTeachersDropdown() {
+  const select = document.getElementById("teacher-select");
+  select.innerHTML = '<option value="">Select Teacher</option>';
+  database.ref("teachers").once("value").then(snap=>{
+    snap.forEach(t=>{
+      const option = document.createElement("option");
+      option.value = t.key;
+      option.textContent = t.val().name;
+      select.appendChild(option);
+    });
   });
-  html += "</table>";
-  list.innerHTML = html;
 }
 
-function showAddStudentForm() {
-  const list = document.getElementById("students-list");
-  list.innerHTML = `
-    <h3>Add New Student</h3>
-    <form id="student-form">
-      <input type="text" placeholder="Name" id="sname" required><br><br>
-      <input type="email" placeholder="Email" id="semail" required><br><br>
-      <input type="text" placeholder="Class" id="sclass" required><br><br>
-      <button type="submit" class="primary">Add Student</button>
-    </form>
-  `;
-  document.getElementById("student-form").onsubmit = function(e) {
-    e.preventDefault();
-    const name = document.getElementById("sname").value;
-    const email = document.getElementById("semail").value;
-    const studentClass = document.getElementById("sclass").value;
-    students.push({ id: Date.now(), name, email, class: studentClass });
-    loadStudents();
-  };
+function addClassSubject() {
+  const classname = document.getElementById("class-name").value;
+  const subjectname = document.getElementById("subject-name").value;
+  const teacherId = document.getElementById("teacher-select").value;
+  if(!classname || !subjectname || !teacherId) return alert("Fill all fields");
+
+  database.ref("teachers/"+teacherId+"/subjects/"+classname).set({subject:subjectname,students:{}});
+  alert("Class & Subject assigned!");
+  loadClasses();
 }
 
-function editStudent(id) {
-  const s = students.find(s => s.id === id);
-  const list = document.getElementById("students-list");
-  list.innerHTML = `
-    <h3>Edit Student</h3>
-    <form id="student-form">
-      <input type="text" placeholder="Name" id="sname" value="${s.name}" required><br><br>
-      <input type="email" placeholder="Email" id="semail" value="${s.email}" required><br><br>
-      <input type="text" placeholder="Class" id="sclass" value="${s.class}" required><br><br>
-      <button type="submit" class="primary">Save Changes</button>
-    </form>
-  `;
-  document.getElementById("student-form").onsubmit = function(e) {
-    e.preventDefault();
-    s.name = document.getElementById("sname").value;
-    s.email = document.getElementById("semail").value;
-    s.class = document.getElementById("sclass").value;
-    loadStudents();
-  };
-}
-
-function deleteStudent(id) {
-  if(confirm("Are you sure you want to delete this student?")) {
-    students = students.filter(s => s.id !== id);
-    renderStudents();
-  }
-}
-
-/* CLASSES */
 function loadClasses() {
-  closeSidebar();
-  view.innerHTML = `<h2>Classes</h2><p>Manage classes here</p>`;
-}
-
-/* COUNTER ANIMATION */
-function animateCounters() {
-  document.querySelectorAll(".count").forEach(counter => {
-    counter.innerText = "0";
-    const target = +counter.dataset.target;
-    const step = Math.max(1, target / 40);
-    const update = () => {
-      const current = +counter.innerText;
-      if (current < target) {
-        counter.innerText = Math.ceil(current + step);
-        setTimeout(update, 25);
-      } else {
-        counter.innerText = target;
-      }
-    };
-    update();
+  const list = document.getElementById("class-list");
+  list.innerHTML = '';
+  database.ref("teachers").once("value").then(snap=>{
+    snap.forEach(t=>{
+      const teacher = t.val();
+      const li = document.createElement("li");
+      li.textContent = teacher.name + ': ';
+      const subjects = teacher.subjects || {};
+      const text = Object.keys(subjects).map(cls=>cls + ' ('+subjects[cls].subject+')').join(', ');
+      li.textContent += text;
+      list.appendChild(li);
+    });
   });
 }
 
-/* Default load */
-loadDashboard();
+// Load dashboard by default
+showDashboard();
