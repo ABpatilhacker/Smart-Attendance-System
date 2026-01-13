@@ -1,73 +1,93 @@
-/* ========== GLOBAL ========== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", "Segoe UI", sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
-  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  background: linear-gradient(135deg, #f5f7ff, #eef2ff);
   color: #0f172a;
-  min-height: 100vh;
 }
 
-/* ========== SIDEBAR ========== */
+/* Topbar */
+.topbar {
+  height: 60px;
+  background: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 0 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.menu-btn {
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.topbar h1 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* Sidebar */
 .sidebar {
   position: fixed;
-  left: -270px;
   top: 0;
-  width: 270px;
+  left: 0;
+  width: 260px;
   height: 100%;
-  background: linear-gradient(180deg, #4f46e5, #6366f1);
-  padding: 24px;
-  transition: 0.35s ease;
+  background: white;
+  padding: 20px;
+  transform: translateX(-100%);
+  transition: 0.3s;
   z-index: 1000;
-  box-shadow: 8px 0 30px rgba(0,0,0,0.15);
+  box-shadow: 10px 0 30px rgba(0,0,0,0.1);
 }
 
 .sidebar.open {
-  left: 0;
+  transform: translateX(0);
 }
 
-.sidebar h2 {
-  color: white;
-  text-align: center;
+.sidebar .logo {
   margin-bottom: 30px;
-  font-size: 20px;
 }
 
 .sidebar button {
   width: 100%;
   padding: 14px;
   margin-bottom: 12px;
+  border-radius: 12px;
   border: none;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.15);
-  color: white;
-  font-size: 15px;
+  background: #eef2ff;
+  color: #1e293b;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: 0.2s;
 }
 
 .sidebar button:hover {
-  background: rgba(255,255,255,0.25);
-  transform: translateX(4px);
+  background: #4f46e5;
+  color: white;
 }
 
 .sidebar .logout {
-  background: rgba(255,0,0,0.25);
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-/* ========== OVERLAY ========== */
+/* Overlay */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.4);
   opacity: 0;
   pointer-events: none;
   transition: 0.3s;
-  z-index: 900;
+  z-index: 999;
 }
 
 .overlay.show {
@@ -75,129 +95,76 @@ body {
   pointer-events: all;
 }
 
-/* ========== TOP BAR ========== */
-.topbar {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 18px 10px;
-}
-
-.menu-btn {
-  font-size: 24px;
-  background: white;
-  border: none;
-  border-radius: 12px;
-  padding: 6px 12px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-  cursor: pointer;
-}
-
-.topbar h1 {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-/* ========== MAIN CONTENT ========== */
+/* Main */
 .main {
-  padding: 24px;
+  padding: 25px;
 }
 
-h2 {
-  margin-bottom: 14px;
-}
-
-/* ========== DASHBOARD CARDS ========== */
+/* Cards */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 22px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
 }
 
 .card {
+  background: linear-gradient(135deg, #ffffff, #eef2ff);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(79,70,229,0.15);
+  position: relative;
+}
+
+.card-icon {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 34px;
+  opacity: 0.25;
+}
+
+.card p {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.card h2 {
+  font-size: 36px;
+  color: #4f46e5;
+}
+
+/* Activity */
+.activity {
+  margin-top: 30px;
   background: white;
-  padding: 22px;
   border-radius: 18px;
-  box-shadow: 0 14px 35px rgba(0,0,0,0.08);
-  font-size: 18px;
-  font-weight: 600;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  animation: slideUp 0.6s ease forwards;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 22px 45px rgba(0,0,0,0.12);
-}
-
-/* ========== INPUTS & BUTTONS ========== */
-input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 12px;
-  border: 1px solid #d1d5db;
-  outline: none;
-}
-
-input:focus {
-  border-color: #6366f1;
-}
-
-.primary {
-  background: linear-gradient(90deg, #4f46e5, #6366f1);
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 14px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(79,70,229,0.4);
-}
-
-/* ========== LISTS ========== */
-ul {
+.activity ul {
   list-style: none;
-  margin-top: 10px;
 }
 
-li {
-  background: white;
-  padding: 14px;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+.activity li {
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-/* ========== ANIMATIONS ========== */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ========== DESKTOP ========== */
-@media (min-width: 769px) {
+/* Desktop */
+@media (min-width: 768px) {
   .sidebar {
-    left: 0;
+    transform: translateX(0);
   }
+
   .overlay {
     display: none;
   }
+
   .main {
-    margin-left: 270px;
+    margin-left: 260px;
   }
+
   .menu-btn {
     display: none;
   }
