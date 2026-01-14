@@ -1,4 +1,4 @@
-// ----- GLOBAL REFS -----
+// ---------------- GLOBAL ----------------
 const auth = window.auth;
 const db = window.db;
 
@@ -8,45 +8,58 @@ const mainView = document.getElementById("main-view");
 
 let currentTeacher = null;
 
-// ----- SIDEBAR -----
+// ---------------- SIDEBAR ----------------
 function toggleSidebar() {
   sidebar.classList.toggle("open");
   overlay.classList.toggle("show");
 }
-
 function closeSidebar() {
   sidebar.classList.remove("open");
   overlay.classList.remove("show");
 }
-
 overlay.addEventListener("click", closeSidebar);
 
-// ----- LOGOUT -----
+// ---------------- LOGOUT ----------------
 function logout() {
-  auth.signOut().then(() => {
-    location.href = "login.html";
-  });
+  auth.signOut().then(() => location.href = "login.html");
 }
 
-// ----- AUTH -----
+// ---------------- TOAST ----------------
+function showToast(msg, type = "success") {
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.innerText = msg;
+  document.body.appendChild(toast);
+
+  setTimeout(() => toast.classList.add("show"), 50);
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
+}
+
+// ---------------- AUTH ----------------
 auth.onAuthStateChanged(user => {
   if (!user) {
     location.href = "login.html";
     return;
   }
   currentTeacher = user.uid;
-  loadTeacherName();
+  setTeacherName();
   showDashboard();
 });
 
-// ----- TEACHER NAME -----
-function loadTeacherName() {
+// ---------------- SET NAME ----------------
+function setTeacherName() {
   db.ref(`users/${currentTeacher}`).once("value").then(snap => {
-    document.getElementById("teacher-name").textContent = snap.val()?.name || "Teacher";
+    const nameEl = document.getElementById("teacher-name");
+    if (nameEl && snap.exists()) {
+      nameEl.innerText = snap.val().name || "Teacher";
+    }
   });
 }
 
-// ----- DASHBOARD -----
+// ---------------- DASHBOARD ----------------
 function showDashboard() {
   closeSidebar();
   mainView.innerHTML = `
@@ -57,45 +70,38 @@ function showDashboard() {
   const grid = document.getElementById("dash-cards");
 
   db.ref(`users/${currentTeacher}/classes`).once("value").then(snap => {
-    const totalClasses = snap.numChildren();
+    const classCount = snap.size || 0;
+
+    const card1 = createCard("📚 Classes", classCount);
+    const card2 = createCard("👩‍🎓 Students", 0);
+    const card3 = createCard("📝 Attendance Today", "0%");
+
+    grid.append(card1, card2, card3);
 
     let totalStudents = 0;
-    let todayPresent = 0;
+    let presentToday = 0;
     const today = new Date().toISOString().split("T")[0];
-
-    if (!snap.exists()) {
-      grid.innerHTML = `<p>No classes assigned</p>`;
-      return;
-    }
-
-    let processed = 0;
 
     snap.forEach(c => {
       db.ref(`classes/${c.key}`).once("value").then(csnap => {
-        const cls = csnap.val();
+        const cls = csnap.val() || {};
         const students = cls.students || {};
         totalStudents += Object.keys(students).length;
 
-        const att = cls.attendance?.[today] || {};
-        Object.values(att).forEach(v => {
-          if (v === "present") todayPresent++;
+        const todayAtt = cls.attendance?.[today] || {};
+        Object.values(todayAtt).forEach(v => {
+          if (v === "present") presentToday++;
         });
 
-        processed++;
-
-        if (processed === totalClasses) {
-          grid.innerHTML = `
-            <div class="card"><h3>📚 Classes</h3><p>${totalClasses}</p></div>
-            <div class="card"><h3>👩‍🎓 Students</h3><p>${totalStudents}</p></div>
-            <div class="card"><h3>📝 Attendance</h3><p>${totalStudents ? Math.round((todayPresent / totalStudents) * 100) : 0}%</p></div>
-          `;
-        }
+        card2.querySelector("p").innerText = totalStudents;
+        const perc = totalStudents ? Math.round((presentToday / totalStudents) * 100) : 0;
+        card3.querySelector("p").innerText = `${perc}%`;
       });
     });
   });
 }
 
-// ----- CLASSES -----
+// ---------------- CLASSES ----------------
 function showClasses() {
   closeSidebar();
   mainView.innerHTML = `<h2>My Classes</h2><div class="card-grid" id="class-list"></div>`;
@@ -104,17 +110,20 @@ function showClasses() {
 
   db.ref(`users/${currentTeacher}/classes`).once("value").then(snap => {
     if (!snap.exists()) {
-      list.innerHTML = "<p>No classes assigned</p>";
+      list.innerHTML = `<p>No classes assigned.</p>`;
       return;
     }
 
     snap.forEach(c => {
       db.ref(`classes/${c.key}`).once("value").then(csnap => {
         const cls = csnap.val();
+        if (!cls) return;
+
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
           <h3>${cls.name}</h3>
+          <p>Subjects: ${Object.values(cls.subjects || {}).join(", ")}</p>
           <p>Students: ${Object.keys(cls.students || {}).length}</p>
           <button onclick="showClassDetail('${c.key}')">Open</button>
         `;
@@ -124,11 +133,11 @@ function showClasses() {
   });
 }
 
-// ----- CLASS DETAIL -----
+// ---------------- CLASS DETAIL ----------------
 function showClassDetail(classId) {
   closeSidebar();
   mainView.innerHTML = `
-    <h2>Class Attendance</h2>
+    <h2>Mark Attendance</h2>
     <div class="card">
       <input type="date" id="att-date">
       <button onclick="markAttendance('${classId}')">Save Attendance</button>
@@ -139,15 +148,22 @@ function showClassDetail(classId) {
   const list = document.getElementById("student-list");
 
   db.ref(`classes/${classId}/students`).once("value").then(snap => {
+    if (!snap.exists()) {
+      list.innerHTML = "<p>No students found.</p>";
+      return;
+    }
+
     snap.forEach(s => {
-      db.ref(`users/${s.key}`).once("value").then(ssnap => {
-        const stu = ssnap.val();
+      db.ref(`users/${s.key}`).once("value").then(usnap => {
+        const stu = usnap.val();
+        if (!stu) return;
+
         const card = document.createElement("div");
-        card.className = "card";
-        card.id = `stu-${s.key}`;
+        card.className = "card student-card";
+        card.id = `card-${s.key}`;
         card.innerHTML = `
           <h4>${stu.name}</h4>
-          <select id="status-${s.key}">
+          <select id="status-${s.key}" onchange="highlight('${s.key}')">
             <option value="present">Present</option>
             <option value="absent">Absent</option>
           </select>
@@ -158,11 +174,11 @@ function showClassDetail(classId) {
   });
 }
 
-// ----- ATTENDANCE -----
+// ---------------- MARK ATTENDANCE ----------------
 function markAttendance(classId) {
   const date = document.getElementById("att-date").value;
   if (!date) {
-    alert("Select date");
+    showToast("Select date!", "error");
     return;
   }
 
@@ -171,47 +187,22 @@ function markAttendance(classId) {
       const status = document.getElementById(`status-${s.key}`).value;
       db.ref(`classes/${classId}/attendance/${date}/${s.key}`).set(status);
     });
-    alert("Attendance saved");
+    showToast("Attendance saved!");
   });
 }
 
-// ----- DEFAULTERS -----
-function showDefaulters() {
-  closeSidebar();
-  mainView.innerHTML = `<h2>Defaulters</h2><div class="card-grid" id="def-list"></div>`;
-  const list = document.getElementById("def-list");
-
-  db.ref("settings/minAttendancePercent").once("value").then(ms => {
-    const min = ms.val() || 75;
-
-    db.ref(`users/${currentTeacher}/classes`).once("value").then(snap => {
-      snap.forEach(c => {
-        db.ref(`classes/${c.key}`).once("value").then(csnap => {
-          const cls = csnap.val();
-          const att = cls.attendance || {};
-          const days = Object.keys(att).length || 1;
-
-          Object.keys(cls.students || {}).forEach(sid => {
-            let present = 0;
-            Object.values(att).forEach(d => {
-              if (d[sid] === "present") present++;
-            });
-
-            const percent = Math.round((present / days) * 100);
-            if (percent < min) {
-              db.ref(`users/${sid}`).once("value").then(ss => {
-                const card = document.createElement("div");
-                card.className = "card";
-                card.innerHTML = `
-                  <h4>${ss.val().name}</h4>
-                  <p>${percent}% attendance</p>
-                `;
-                list.appendChild(card);
-              });
-            }
-          });
-        });
-      });
-    });
-  });
+// ---------------- HIGHLIGHT ----------------
+function highlight(sid) {
+  const card = document.getElementById(`card-${sid}`);
+  const status = document.getElementById(`status-${sid}`).value;
+  card.classList.toggle("present", status === "present");
+  card.classList.toggle("absent", status === "absent");
 }
+
+// ---------------- UTIL ----------------
+function createCard(title, value) {
+  const c = document.createElement("div");
+  c.className = "card overview-card";
+  c.innerHTML = `<h3>${title}</h3><p>${value}</p>`;
+  return c;
+          }
