@@ -1,182 +1,262 @@
-/* ===== GENERAL ===== */
+/* ------------------- RESET & BASE ------------------- */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
 }
+
 body {
-  background: #f5f7fb;
-  color: #0f172a;
+  background: #f4f7fc;
+  color: #1e293b;
+  min-height: 100vh;
 }
 
-/* ===== SIDEBAR ===== */
+/* ------------------- SIDEBAR ------------------- */
 .sidebar {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 260px;
+  left: -280px;
+  width: 280px;
   height: 100%;
-  background: linear-gradient(145deg,#4f46e5,#818cf8);
-  color: #fff;
-  padding: 25px 20px;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 2px 0 12px rgba(0,0,0,0.15);
+  background: linear-gradient(180deg, #4f46e5, #6366f1);
+  color: white;
+  padding: 30px 20px;
+  transition: all 0.3s ease;
   z-index: 1000;
-  border-radius: 0 12px 12px 0;
+  overflow-y: auto;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.15);
 }
+
 .sidebar.open {
-  transform: translateX(0);
+  left: 0;
 }
+
 .sidebar .brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
+
 .sidebar .brand img {
-  width: 40px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.3);
+  width: 50px;
+  border-radius: 50%;
+  border: 2px solid white;
 }
+
+.sidebar .brand h2 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
 .sidebar nav button {
+  display: block;
   width: 100%;
-  padding: 12px 15px;
-  margin-bottom: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
   border: none;
   border-radius: 10px;
   background: rgba(255,255,255,0.15);
-  color: #fff;
-  font-size: 15px;
+  color: white;
+  font-size: 16px;
   cursor: pointer;
-  transition: 0.3s ease;
-}
-.sidebar nav button:hover {
-  background: rgba(255,255,255,0.35);
-  transform: translateX(5px);
-}
-.sidebar .logout {
-  background: rgba(255,0,0,0.3);
+  transition: all 0.3s ease;
 }
 
-/* ===== OVERLAY ===== */
+.sidebar nav button:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.sidebar nav .logout {
+  background: rgba(255,0,0,0.25);
+}
+
+.sidebar nav .logout:hover {
+  background: rgba(255,0,0,0.5);
+}
+
+/* ------------------- OVERLAY ------------------- */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0,0,0,0.4);
   opacity: 0;
   pointer-events: none;
-  transition: 0.3s;
+  transition: all 0.3s ease;
   z-index: 900;
 }
+
 .overlay.show {
   opacity: 1;
   pointer-events: all;
 }
 
-/* ===== TOPBAR ===== */
+/* ------------------- TOPBAR ------------------- */
 .topbar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 60px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
   display: flex;
   align-items: center;
   padding: 0 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-  z-index: 800;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  z-index: 500;
 }
-.topbar h1 {
-  font-size: 20px;
-  margin-left: 15px;
-}
-.topbar #teacher-name {
-  margin-left: auto;
-  font-weight: 600;
-  color: #4f46e5;
-}
+
 .menu-btn {
   font-size: 24px;
   background: none;
   border: none;
   cursor: pointer;
+  margin-right: 15px;
+  color: #4f46e5;
 }
 
-/* ===== MAIN CONTENT ===== */
-.main {
-  margin-top: 70px;
-  margin-left: 20px;
-  padding: 20px;
-  min-height: calc(100vh - 70px);
+.topbar h1 {
+  font-size: 22px;
+  color: #1e293b;
+  font-weight: 600;
 }
+
+#teacher-name {
+  margin-left: auto;
+  font-weight: 500;
+  color: #4f46e5;
+}
+
+/* ------------------- MAIN CONTENT ------------------- */
+.main {
+  margin-top: 60px;
+  padding: 25px 30px;
+  transition: all 0.3s ease;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #4f46e5;
+}
+
+/* ------------------- CARD GRID ------------------- */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 20px;
 }
 
-/* ===== CARDS ===== */
+/* ------------------- CARDS ------------------- */
 .card {
-  background: linear-gradient(145deg, #ffffff, #f3f4f6);
+  background: white;
+  border-radius: 15px;
   padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 15px 25px rgba(0,0,0,0.15);
 }
-.card h3, .card h4 {
+
+/* ---------- OVERVIEW CARDS ---------- */
+.overview-card {
+  background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+  color: white;
+  text-align: center;
+  font-weight: 600;
+  font-size: 18px;
+  padding: 30px 20px;
+}
+
+.overview-card h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.overview-card p {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* ---------- CLASS CARDS ---------- */
+.class-card h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #4f46e5;
+}
+
+.class-card p {
+  font-size: 14px;
   margin-bottom: 10px;
   color: #1e293b;
 }
-.card p {
-  font-size: 14px;
-  color: #475569;
-}
 
-/* ===== BUTTONS ===== */
-.card button {
-  margin-top: 10px;
-  padding: 8px 12px;
+.class-card button {
+  padding: 8px 15px;
   border: none;
-  background: #4f46e5;
-  color: #fff;
   border-radius: 8px;
+  background: #4f46e5;
+  color: white;
+  font-size: 14px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
-}
-.card button:hover {
-  background: #4338ca;
-  transform: scale(1.05);
+  transition: background 0.3s ease;
 }
 
-/* STUDENT CARD */
+.class-card button:hover {
+  background: #6366f1;
+}
+
+/* ---------- STUDENT CARDS ---------- */
+.student-card {
+  background: linear-gradient(135deg, #f3f4f6, #e0e7ff);
+  padding: 15px;
+}
+
+.student-card h4 {
+  color: #4f46e5;
+  margin-bottom: 5px;
+}
+
+.student-card p {
+  font-size: 14px;
+  color: #1e293b;
+  margin-bottom: 5px;
+}
+
 .student-card select {
-  margin-top: 8px;
-  width: 100%;
-  padding: 6px;
+  padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #d1d5db;
 }
 
-/* DEFAULTER CARD COLORS */
-.card.student-card.low-attendance {
-  background: linear-gradient(135deg,#fee2e2,#fecaca);
-}
-.card.student-card.ok-attendance {
-  background: linear-gradient(135deg,#d1fae5,#a7f3d0);
+/* ---------- DEFUALTER COLORS ---------- */
+.low-attendance {
+  border-left: 5px solid #f43f5e;
 }
 
-/* MEDIA */
-@media(min-width:769px){
-  .sidebar { transform: translateX(0); }
-  .overlay { display: none; }
-  .main { margin-left: 280px; }
-  .menu-btn { display: none; }
+.ok-attendance {
+  border-left: 5px solid #4ade80;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (min-width: 768px) {
+  .main {
+    margin-left: 280px;
+  }
+
+  .sidebar {
+    left: 0;
+  }
+
+  .overlay {
+    display: none;
+  }
+
+  .menu-btn {
+    display: none;
+  }
 }
