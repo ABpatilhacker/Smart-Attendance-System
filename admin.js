@@ -2,9 +2,23 @@ const auth = window.auth;
 const db = window.db;
 
 /* ---------- UI ---------- */
-function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("active");
-  document.querySelector(".overlay").classList.toggle("active");
+function toggleSidebar(forceClose = false) {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.querySelector(".overlay");
+
+  if (forceClose) {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+    return;
+  }
+
+  sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
+}
+
+/* Close sidebar when clicking menu items */
+function closeSidebar() {
+  toggleSidebar(true);
 }
 
 function logout() {
