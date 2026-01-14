@@ -123,3 +123,46 @@ function showClasses() {
     });
   });
 }
+function loadTeachers() {
+  const select = document.getElementById("teacher-select");
+  select.innerHTML = `<option value="">Select Teacher</option>`;
+
+  db.ref("users").orderByChild("role").equalTo("teacher").once("value")
+    .then(snapshot => {
+      snapshot.forEach(snap => {
+        const teacher = snap.val();
+        const option = document.createElement("option");
+        option.value = snap.key;
+        option.textContent = teacher.name;
+        select.appendChild(option);
+      });
+    });
+  }
+function createClass() {
+  const className = document.getElementById("class-name").value.trim();
+  const teacherId = document.getElementById("teacher-select").value;
+
+  if (!className || !teacherId) {
+    alert("Please enter class name and select teacher");
+    return;
+  }
+
+  const classRef = db.ref("classes").push();
+  const classId = classRef.key;
+
+  // 1️⃣ Create class
+  classRef.set({
+    name: className,
+    teacherId: teacherId,
+    subjects: {},
+    students: {}
+  }).then(() => {
+    // 2️⃣ Assign class to teacher
+    db.ref(`users/${teacherId}/classes/${classId}`).set(true);
+
+    document.getElementById("class-name").value = "";
+    document.getElementById("teacher-select").value = "";
+
+    alert("✅ Class created and assigned successfully!");
+  });
+}
