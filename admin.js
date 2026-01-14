@@ -193,3 +193,12 @@ function addClass() {
     showClasses();
   });
 }
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+  document.querySelector(".overlay").classList.toggle("show");
+}
+
+function scrollToSection(id) {
+  toggleSidebar();
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+}
