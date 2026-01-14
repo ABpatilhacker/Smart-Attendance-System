@@ -1,65 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin Dashboard | Smart Attendance</title>
+  <meta charset="UTF-8" />
+  <title>Admin Dashboard | Smart Attendance</title>
+  <link rel="stylesheet" href="admin.css" />
 
-<link rel="stylesheet" href="admin.css"/>
-
-<!-- Firebase v9 compat ONLY -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-<script src="firebase.js"></script>
-<script defer src="admin.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="firebase.js"></script>
 </head>
-
 <body>
 
-<div class="overlay" onclick="closeSidebar()"></div>
-
-<!-- Sidebar -->
-<aside id="sidebar" class="sidebar">
-  <div class="brand">
-    <img src="logo.jpg" />
-    <h2>Smart Attendance</h2>
-  </div>
-
-  <nav>
-    <button onclick="showDashboard()">📊 Dashboard</button>
-    <button onclick="showPending()">⏳ Approvals</button>
-    <button onclick="showTeachers()">👨‍🏫 Teachers</button>
-    <button onclick="showClasses()">🏫 Classes</button>
-    <button class="logout" onclick="logout()">🚪 Logout</button>
-  </nav>
-</aside>
-
-<!-- Topbar -->
 <header class="topbar">
-  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h1>Admin Dashboard</h1>
+  <h1>👑 Admin Dashboard</h1>
+  <button onclick="logout()">Logout</button>
 </header>
 
-<!-- Main -->
-<main id="view" class="main"></main>
-<section class="card">
-  <h2>🏫 Create Class</h2>
+<main class="container">
 
-  <div class="form-group">
-    <label>Class Name</label>
-    <input type="text" id="class-name" placeholder="e.g. BCA FY" />
-  </div>
+  <!-- CREATE CLASS -->
+  <section class="card">
+    <h2>🏫 Create Class</h2>
 
-  <div class="form-group">
-    <label>Assign Teacher</label>
-    <select id="teacher-select">
-      <option value="">Loading teachers...</option>
-    </select>
-  </div>
+    <input id="class-name" placeholder="Class Name (e.g. BCA FY)" />
+    <select id="teacher-select"></select>
+    <button onclick="createClass()">Create Class</button>
+  </section>
 
-  <button onclick="createClass()">Create Class</button>
-</section>
+  <!-- ADD SUBJECT -->
+  <section class="card">
+    <h2>📘 Add Subject</h2>
+
+    <select id="class-select"></select>
+    <input id="subject-name" placeholder="Subject Name" />
+    <button onclick="addSubject()">Add Subject</button>
+  </section>
+
+  <!-- ASSIGN STUDENT -->
+  <section class="card">
+    <h2>👩‍🎓 Assign Student</h2>
+
+    <select id="student-class-select"></select>
+    <select id="student-select"></select>
+    <button onclick="assignStudent()">Assign Student</button>
+  </section>
+
+  <!-- VIEW CLASSES -->
+  <section class="card">
+    <h2>📋 All Classes</h2>
+    <div id="class-list" class="grid"></div>
+  </section>
+
+</main>
+
+<script src="admin.js"></script>
 </body>
 </html>
