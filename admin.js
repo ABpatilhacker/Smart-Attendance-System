@@ -1,168 +1,115 @@
 const auth = window.auth;
 const db = window.db;
 
-const sidebar = document.getElementById("sidebar");
-const overlay = document.querySelector(".overlay");
-const view = document.getElementById("view");
-
-function toggleSidebar() {
-  sidebar.classList.toggle("open");
-  overlay.classList.toggle("show");
-}
-function closeSidebar() {
-  sidebar.classList.remove("open");
-  overlay.classList.remove("show");
-}
-
-// Auth check
 auth.onAuthStateChanged(user => {
   if (!user) location.href = "login.html";
-  showDashboard();
+  loadTeachers();
+  loadStudents();
+  loadClasses();
 });
 
-// Logout
 function logout() {
   auth.signOut().then(() => location.href = "login.html");
 }
 
-// ---------- DASHBOARD ----------
-function showDashboard() {
-  closeSidebar();
-  view.innerHTML = `
-    <h2>Overview</h2>
-    <div class="card-grid" id="stats"></div>
-  `;
-
-  const stats = document.getElementById("stats");
-
-  Promise.all([
-    db.ref("users").once("value"),
-    db.ref("classes").once("value")
-  ]).then(([usersSnap, classSnap]) => {
-    let teachers = 0, students = 0, pending = 0;
-
-    usersSnap.forEach(u => {
-      if (u.val().role === "teacher") teachers++;
-      if (u.val().role === "student") students++;
-      if (u.val().status === "pending") pending++;
-    });
-
-    stats.innerHTML = `
-      <div class="card"><h3>👨‍🏫 Teachers</h3><p>${teachers}</p></div>
-      <div class="card"><h3>🎓 Students</h3><p>${students}</p></div>
-      <div class="card"><h3>🏫 Classes</h3><p>${classSnap.numChildren()}</p></div>
-      <div class="card"><h3>⏳ Pending</h3><p>${pending}</p></div>
-    `;
-  });
-}
-
-// ---------- PENDING ----------
-function showPending() {
-  closeSidebar();
-  view.innerHTML = `<h2>Pending Approvals</h2><div class="card-grid" id="pending"></div>`;
-  const box = document.getElementById("pending");
-
-  db.ref("users").once("value").then(snap => {
-    box.innerHTML = "";
-    snap.forEach(u => {
-      const user = u.val();
-      if (user.status === "pending") {
-        box.innerHTML += `
-          <div class="card">
-            <h3>${user.name}</h3>
-            <p>${user.role}</p>
-            <button class="primary" onclick="approveUser('${u.key}')">Approve</button>
-          </div>
-        `;
-      }
-    });
-  });
-}
-
-function approveUser(uid) {
-  if (!confirm("Approve this user?")) return;
-  db.ref("users/" + uid + "/status").set("approved").then(showPending);
-}
-
-// ---------- TEACHERS ----------
-function showTeachers() {
-  closeSidebar();
-  view.innerHTML = `<h2>Teachers</h2><div class="card-grid" id="teachers"></div>`;
-  const box = document.getElementById("teachers");
-
-  db.ref("users").once("value").then(snap => {
-    box.innerHTML = "";
-    snap.forEach(u => {
-      if (u.val().role === "teacher") {
-        box.innerHTML += `
-          <div class="card">
-            <h3>${u.val().name}</h3>
-            <p>Status: ${u.val().status}</p>
-          </div>
-        `;
-      }
-    });
-  });
-}
-
-// ---------- CLASSES ----------
-function showClasses() {
-  closeSidebar();
-  view.innerHTML = `<h2>Classes</h2><div class="card-grid" id="classes"></div>`;
-  const box = document.getElementById("classes");
-
-  db.ref("classes").once("value").then(snap => {
-    box.innerHTML = "";
-    snap.forEach(c => {
-      box.innerHTML += `
-        <div class="card">
-          <h3>${c.val().name}</h3>
-          <p>Students: ${Object.keys(c.val().students || {}).length}</p>
-        </div>
-      `;
-    });
-  });
-}
+// ---------- LOAD TEACHERS ----------
 function loadTeachers() {
   const select = document.getElementById("teacher-select");
-  select.innerHTML = `<option value="">Select Teacher</option>`;
+  select.innerHTML = "";
 
   db.ref("users").orderByChild("role").equalTo("teacher").once("value")
-    .then(snapshot => {
-      snapshot.forEach(snap => {
-        const teacher = snap.val();
-        const option = document.createElement("option");
-        option.value = snap.key;
-        option.textContent = teacher.name;
-        select.appendChild(option);
+    .then(snap => {
+      snap.forEach(t => {
+        const opt = document.createElement("option");
+        opt.value = t.key;
+        opt.textContent = t.val().name;
+        select.appendChild(opt);
       });
     });
-  }
+}
+
+// ---------- CREATE CLASS ----------
 function createClass() {
-  const className = document.getElementById("class-name").value.trim();
+  const name = document.getElementById("class-name").value;
   const teacherId = document.getElementById("teacher-select").value;
+  if (!name || !teacherId) return alert("Fill all fields");
 
-  if (!className || !teacherId) {
-    alert("Please enter class name and select teacher");
-    return;
-  }
-
-  const classRef = db.ref("classes").push();
-  const classId = classRef.key;
-
-  // 1️⃣ Create class
-  classRef.set({
-    name: className,
-    teacherId: teacherId,
+  const ref = db.ref("classes").push();
+  ref.set({
+    name,
+    teacherId,
     subjects: {},
     students: {}
-  }).then(() => {
-    // 2️⃣ Assign class to teacher
-    db.ref(`users/${teacherId}/classes/${classId}`).set(true);
-
-    document.getElementById("class-name").value = "";
-    document.getElementById("teacher-select").value = "";
-
-    alert("✅ Class created and assigned successfully!");
   });
+
+  db.ref(`users/${teacherId}/classes/${ref.key}`).set(true);
+  alert("Class created!");
+  loadClasses();
+}
+
+// ---------- LOAD CLASSES ----------
+function loadClasses() {
+  const list = document.getElementById("class-list");
+  const classSelect = document.getElementById("class-select");
+  const studentClass = document.getElementById("student-class-select");
+
+  list.innerHTML = "";
+  classSelect.innerHTML = "";
+  studentClass.innerHTML = "";
+
+  db.ref("classes").once("value").then(snap => {
+    snap.forEach(c => {
+      const cls = c.val();
+
+      list.innerHTML += `
+        <div class="class-card">
+          <strong>${cls.name}</strong><br>
+          Subjects: ${Object.values(cls.subjects || {}).join(", ")}
+        </div>
+      `;
+
+      [classSelect, studentClass].forEach(sel => {
+        const opt = document.createElement("option");
+        opt.value = c.key;
+        opt.textContent = cls.name;
+        sel.appendChild(opt);
+      });
+    });
+  });
+}
+
+// ---------- ADD SUBJECT ----------
+function addSubject() {
+  const classId = document.getElementById("class-select").value;
+  const subject = document.getElementById("subject-name").value;
+  if (!subject) return alert("Enter subject");
+
+  db.ref(`classes/${classId}/subjects`).push(subject);
+  alert("Subject added!");
+  loadClasses();
+}
+
+// ---------- LOAD STUDENTS ----------
+function loadStudents() {
+  const select = document.getElementById("student-select");
+  select.innerHTML = "";
+
+  db.ref("users").orderByChild("role").equalTo("student").once("value")
+    .then(snap => {
+      snap.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.key;
+        opt.textContent = s.val().name;
+        select.appendChild(opt);
+      });
+    });
+}
+
+// ---------- ASSIGN STUDENT ----------
+function assignStudent() {
+  const classId = document.getElementById("student-class-select").value;
+  const studentId = document.getElementById("student-select").value;
+
+  db.ref(`classes/${classId}/students/${studentId}`).set(true);
+  alert("Student assigned!");
 }
