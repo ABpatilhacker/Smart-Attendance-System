@@ -13,70 +13,47 @@
 </head>
 <body>
 
-<header class="topbar">
-  <h1>👑 Admin Dashboard</h1>
-  <button onclick="logout()">Logout</button>
-</header>
+<!-- MOBILE OVERLAY -->
+<div class="overlay" onclick="toggleSidebar()"></div>
 
-<main class="container">
-<!-- KPI -->
-<div class="kpi-grid">
-  <div class="kpi-card">
-    <h3>Total Classes</h3>
-    <p id="totalClasses">0</p>
+<!-- SIDEBAR -->
+<aside id="sidebar" class="sidebar">
+  <div class="sidebar-header">
+    <h2>👑 Admin</h2>
   </div>
-  <div class="kpi-card">
-    <h3>Total Teachers</h3>
-    <p id="totalTeachers">0</p>
-  </div>
-  <div class="kpi-card">
-    <h3>Total Students</h3>
-    <p id="totalStudents">0</p>
+
+  <nav class="sidebar-menu">
+    <button onclick="scrollToSection('kpi')">📊 Dashboard</button>
+    <button onclick="scrollToSection('createClass')">🏫 Create Class</button>
+    <button onclick="scrollToSection('addSubject')">📘 Add Subject</button>
+    <button onclick="scrollToSection('assignStudent')">🎓 Assign Student</button>
+    <button onclick="scrollToSection('allClasses')">📋 All Classes</button>
+    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <h1>Admin Dashboard</h1>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="container">
+
+    <!-- KPI -->
+    <section id="kpi"></section>
+
+    <section id="createClass"></section>
+    <section id="addSubject"></section>
+    <section id="assignStudent"></section>
+    <section id="allClasses"></section>
+
   </div>
 </div>
-    <!-- Create Class -->
-    <!-- Add Subject -->
-    <!-- Assign Student -->
-  </div>
-
-  <div>
-    <!-- All Classes -->
-  </div>
-</div>
-  <!-- CREATE CLASS -->
-  <section class="card">
-    <h2>🏫 Create Class</h2>
-
-    <input id="class-name" placeholder="Class Name (e.g. BCA FY)" />
-    <select id="teacher-select"></select>
-    <button onclick="createClass()">Create Class</button>
-  </section>
-
-  <!-- ADD SUBJECT -->
-  <section class="card">
-    <h2>📘 Add Subject</h2>
-
-    <select id="class-select"></select>
-    <input id="subject-name" placeholder="Subject Name" />
-    <button onclick="addSubject()">Add Subject</button>
-  </section>
-
-  <!-- ASSIGN STUDENT -->
-  <section class="card">
-    <h2>👩‍🎓 Assign Student</h2>
-
-    <select id="student-class-select"></select>
-    <select id="student-select"></select>
-    <button onclick="assignStudent()">Assign Student</button>
-  </section>
-
-  <!-- VIEW CLASSES -->
-  <section class="card">
-    <h2>📋 All Classes</h2>
-    <div id="class-list" class="grid"></div>
-  </section>
-
-</main>
 
 <script src="admin.js"></script>
 </body>
