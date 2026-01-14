@@ -113,3 +113,51 @@ function assignStudent() {
   db.ref(`classes/${classId}/students/${studentId}`).set(true);
   alert("Student assigned!");
 }
+// ----- DASHBOARD KPIs -----
+function loadKPIs() {
+  const totalClassesCard = document.getElementById("total-classes");
+  const totalTeachersCard = document.getElementById("total-teachers");
+  const totalStudentsCard = document.getElementById("total-students");
+
+  // Reset counts
+  let totalClasses = 0;
+  let totalTeachers = 0;
+  let totalStudents = 0;
+
+  // Count classes
+  db.ref("classes").once("value").then(snapshot => {
+    totalClasses = snapshot.size || 0;
+    totalClassesCard.textContent = totalClasses;
+  });
+
+  // Count teachers
+  db.ref("users").orderByChild("role").equalTo("teacher").once("value").then(snapshot => {
+    totalTeachers = snapshot.size || 0;
+    totalTeachersCard.textContent = totalTeachers;
+  });
+
+  // Count students
+  db.ref("users").orderByChild("role").equalTo("student").once("value").then(snapshot => {
+    totalStudents = snapshot.size || 0;
+    totalStudentsCard.textContent = totalStudents;
+  });
+}
+
+// Call KPIs when dashboard loads
+function showDashboard() {
+  mainView.innerHTML = `
+    <h2>📊 Dashboard Overview</h2>
+    <div class="kpi-cards">
+      <div class="card" id="total-classes"><p>0</p><h4>Total Classes</h4></div>
+      <div class="card" id="total-teachers"><p>0</p><h4>Total Teachers</h4></div>
+      <div class="card" id="total-students"><p>0</p><h4>Total Students</h4></div>
+    </div>
+  `;
+
+  loadKPIs(); // populate the numbers
+
+  // You can also add a little animation for fun:
+  document.querySelectorAll(".kpi-cards .card").forEach((c, i) => {
+    setTimeout(() => c.classList.add("show"), i * 150);
+  });
+}
