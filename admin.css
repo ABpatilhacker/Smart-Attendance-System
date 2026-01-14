@@ -1,0 +1,100 @@
+body{
+  margin:0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg,#1f2933,#111827);
+  color:#fff;
+}
+
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+}
+.overlay.active{display:block;}
+
+.sidebar{
+  position:fixed;
+  left:-260px;
+  top:0;
+  width:260px;
+  height:100%;
+  background:linear-gradient(180deg,#4f46e5,#7c3aed);
+  transition:.3s;
+  padding:20px;
+}
+.sidebar.active{left:0;}
+
+.brand{
+  text-align:center;
+}
+.brand img{
+  width:70px;
+}
+.brand h2{margin:10px 0;}
+
+.sidebar button{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  background:rgba(255,255,255,.15);
+  border:none;
+  color:#fff;
+  border-radius:10px;
+  cursor:pointer;
+  transition:.3s;
+}
+.sidebar button:hover{
+  background:#fff;
+  color:#000;
+}
+
+.logout{background:#ef4444!important;}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  padding:15px;
+  background:#111827;
+}
+.menu{
+  font-size:22px;
+  background:none;
+  color:white;
+  border:none;
+  margin-right:15px;
+}
+
+.main{
+  padding:20px;
+}
+
+.cards{
+  display:grid;
+  gap:15px;
+}
+.card{
+  padding:20px;
+  border-radius:15px;
+  font-size:22px;
+  display:flex;
+  justify-content:space-between;
+}
+.blue{background:#2563eb;}
+.purple{background:#7c3aed;}
+.green{background:#059669;}
+
+.row{
+  background:rgba(255,255,255,.1);
+  padding:12px;
+  margin:8px 0;
+  border-radius:10px;
+  display:flex;
+  justify-content:space-between;
+}
+
+input,button{
+  padding:10px;
+  border-radius:8px;
+  border:none;
+}
