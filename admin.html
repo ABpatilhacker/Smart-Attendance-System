@@ -1,56 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Admin Dashboard | Smart Attendance</title>
-  <link rel="stylesheet" href="admin.css" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-  <script src="firebase.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Dashboard</title>
+
+<link rel="stylesheet" href="admin.css">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
 </head>
+
 <body>
 
-<!-- MOBILE OVERLAY -->
-<div class="overlay" onclick="toggleSidebar()"></div>
+<div class="overlay" id="overlay"></div>
 
-<!-- SIDEBAR -->
-<aside id="sidebar" class="sidebar">
-  <div class="sidebar-header">
-    <h2>👑 Admin</h2>
-  </div>
-
-  <nav class="sidebar-menu">
-    <button onclick="scrollToSection('kpi')">📊 Dashboard</button>
-    <button onclick="scrollToSection('createClass')">🏫 Create Class</button>
-    <button onclick="scrollToSection('addSubject')">📘 Add Subject</button>
-    <button onclick="scrollToSection('assignStudent')">🎓 Assign Student</button>
-    <button onclick="scrollToSection('allClasses')">📋 All Classes</button>
-    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-  </nav>
+<aside class="sidebar" id="sidebar">
+  <h2>👑 Admin</h2>
+  <button onclick="scrollTo('kpi')">📊 Dashboard</button>
+  <button onclick="scrollTo('createClass')">🏫 Create Class</button>
+  <button onclick="scrollTo('addSubject')">📘 Add Subject</button>
+  <button onclick="scrollTo('assignStudent')">🎓 Assign Student</button>
+  <button onclick="scrollTo('allClasses')">📋 All Classes</button>
+  <button class="logout" onclick="logout()">🚪 Logout</button>
 </aside>
 
-<!-- MAIN -->
 <div class="main">
-
-  <!-- TOPBAR -->
   <header class="topbar">
-    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <button class="menu" onclick="toggleSidebar()">☰</button>
     <h1>Admin Dashboard</h1>
   </header>
 
-  <!-- CONTENT -->
-  <div class="container">
+  <div class="content">
 
     <!-- KPI -->
-    <section id="kpi"></section>
+    <section id="kpi" class="grid">
+      <div class="card"><h3>Total Classes</h3><p id="kClasses">0</p></div>
+      <div class="card"><h3>Total Teachers</h3><p id="kTeachers">0</p></div>
+      <div class="card"><h3>Total Students</h3><p id="kStudents">0</p></div>
+    </section>
 
-    <section id="createClass"></section>
-    <section id="addSubject"></section>
-    <section id="assignStudent"></section>
-    <section id="allClasses"></section>
+    <!-- CREATE CLASS -->
+    <section id="createClass" class="box">
+      <h3>🏫 Create Class</h3>
+      <input id="className" placeholder="Class name (e.g. BCA FY)">
+      <button onclick="createClass()">Create</button>
+    </section>
+
+    <!-- ADD SUBJECT -->
+    <section id="addSubject" class="box">
+      <h3>📘 Add Subject</h3>
+      <select id="subjectClass"></select>
+      <input id="subjectName" placeholder="Subject name">
+      <button onclick="addSubject()">Add</button>
+    </section>
+
+    <!-- ASSIGN STUDENT -->
+    <section id="assignStudent" class="box">
+      <h3>🎓 Assign Student</h3>
+      <select id="assignClass"></select>
+      <select id="assignStudentId"></select>
+      <button onclick="assignStudent()">Assign</button>
+    </section>
+
+    <!-- ALL CLASSES -->
+    <section id="allClasses" class="box">
+      <h3>📋 All Classes</h3>
+      <div id="classList"></div>
+    </section>
 
   </div>
 </div>
