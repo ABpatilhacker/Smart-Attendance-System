@@ -28,7 +28,7 @@ auth.onAuthStateChanged(user => {
   if (!user) location.href = "login.html";
   currentTeacher = user.uid;
   setTeacherName();
-  showClasses();
+  showDashboard(); // load dashboard by default
 });
 
 // ----- SET TEACHER NAME -----
@@ -38,7 +38,61 @@ function setTeacherName() {
   });
 }
 
-// ----- SHOW CLASSES DASHBOARD -----
+// ---------- DASHBOARD OVERVIEW ----------
+function showDashboard() {
+  closeSidebar();
+  mainView.innerHTML = `<h2>Dashboard Overview</h2>
+    <div class="card-grid" id="overview-cards"></div>
+  `;
+  
+  const cards = document.getElementById("overview-cards");
+  
+  // TOTAL CLASSES
+  db.ref(`users/${currentTeacher}/classes`).once("value").then(snap => {
+    const totalClasses = snap.size || 0;
+    const card = document.createElement("div");
+    card.className = "card overview-card";
+    card.innerHTML = `
+      <h3>📚 Total Classes</h3>
+      <p>${totalClasses}</p>
+    `;
+    cards.appendChild(card);
+
+    // TOTAL STUDENTS & ATTENDANCE
+    let studentCount = 0;
+    let presentToday = 0;
+    const today = new Date().toISOString().split("T")[0];
+    
+    snap.forEach(c => {
+      db.ref(`classes/${c.key}`).once("value").then(csnap => {
+        const cls = csnap.val();
+        const students = cls.students || {};
+        studentCount += Object.keys(students).length;
+
+        const attendanceToday = cls.attendance?.[today] || {};
+        Object.values(attendanceToday).forEach(v => {
+          if (v === "present") presentToday++;
+        });
+
+        // Only after processing last class, show student and attendance cards
+        if (c.key === snap.keys().pop()) {
+          const stuCard = document.createElement("div");
+          stuCard.className = "card overview-card";
+          stuCard.innerHTML = `<h3>👩‍🎓 Total Students</h3><p>${studentCount}</p>`;
+          cards.appendChild(stuCard);
+
+          const perc = studentCount ? Math.round((presentToday / studentCount) * 100) : 0;
+          const attCard = document.createElement("div");
+          attCard.className = "card overview-card";
+          attCard.innerHTML = `<h3>📝 Attendance Today</h3><p>${perc}%</p>`;
+          cards.appendChild(attCard);
+        }
+      });
+    });
+  });
+}
+
+// ---------- SHOW CLASSES ----------
 function showClasses() {
   closeSidebar();
   mainView.innerHTML = `<h2>My Classes</h2><div id="class-list" class="card-grid"></div>`;
@@ -50,7 +104,7 @@ function showClasses() {
       db.ref(`classes/${c.key}`).once("value").then(csnap => {
         const cls = csnap.val();
         const card = document.createElement("div");
-        card.className = "card";
+        card.className = "card class-card";
         card.innerHTML = `
           <h3>${cls.name}</h3>
           <p>Subjects: ${Object.values(cls.subjects || {}).join(", ")}</p>
@@ -63,7 +117,7 @@ function showClasses() {
   });
 }
 
-// ----- SHOW CLASS DETAIL -----
+// ---------- CLASS DETAIL ----------
 function showClassDetail(classId) {
   closeSidebar();
   mainView.innerHTML = `<h2>Class Dashboard</h2>
@@ -96,7 +150,7 @@ function showClassDetail(classId) {
   });
 }
 
-// ----- MARK ATTENDANCE -----
+// ---------- MARK ATTENDANCE ----------
 function markAttendance(classId) {
   const date = document.getElementById("att-date").value;
   if (!date) return alert("Select date!");
@@ -107,16 +161,14 @@ function markAttendance(classId) {
       db.ref(`classes/${classId}/attendance/${date}/${s.key}`).set(status);
     });
     alert("Attendance marked!");
-    showClassDetail(classId); // Refresh list with selected date
+    showClassDetail(classId);
   });
 }
 
-// ----- SHOW DEFAULTERS -----
+// ---------- SHOW DEFAULTERS ----------
 function showDefaulters() {
   closeSidebar();
-  mainView.innerHTML = `<h2>Defaulters</h2>
-    <div id="defaulters-list" class="card-grid"></div>
-  `;
+  mainView.innerHTML = `<h2>Defaulters</h2><div id="defaulters-list" class="card-grid"></div>`;
 
   db.ref("settings/minAttendancePercent").once("value").then(minSnap => {
     const minPercent = minSnap.val();
@@ -151,4 +203,4 @@ function showDefaulters() {
       });
     });
   });
-}
+          }
