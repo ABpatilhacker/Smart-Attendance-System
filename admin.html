@@ -18,7 +18,7 @@
 
 <body>
 
-<div class="overlay" onclick="toggleSidebar()"></div>
+<div class="overlay" onclick="toggleSidebar(true)"></div>
 
 <!-- Sidebar -->
 <aside id="sidebar" class="sidebar">
@@ -28,11 +28,11 @@
   </div>
 
   <nav>
-    <button onclick="showDashboard()">📊 Dashboard</button>
-    <button onclick="showPending()">⏳ Approvals</button>
-    <button onclick="showClasses()">🏫 Classes</button>
-    <button onclick="showTeachers()">👨‍🏫 Teachers</button>
-    <button class="logout" onclick="logout()">🚪 Logout</button>
+    <button onclick="showDashboard(); closeSidebar()">📊 Dashboard</button>
+    <button onclick="showPending(); closeSidebar()">⏳ Approvals</button>
+<button onclick="showClasses(); closeSidebar()">🏫 Classes</button>
+<button onclick="showTeachers(); closeSidebar()">👨‍🏫 Teachers</button>
+<button class="logout" onclick="logout()">🚪 Logout</button>
   </nav>
 </aside>
 
