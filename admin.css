@@ -25,67 +25,119 @@ button:hover {
 }
 
 /* ------------------------- SIDEBAR ------------------------- */
-.sidebar {
-  position: fixed;
-  left: -260px;
-  top: 0;
-  bottom: 0;
-  width: 260px;
-  background: linear-gradient(180deg, #4b2be3, #8b5de5);
-  color: #fff;
-  z-index: 1000;
-  transition: left 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  padding-top: 2rem;
-}
-.sidebar.open {
-  left: 0;
-}
-.sidebar .brand {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-.sidebar .brand img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  margin-bottom: 0.5rem;
-}
-.sidebar nav {
-  display: flex;
-  flex-direction: column;
-}
-.sidebar nav button {
-  background: transparent;
-  color: #fff;
-  text-align: left;
-  padding: 12px 20px;
-  margin: 5px 10px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-.sidebar nav button:hover {
-  background: rgba(255,255,255,0.1);
-}
-.sidebar nav .logout {
-  margin-top: auto;
-  background: rgba(255,255,255,0.15);
+/* RESET */
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
 }
 
-/* ------------------------- OVERLAY ------------------------- */
+/* LAYOUT */
+body {
+  margin: 0;
+  background: #f5f7fb;
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, #5a4dfc, #6c63ff);
+  color: white;
+  padding: 16px;
+  transform: translateX(0);
+  transition: 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebar-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sidebar-menu button {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  border-radius: 10px;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.sidebar-menu button:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.logout-btn {
+  background: #ff6b6b !important;
+}
+
+/* MAIN */
+.main {
+  margin-left: 260px;
+  transition: 0.3s;
+}
+
+/* TOPBAR */
+.topbar {
+  height: 60px;
+  background: white;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.menu-btn {
+  font-size: 22px;
+  background: none;
+  border: none;
+  margin-right: 12px;
+  display: none;
+}
+
+/* CONTENT */
+.container {
+  padding: 20px;
+}
+
+/* OVERLAY */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.3);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 900;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  z-index: 999;
 }
-.overlay.show {
-  opacity: 1;
-  pointer-events: all;
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .overlay.show {
+    display: block;
+  }
+
+  .main {
+    margin-left: 0;
+  }
+
+  .menu-btn {
+    display: block;
+  }
 }
 
 /* ------------------------- TOPBAR ------------------------- */
@@ -200,5 +252,94 @@ button:hover {
   }
   .card-grid {
     grid-template-columns: 1fr;
+  }
+}
+/* ---------- MOBILE RESPONSIVE FIX ---------- */
+
+/* GENERAL */
+body {
+  background: #f5f7fb;
+}
+
+.container {
+  padding: 12px;
+}
+
+/* KPI CARDS */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  text-align: center;
+}
+
+.kpi-card h3 {
+  font-size: 14px;
+  color: #666;
+}
+
+.kpi-card p {
+  font-size: 22px;
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+/* FORM CARDS */
+.card {
+  padding: 16px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+/* INPUTS */
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+/* BUTTONS */
+button {
+  background: #5a4dfc;
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* MOBILE ONLY */
+@media (max-width: 768px) {
+  h2 {
+    font-size: 18px;
+  }
+
+  .navbar {
+    padding: 12px;
+  }
+
+  .logout-btn {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
+
+/* DESKTOP */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1100px;
+    margin: auto;
   }
 }
