@@ -5,242 +5,213 @@ const db = window.db;
 const sidebar = document.getElementById("sidebar");
 const overlay = document.querySelector(".overlay");
 const mainView = document.getElementById("main-view");
+
 let currentTeacher = null;
 
-// ----- SIDEBAR TOGGLE -----
+// ----- SIDEBAR -----
 function toggleSidebar() {
   sidebar.classList.toggle("open");
   overlay.classList.toggle("show");
 }
+
 function closeSidebar() {
   sidebar.classList.remove("open");
   overlay.classList.remove("show");
 }
+
 overlay.addEventListener("click", closeSidebar);
 
 // ----- LOGOUT -----
 function logout() {
-  auth.signOut().then(() => location.href = "login.html");
-}
-
-// ----- ON AUTH STATE -----
-auth.onAuthStateChanged(user => {
-  if (!user) location.href = "login.html";
-  currentTeacher = user.uid;
-  setTeacherName();
-  showDashboard(); // load dashboard by default
-});
-
-// ----- SET TEACHER NAME -----
-function setTeacherName() {
-  db.ref(`users/${currentTeacher}`).once("value").then(snap => {
-    document.getElementById("teacher-name").textContent = snap.val().name;
+  auth.signOut().then(() => {
+    location.href = "login.html";
   });
 }
 
-// ---------- DASHBOARD OVERVIEW ----------
+// ----- AUTH -----
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
+  currentTeacher = user.uid;
+  loadTeacherName();
+  showDashboard();
+});
+
+// ----- TEACHER NAME -----
+function loadTeacherName() {
+  db.ref(`users/${currentTeacher}`).once("value").then(snap => {
+    document.getElementById("teacher-name").textContent = snap.val()?.name || "Teacher";
+  });
+}
+
+// ----- DASHBOARD -----
 function showDashboard() {
   closeSidebar();
-  mainView.innerHTML = `<h2>Dashboard Overview</h2>
-    <div class="card-grid" id="overview-cards"></div>
+  mainView.innerHTML = `
+    <h2>Dashboard</h2>
+    <div class="card-grid" id="dash-cards"></div>
   `;
-  
-  const cards = document.getElementById("overview-cards");
-  
-  // TOTAL CLASSES
-  db.ref(`users/${currentTeacher}/classes`).once("value").then(snap => {
-    const totalClasses = snap.size || 0;
-    const card = document.createElement("div");
-    card.className = "card overview-card";
-    card.innerHTML = `
-      <h3>📚 Total Classes</h3>
-      <p>${totalClasses}</p>
-    `;
-    cards.appendChild(card);
 
-    // TOTAL STUDENTS & ATTENDANCE
-    let studentCount = 0;
-    let presentToday = 0;
+  const grid = document.getElementById("dash-cards");
+
+  db.ref(`users/${currentTeacher}/classes`).once("value").then(snap => {
+    const totalClasses = snap.numChildren();
+
+    let totalStudents = 0;
+    let todayPresent = 0;
     const today = new Date().toISOString().split("T")[0];
-    
+
+    if (!snap.exists()) {
+      grid.innerHTML = `<p>No classes assigned</p>`;
+      return;
+    }
+
+    let processed = 0;
+
     snap.forEach(c => {
       db.ref(`classes/${c.key}`).once("value").then(csnap => {
         const cls = csnap.val();
         const students = cls.students || {};
-        studentCount += Object.keys(students).length;
+        totalStudents += Object.keys(students).length;
 
-        const attendanceToday = cls.attendance?.[today] || {};
-        Object.values(attendanceToday).forEach(v => {
-          if (v === "present") presentToday++;
+        const att = cls.attendance?.[today] || {};
+        Object.values(att).forEach(v => {
+          if (v === "present") todayPresent++;
         });
 
-        // Only after processing last class, show student and attendance cards
-        if (c.key === snap.keys().pop()) {
-          const stuCard = document.createElement("div");
-          stuCard.className = "card overview-card";
-          stuCard.innerHTML = `<h3>👩‍🎓 Total Students</h3><p>${studentCount}</p>`;
-          cards.appendChild(stuCard);
+        processed++;
 
-          const perc = studentCount ? Math.round((presentToday / studentCount) * 100) : 0;
-          const attCard = document.createElement("div");
-          attCard.className = "card overview-card";
-          attCard.innerHTML = `<h3>📝 Attendance Today</h3><p>${perc}%</p>`;
-          cards.appendChild(attCard);
+        if (processed === totalClasses) {
+          grid.innerHTML = `
+            <div class="card"><h3>📚 Classes</h3><p>${totalClasses}</p></div>
+            <div class="card"><h3>👩‍🎓 Students</h3><p>${totalStudents}</p></div>
+            <div class="card"><h3>📝 Attendance</h3><p>${totalStudents ? Math.round((todayPresent / totalStudents) * 100) : 0}%</p></div>
+          `;
         }
       });
     });
   });
 }
 
-// ---------- SHOW CLASSES ----------
+// ----- CLASSES -----
 function showClasses() {
   closeSidebar();
-  mainView.innerHTML = `<h2>My Classes</h2><div id="class-list" class="card-grid"></div>`;
+  mainView.innerHTML = `<h2>My Classes</h2><div class="card-grid" id="class-list"></div>`;
+
+  const list = document.getElementById("class-list");
 
   db.ref(`users/${currentTeacher}/classes`).once("value").then(snap => {
-    const list = document.getElementById("class-list");
-    list.innerHTML = "";
+    if (!snap.exists()) {
+      list.innerHTML = "<p>No classes assigned</p>";
+      return;
+    }
+
     snap.forEach(c => {
       db.ref(`classes/${c.key}`).once("value").then(csnap => {
         const cls = csnap.val();
         const card = document.createElement("div");
-        card.className = "card class-card";
+        card.className = "card";
         card.innerHTML = `
           <h3>${cls.name}</h3>
-          <p>Subjects: ${Object.values(cls.subjects || {}).join(", ")}</p>
-          <p>Total Students: ${Object.keys(cls.students || {}).length}</p>
-          <button onclick="showClassDetail('${c.key}')">View Class</button>
+          <p>Students: ${Object.keys(cls.students || {}).length}</p>
+          <button onclick="showClassDetail('${c.key}')">Open</button>
         `;
         list.appendChild(card);
-        const cards = document.querySelectorAll(".card");
-cards.forEach((c, i) => {
-  setTimeout(() => c.classList.add("show"), i * 100);
-});
       });
     });
   });
 }
 
-// ---------- CLASS DETAIL ----------
+// ----- CLASS DETAIL -----
 function showClassDetail(classId) {
   closeSidebar();
-  mainView.innerHTML = `<h2>Class Dashboard</h2>
-    <div id="attendance-controls" class="card">
-      <label>Date: <input type="date" id="att-date" /></label>
-      <button onclick="markAttendance('${classId}')">Mark Attendance</button>
+  mainView.innerHTML = `
+    <h2>Class Attendance</h2>
+    <div class="card">
+      <input type="date" id="att-date">
+      <button onclick="markAttendance('${classId}')">Save Attendance</button>
     </div>
-    <div id="student-list" class="card-grid"></div>
+    <div class="card-grid" id="student-list"></div>
   `;
 
+  const list = document.getElementById("student-list");
+
   db.ref(`classes/${classId}/students`).once("value").then(snap => {
-    const list = document.getElementById("student-list");
-    list.innerHTML = "";
     snap.forEach(s => {
       db.ref(`users/${s.key}`).once("value").then(ssnap => {
         const stu = ssnap.val();
         const card = document.createElement("div");
-card.className = "card student-card";
-card.id = `card-${s.key}`;
-card.innerHTML = `
-  <h4>${stu.name}</h4>
-  <p>Email: ${stu.email}</p>
-  <select id="status-${s.key}" onchange="highlightCard('${s.key}')">
-    <option value="present">Present</option>
-    <option value="absent">Absent</option>
-  </select>
-`;
-list.appendChild(card);
-        function highlightCard(sid) {
-  const card = document.getElementById(`card-${sid}`);
-  const status = document.getElementById(`status-${sid}`).value;
-  if (status === "present") {
-    card.classList.add("present");
-    card.classList.remove("absent");
-  } else {
-    card.classList.add("absent");
-    card.classList.remove("present");
-  }
-        }
-
-// ---------- MARK ATTENDANCE ----------
-// ---------- TOAST NOTIFICATION ----------
-function showToast(message, type = "success") {
-  const toast = document.createElement("div");
-  toast.className = `toast ${type}`;
-  toast.textContent = message;
-  document.body.appendChild(toast);
-
-  setTimeout(() => {
-    toast.classList.add("show");
-  }, 50);
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-    setTimeout(() => toast.remove(), 300);
-  }, 2000);
+        card.className = "card";
+        card.id = `stu-${s.key}`;
+        card.innerHTML = `
+          <h4>${stu.name}</h4>
+          <select id="status-${s.key}">
+            <option value="present">Present</option>
+            <option value="absent">Absent</option>
+          </select>
+        `;
+        list.appendChild(card);
+      });
+    });
+  });
 }
 
-// ---------- MARK ATTENDANCE ----------
+// ----- ATTENDANCE -----
 function markAttendance(classId) {
   const date = document.getElementById("att-date").value;
-  if (!date) return showToast("Select date!", "error");
+  if (!date) {
+    alert("Select date");
+    return;
+  }
 
   db.ref(`classes/${classId}/students`).once("value").then(snap => {
     snap.forEach(s => {
       const status = document.getElementById(`status-${s.key}`).value;
       db.ref(`classes/${classId}/attendance/${date}/${s.key}`).set(status);
-
-      // Highlight card
-      const card = document.getElementById(`card-${s.key}`);
-      if (status === "present") {
-        card.classList.add("present");
-        card.classList.remove("absent");
-      } else {
-        card.classList.add("absent");
-        card.classList.remove("present");
-      }
     });
-
-    showToast("Attendance marked successfully!");
+    alert("Attendance saved");
   });
 }
 
-// ---------- SHOW DEFAULTERS ----------
+// ----- DEFAULTERS -----
 function showDefaulters() {
   closeSidebar();
-  mainView.innerHTML = `<h2>Defaulters</h2><div id="defaulters-list" class="card-grid"></div>`;
+  mainView.innerHTML = `<h2>Defaulters</h2><div class="card-grid" id="def-list"></div>`;
+  const list = document.getElementById("def-list");
 
-  db.ref("settings/minAttendancePercent").once("value").then(minSnap => {
-    const minPercent = minSnap.val();
+  db.ref("settings/minAttendancePercent").once("value").then(ms => {
+    const min = ms.val() || 75;
+
     db.ref(`users/${currentTeacher}/classes`).once("value").then(snap => {
       snap.forEach(c => {
         db.ref(`classes/${c.key}`).once("value").then(csnap => {
           const cls = csnap.val();
-          const students = cls.students || {};
-          const attendance = cls.attendance || {};
-          const totalDays = Object.keys(attendance).length || 1;
-          const list = document.getElementById("defaulters-list");
+          const att = cls.attendance || {};
+          const days = Object.keys(att).length || 1;
 
-          Object.keys(students).forEach(sid => {
-            let presentCount = 0;
-            Object.values(attendance).forEach(day => {
-              if (day[sid] === "present") presentCount++;
+          Object.keys(cls.students || {}).forEach(sid => {
+            let present = 0;
+            Object.values(att).forEach(d => {
+              if (d[sid] === "present") present++;
             });
-            const percent = Math.round((presentCount / totalDays) * 100);
-            db.ref(`users/${sid}`).once("value").then(ssnap => {
-              const stu = ssnap.val();
-              const card = document.createElement("div");
-              card.className = "card student-card " + (percent < minPercent ? "low-attendance" : "ok-attendance");
-              card.innerHTML = `
-                <h4>${stu.name}</h4>
-                <p>Attendance: ${percent}%</p>
-                <p>Class: ${cls.name}</p>
-              `;
-              list.appendChild(card);
-            });
+
+            const percent = Math.round((present / days) * 100);
+            if (percent < min) {
+              db.ref(`users/${sid}`).once("value").then(ss => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `
+                  <h4>${ss.val().name}</h4>
+                  <p>${percent}% attendance</p>
+                `;
+                list.appendChild(card);
+              });
+            }
           });
         });
       });
     });
   });
-          }
+}
