@@ -112,6 +112,10 @@ function showClasses() {
           <button onclick="showClassDetail('${c.key}')">View Class</button>
         `;
         list.appendChild(card);
+        const cards = document.querySelectorAll(".card");
+cards.forEach((c, i) => {
+  setTimeout(() => c.classList.add("show"), i * 100);
+});
       });
     });
   });
