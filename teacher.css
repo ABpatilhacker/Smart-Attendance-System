@@ -1,0 +1,43 @@
+/* Reset */
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Inter', sans-serif; }
+
+body { background: #f5f7fb; color: #1f2937; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top:0; left:0; width:250px; height:100%; background:#4f46e5;
+  color:white; padding:20px; transform:translateX(-100%);
+  transition:0.3s; z-index:1000; border-right: 1px solid #ddd;
+}
+.sidebar.open { transform:translateX(0); }
+.sidebar .brand { display:flex; align-items:center; gap:10px; margin-bottom:30px; }
+.sidebar .brand img { width:40px; border-radius:6px; }
+.sidebar nav button {
+  display:block; width:100%; margin-bottom:10px; padding:12px;
+  border:none; background:rgba(255,255,255,0.15); color:white; border-radius:8px;
+  cursor:pointer; transition:0.2s;
+}
+.sidebar nav button:hover { background:rgba(255,255,255,0.25); }
+.sidebar .logout { background:#ef4444; }
+.sidebar .logout:hover { background:#dc2626; }
+
+/* Overlay */
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:0.3s; z-index:900; }
+.overlay.show { opacity:1; pointer-events:all; }
+
+/* Topbar */
+.topbar { position:fixed; top:0; left:0; right:0; height:60px; background:white; display:flex; align-items:center; padding:0 20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); z-index:800; }
+.topbar h1 { margin-left:20px; color:#1f2937; font-size:18px; font-weight:600; }
+.topbar .menu { font-size:22px; background:none; border:none; cursor:pointer; color:#4f46e5; }
+
+/* Main Content */
+.main { margin-left:0; padding:80px 20px 20px 20px; transition:margin-left 0.3s; }
+.card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:20px; }
+.card { background:white; padding:20px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,0.05); transition:0.2s; }
+.card:hover { transform:translateY(-5px); box-shadow:0 12px 30px rgba(0,0,0,0.1); }
+button { cursor:pointer; }
+.student-card select { width:100%; margin-top:8px; padding:5px; border-radius:6px; border:1px solid #ddd; }
+
+/* Responsive */
+@media (min-width:768px) { .main { margin-left:250px; } .sidebar { transform:translateX(0); } .overlay { display:none; } }
