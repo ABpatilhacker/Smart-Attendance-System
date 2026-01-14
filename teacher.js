@@ -135,33 +135,69 @@ function showClassDetail(classId) {
       db.ref(`users/${s.key}`).once("value").then(ssnap => {
         const stu = ssnap.val();
         const card = document.createElement("div");
-        card.className = "card student-card";
-        card.innerHTML = `
-          <h4>${stu.name}</h4>
-          <p>Email: ${stu.email}</p>
-          <select id="status-${s.key}">
-            <option value="present">Present</option>
-            <option value="absent">Absent</option>
-          </select>
-        `;
-        list.appendChild(card);
-      });
-    });
-  });
+card.className = "card student-card";
+card.id = `card-${s.key}`;
+card.innerHTML = `
+  <h4>${stu.name}</h4>
+  <p>Email: ${stu.email}</p>
+  <select id="status-${s.key}" onchange="highlightCard('${s.key}')">
+    <option value="present">Present</option>
+    <option value="absent">Absent</option>
+  </select>
+`;
+list.appendChild(card);
+        function highlightCard(sid) {
+  const card = document.getElementById(`card-${sid}`);
+  const status = document.getElementById(`status-${sid}`).value;
+  if (status === "present") {
+    card.classList.add("present");
+    card.classList.remove("absent");
+  } else {
+    card.classList.add("absent");
+    card.classList.remove("present");
+  }
+        }
+
+// ---------- MARK ATTENDANCE ----------
+// ---------- TOAST NOTIFICATION ----------
+function showToast(message, type = "success") {
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => {
+    toast.classList.add("show");
+  }, 50);
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
 }
 
 // ---------- MARK ATTENDANCE ----------
 function markAttendance(classId) {
   const date = document.getElementById("att-date").value;
-  if (!date) return alert("Select date!");
+  if (!date) return showToast("Select date!", "error");
 
   db.ref(`classes/${classId}/students`).once("value").then(snap => {
     snap.forEach(s => {
       const status = document.getElementById(`status-${s.key}`).value;
       db.ref(`classes/${classId}/attendance/${date}/${s.key}`).set(status);
+
+      // Highlight card
+      const card = document.getElementById(`card-${s.key}`);
+      if (status === "present") {
+        card.classList.add("present");
+        card.classList.remove("absent");
+      } else {
+        card.classList.add("absent");
+        card.classList.remove("present");
+      }
     });
-    alert("Attendance marked!");
-    showClassDetail(classId);
+
+    showToast("Attendance marked successfully!");
   });
 }
 
