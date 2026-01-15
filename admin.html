@@ -1,66 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard | Smart Attendance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Admin Dashboard | Smart Attendance</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="admin.css">
+<!-- CSS -->
+<link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
-<!-- ✅ OVERLAY (IMPORTANT FOR SIDEBAR CLOSE) -->
-<div id="overlay" class="overlay"></div>
+<!-- Overlay for sidebar -->
+<div class="overlay" onclick="closeSidebar()"></div>
 
-<!-- SIDEBAR -->
+<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
   <div class="brand">
-    <h2>📊 Admin Panel</h2>
+    <h2>📊 Admin</h2>
     <p id="adminName">Loading...</p>
   </div>
-
   <nav>
-    <button onclick="navigate('dashboard')">
-      <i class="fas fa-home"></i> Dashboard
-    </button>
-
-    <button onclick="navigate('classes')">
-      <i class="fas fa-school"></i> Classes
-    </button>
-
-    <button onclick="navigate('teachers')">
-      <i class="fas fa-chalkboard-teacher"></i> Teachers
-    </button>
-
-    <button onclick="navigate('students')">
-      <i class="fas fa-user-graduate"></i> Students
-    </button>
-
-    <button onclick="navigate('settings')">
-      <i class="fas fa-cog"></i> Settings
-    </button>
-
-    <button onclick="logout()" class="logout">
-      <i class="fas fa-sign-out-alt"></i> Logout
-    </button>
+    <button onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+    <button onclick="showSection('classes')"><i class="fas fa-school"></i> Classes</button>
+    <button onclick="showSection('teachers')"><i class="fas fa-chalkboard-teacher"></i> Teachers</button>
+    <button onclick="showSection('students')"><i class="fas fa-user-graduate"></i> Students</button>
+    <button onclick="showSection('settings')"><i class="fas fa-cog"></i> Settings</button>
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </nav>
 </div>
 
-<!-- TOP BAR -->
+<!-- Topbar -->
 <div class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <h1 id="pageTitle">Dashboard</h1>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- Main content -->
 <div class="main">
 
-  <!-- DASHBOARD -->
+  <!-- Dashboard Section -->
   <section id="dashboard" class="section active">
     <div class="card-grid">
       <div class="card">👨‍🏫 Teachers<br><span id="teacherCount">0</span></div>
@@ -69,32 +51,38 @@
     </div>
   </section>
 
-  <!-- CLASSES -->
+  <!-- Classes Section -->
   <section id="classes" class="section">
     <h2>Manage Classes</h2>
-    <input id="className" placeholder="Class Name">
-    <button onclick="createClass()">Add Class</button>
+    <div class="form-inline">
+      <input id="className" placeholder="Class Name">
+      <select id="classTeacher"></select>
+      <input id="classSubjects" placeholder="Subjects (comma separated)">
+      <button onclick="createClass()">Add Class</button>
+    </div>
     <ul id="classList"></ul>
   </section>
 
-  <!-- TEACHERS -->
+  <!-- Teachers Section -->
   <section id="teachers" class="section">
     <h2>Teachers</h2>
     <ul id="teacherList"></ul>
     <div id="teacherProfile" class="profile hidden"></div>
   </section>
 
-  <!-- STUDENTS -->
+  <!-- Students Section -->
   <section id="students" class="section">
     <h2>Add Student</h2>
-    <input id="studentName" placeholder="Student Name">
-    <input id="rollNo" placeholder="Roll No">
-    <select id="studentClass"></select>
-    <button onclick="addStudent()">Add Student</button>
+    <div class="form-inline">
+      <input id="studentName" placeholder="Student Name">
+      <input id="rollNo" placeholder="Roll No">
+      <select id="studentClass"></select>
+      <button onclick="addStudent()">Add Student</button>
+    </div>
     <ul id="studentList"></ul>
   </section>
 
-  <!-- SETTINGS -->
+  <!-- Settings Section -->
   <section id="settings" class="section">
     <h2>Settings</h2>
     <label>Minimum Attendance (%)</label>
@@ -105,15 +93,12 @@
 </div>
 
 <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<!-- Firebase Config -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script src="firebase.js"></script>
 
-<!-- Admin Logic -->
+<!-- Admin JS -->
 <script src="admin.js"></script>
-
 </body>
 </html>
