@@ -1,14 +1,14 @@
-// ----- GLOBAL REFS -----
+// ================= GLOBAL =================
 const auth = window.auth;
 const db = window.db;
 
 const sidebar = document.getElementById("sidebar");
 const overlay = document.querySelector(".overlay");
-const mainView = document.getElementById("main-view"); // ✅ corrected
+const mainView = document.getElementById("main-view");
 
 let currentAdmin = null;
 
-// ----- SIDEBAR TOGGLE -----
+// ================= SIDEBAR =================
 function toggleSidebar() {
   sidebar.classList.toggle("open");
   overlay.classList.toggle("show");
@@ -19,250 +19,362 @@ function closeSidebar() {
 }
 overlay.addEventListener("click", closeSidebar);
 
-// ----- LOGOUT -----
+// ================= LOGOUT =================
 function logout() {
   auth.signOut().then(() => location.href = "login.html");
 }
 
-// ----- AUTH STATE -----
+// ================= AUTH =================
 auth.onAuthStateChanged(user => {
-  if(!user) location.href="login.html";
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
   currentAdmin = user.uid;
   setAdminName();
   showDashboard();
 });
 
-// ----- SET ADMIN NAME -----
+// ================= ADMIN NAME =================
 function setAdminName() {
-  db.ref(`users/${currentAdmin}`).once("value").then(snap=>{
-    document.getElementById("admin-name").textContent = `- ${snap.val().name}`;
+  const title = document.querySelector(".topbar h1");
+
+  db.ref("users/" + currentAdmin).once("value").then(snap => {
+    const name = snap.exists() ? snap.val().name : "Admin";
+    title.innerHTML = `Admin Dashboard <span style="opacity:.8;font-weight:400">- ${name}</span>`;
   });
 }
 
-// ----- TOAST -----
-function showToast(msg, type="success") {
+// ================= TOAST =================
+function showToast(msg, type = "success") {
   const toast = document.createElement("div");
   toast.className = `toast ${type}`;
-  toast.textContent = msg;
+  toast.innerText = msg;
   document.body.appendChild(toast);
-  setTimeout(()=>toast.classList.add("show"), 50);
-  setTimeout(()=>{
+
+  setTimeout(() => toast.classList.add("show"), 50);
+  setTimeout(() => {
     toast.classList.remove("show");
-    setTimeout(()=>toast.remove(), 300);
-  },2000);
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
 }
 
-// ----- SET ACTIVE BUTTON -----
-function setActive(btn){
-  document.querySelectorAll(".sidebar nav button").forEach(b=>b.classList.remove("active"));
-  btn?.classList.add("active");
-}
-
-// ----- DASHBOARD -----
-function showDashboard(btn){
-  setActive(btn);
+// ================= DASHBOARD =================
+function showDashboard() {
   closeSidebar();
-  mainView.innerHTML = `<h2>Dashboard Overview</h2>
-    <div class="card-grid" id="overview-cards"></div>
-    <canvas id="attendanceChart" style="margin-top:30px;"></canvas>
-  `;
-  const cards = document.getElementById("overview-cards");
 
-  db.ref("classes").once("value").then(classSnap=>{
-    const totalClasses = classSnap.size;
+  mainView.innerHTML = `
+    <h2>Dashboard Overview</h2>
+    <div class="card-grid" id="overview"></div>
+    <canvas id="attendanceChart" style="margin-top:30px"></canvas>
+  `;
+
+  db.ref("classes").once("value").then(snap => {
+    let totalClasses = snap.exists() ? snap.numChildren() : 0;
     let totalStudents = 0;
     let presentToday = 0;
     const today = new Date().toISOString().split("T")[0];
 
-    classSnap.forEach(csnap=>{
-      const cls = csnap.val();
-      const students = cls.students||{};
-      totalStudents += Object.keys(students).length;
-      const attendanceToday = cls.attendance?.[today]||{};
-      Object.values(attendanceToday).forEach(s=>{
-        if(s==="present") presentToday++;
+    snap.forEach(clsSnap => {
+      const cls = clsSnap.val();
+      totalStudents += Object.keys(cls.students || {}).length;
+
+      const todayAtt = cls.attendance?.[today] || {};
+      Object.values(todayAtt).forEach(v => {
+        if (v === "present") presentToday++;
       });
     });
 
+    const cards = document.getElementById("overview");
     const kpis = [
-      {title:"Total Classes", value: totalClasses},
-      {title:"Total Students", value: totalStudents},
-      {title:"Attendance Today", value: totalStudents? Math.round((presentToday/totalStudents)*100)+"%" : "0%"}
+      { title: "Total Classes", value: totalClasses },
+      { title: "Total Students", value: totalStudents },
+      { title: "Attendance Today", value: totalStudents ? Math.round((presentToday / totalStudents) * 100) + "%" : "0%" }
     ];
 
-    kpis.forEach(k=>{
-      const card = document.createElement("div");
-      card.className="card overview-card";
-      card.innerHTML = `<h3>${k.title}</h3><p>${k.value}</p>`;
-      cards.appendChild(card);
-      setTimeout(()=>card.classList.add("show"),50);
+    cards.innerHTML = "";
+    kpis.forEach(k => {
+      const c = document.createElement("div");
+      c.className = "card overview-card";
+      c.innerHTML = `<h3>${k.title}</h3><p>${k.value}</p>`;
+      cards.appendChild(c);
     });
 
-    // Chart.js
-    const ctx = document.getElementById('attendanceChart').getContext('2d');
-    const labels=[], dataPresent=[], dataAbsent=[];
-    classSnap.forEach(csnap=>{
-      const cls = csnap.val();
+    // Chart
+    const labels = [];
+    const present = [];
+    const absent = [];
+
+    snap.forEach(clsSnap => {
+      const cls = clsSnap.val();
       labels.push(cls.name);
-      const students = cls.students||{};
-      const attendanceToday = cls.attendance?.[today]||{};
-      let present=0, absent=0;
-      Object.keys(students).forEach(sid=>{
-        if(attendanceToday[sid]==="present") present++; else absent++;
+      let p = 0, a = 0;
+      Object.keys(cls.students || {}).forEach(sid => {
+        if (cls.attendance?.[today]?.[sid] === "present") p++;
+        else a++;
       });
-      dataPresent.push(present); dataAbsent.push(absent);
+      present.push(p);
+      absent.push(a);
     });
 
-    new Chart(ctx,{
-      type:'bar',
-      data:{labels, datasets:[{label:'Present', data:dataPresent, backgroundColor:'#2ecc71'},{label:'Absent', data:dataAbsent, backgroundColor:'#e74c3c'}]},
-      options:{responsive:true, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:true}}}
+    new Chart(document.getElementById("attendanceChart"), {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          { label: "Present", data: present, backgroundColor: "#2ecc71" },
+          { label: "Absent", data: absent, backgroundColor: "#e74c3c" }
+        ]
+      },
+      options: { responsive: true }
     });
   });
 }
 
-// ----- PENDING APPROVALS -----
-function showPending(btn){
-  setActive(btn);
+// ================= PENDING USERS =================
+function showPending() {
   closeSidebar();
-  mainView.innerHTML=`<h2>Pending Approvals</h2><div id="pending-list" class="card-grid"></div>`;
-  const list = document.getElementById("pending-list");
+  mainView.innerHTML = `<h2>Pending Approvals</h2><div class="card-grid" id="pending"></div>`;
 
-  db.ref("users").once("value").then(snap=>{
-    list.innerHTML="";
-    snap.forEach(uSnap=>{
-      const u = uSnap.val();
-      if(u.status==="pending"){
-        const card=document.createElement("div");
-        card.className="card student-card";
-        card.innerHTML=`
-          <h4>${u.name}</h4>
-          <p>Role: ${u.role}</p>
-          <p>Email: ${u.email}</p>
-          <button onclick="approveUser('${uSnap.key}')">✅ Approve</button>
-          <button onclick="rejectUser('${uSnap.key}')">❌ Reject</button>
+  db.ref("users").once("value").then(snap => {
+    const list = document.getElementById("pending");
+    list.innerHTML = "";
+
+    snap.forEach(u => {
+      const user = u.val();
+      if (user.status === "pending") {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h3>${user.name}</h3>
+          <p>${user.email}</p>
+          <p>Role: ${user.role}</p>
+          <button onclick="approveUser('${u.key}')">Approve</button>
+          <button onclick="rejectUser('${u.key}')">Reject</button>
         `;
         list.appendChild(card);
-        setTimeout(()=>card.classList.add("show"),50);
       }
     });
   });
 }
 
-// ----- APPROVE / REJECT -----
-function approveUser(uid){
-  if(!confirm("Approve this user?")) return;
-  db.ref(`users/${uid}/status`).set("approved").then(()=>{showPending(); showToast("User approved!")});
-}
-function rejectUser(uid){
-  if(!confirm("Reject this user?")) return;
-  db.ref(`users/${uid}`).remove().then(()=>{showPending(); showToast("User rejected!","error")});
+function approveUser(uid) {
+  db.ref("users/" + uid + "/status").set("approved").then(() => {
+    showToast("User approved");
+    showPending();
+  });
 }
 
-// ----- CLASSES -----
-function showClasses(btn){
-  setActive(btn);
+function rejectUser(uid) {
+  db.ref("users/" + uid).remove().then(() => {
+    showToast("User rejected", "error");
+    showPending();
+  });
+}
+
+// ================= CLASSES =================
+function showClasses() {
   closeSidebar();
-  mainView.innerHTML=`<h2>Classes Management</h2>
+
+  mainView.innerHTML = `
+    <h2>Classes</h2>
     <button onclick="createClassForm()">➕ Create Class</button>
-    <div id="classes-list" class="card-grid"></div>`;
+    <div class="card-grid" id="class-list"></div>
+  `;
+
   loadClasses();
 }
 
-function loadClasses(){
-  db.ref("classes").once("value").then(snap=>{
-    const list = document.getElementById("classes-list");
-    list.innerHTML="";
-    snap.forEach(csnap=>{
-      const cls = csnap.val();
+function loadClasses() {
+  const list = document.getElementById("class-list");
+  list.innerHTML = "";
+
+  db.ref("classes").once("value").then(snap => {
+    snap.forEach(clsSnap => {
+      const cls = clsSnap.val();
       const card = document.createElement("div");
-      card.className="card";
-      card.innerHTML=`
+      card.className = "card";
+      card.innerHTML = `
         <h3>${cls.name}</h3>
-        <p>Teacher: <span id="teacher-${csnap.key}">${cls.teacher}</span></p>
-        <p>Subjects: ${Object.values(cls.subjects||{}).join(", ")}</p>
-        <button onclick="editClass('${csnap.key}')">✏️ Edit</button>
-        <button onclick="deleteClass('${csnap.key}')">🗑️ Delete</button>
+        <p>Subjects: ${Object.values(cls.subjects || {}).join(", ")}</p>
+        <button onclick="editClass('${clsSnap.key}')">Edit</button>
+        <button onclick="deleteClass('${clsSnap.key}')">Delete</button>
       `;
       list.appendChild(card);
-      setTimeout(()=>card.classList.add("show"),50);
     });
   });
 }
 
-// ----- CREATE CLASS FORM -----
-function createClassForm(){
-  mainView.innerHTML=`<h2>Create Class</h2>
+// ================= CREATE CLASS =================
+function createClassForm() {
+  closeSidebar();
+
+  mainView.innerHTML = `
+    <h2>Create Class</h2>
     <div class="card">
-      <label>Class Name: <input type="text" id="class-name"/></label><br><br>
-      <label>Assign Teacher: <select id="class-teacher"></select></label><br><br>
-      <label>Subjects (comma separated): <input type="text" id="class-subjects"/></label><br><br>
-      <button onclick="createClass()">Create Class</button>
+      <input id="class-name" placeholder="Class name" />
+      <select id="class-teacher"></select>
+      <input id="class-subjects" placeholder="Subjects (comma separated)" />
+      <button onclick="createClass()">Create</button>
+      <button onclick="showClasses()">Back</button>
     </div>
   `;
-  const select = document.getElementById("class-teacher");
-  db.ref("users").once("value").then(snap=>{
-    snap.forEach(uSnap=>{
-      const u = uSnap.val();
-      if(u.role==="teacher"){
-        const option = document.createElement("option");
-        option.value = uSnap.key;
-        option.textContent = u.name;
-        select.appendChild(option);
+
+  const sel = document.getElementById("class-teacher");
+  db.ref("users").once("value").then(snap => {
+    snap.forEach(u => {
+      if (u.val().role === "teacher") {
+        const opt = document.createElement("option");
+        opt.value = u.key;
+        opt.textContent = u.val().name;
+        sel.appendChild(opt);
       }
     });
   });
 }
 
-// ----- CREATE CLASS -----
-function createClass(){
-  const name=document.getElementById("class-name").value.trim();
-  const teacher=document.getElementById("class-teacher").value;
-  const subjects=document.getElementById("class-subjects").value.split(",").map(s=>s.trim());
-  if(!name||!teacher||subjects.length===0) return showToast("Fill all fields!","error");
+function createClass() {
+  const name = document.getElementById("class-name").value.trim();
+  const teacher = document.getElementById("class-teacher").value;
+  const subjectsArr = document.getElementById("class-subjects").value
+    .split(",").map(s => s.trim()).filter(Boolean);
 
-  const newClassRef=db.ref("classes").push();
-  const subjectsObj={};
-  subjects.forEach((s,i)=>subjectsObj["subject"+(i+1)]=s);
+  if (!name || !teacher || subjectsArr.length === 0) {
+    showToast("Fill all fields", "error");
+    return;
+  }
 
-  newClassRef.set({name, teacher, subjects: subjectsObj, students:{}, attendance:{}})
-    .then(()=>{
-      db.ref(`users/${teacher}/classes/${newClassRef.key}`).set(true);
-      showToast("Class created!");
-      showClasses();
-    });
-}
+  const subjects = {};
+  subjectsArr.forEach((s, i) => subjects["subject" + (i + 1)] = s);
 
-// ----- DELETE CLASS -----
-function deleteClass(classId){
-  if(!confirm("Delete this class?")) return;
-  db.ref(`classes/${classId}`).remove().then(()=>{
+  const ref = db.ref("classes").push();
+  ref.set({ name, teacher, subjects, students: {}, attendance: {} }).then(() => {
+    db.ref(`users/${teacher}/classes/${ref.key}`).set(true);
+    showToast("Class created");
     showClasses();
-    showToast("Class deleted!","error");
   });
 }
 
-// ----- TEACHERS -----
-function showTeachers(btn){
-  setActive(btn);
+// ================= EDIT CLASS =================
+function editClass(classId) {
   closeSidebar();
-  mainView.innerHTML=`<h2>Teachers</h2><div id="teacher-list" class="card-grid"></div>`;
-  db.ref("users").once("value").then(snap=>{
-    const list = document.getElementById("teacher-list");
-    list.innerHTML="";
-    snap.forEach(uSnap=>{
-      const u=uSnap.val();
-      if(u.role==="teacher"){
-        const card=document.createElement("div");
-        card.className="card";
-        card.innerHTML=`
-          <h4>${u.name}</h4>
-          <p>Email: ${u.email}</p>
-          <p>Classes: ${Object.keys(u.classes||{}).join(", ") || "None"}</p>
+
+  db.ref("classes/" + classId).once("value").then(snap => {
+    const cls = snap.val();
+    mainView.innerHTML = `
+      <h2>Edit Class</h2>
+      <div class="card">
+        <input id="edit-name" value="${cls.name}" />
+        <input id="edit-subjects" value="${Object.values(cls.subjects || {}).join(", ")}" />
+        <button onclick="updateClass('${classId}')">Save</button>
+        <button onclick="showClasses()">Back</button>
+      </div>
+    `;
+  });
+}
+
+function updateClass(classId) {
+  const name = document.getElementById("edit-name").value.trim();
+  const subjectsArr = document.getElementById("edit-subjects").value
+    .split(",").map(s => s.trim()).filter(Boolean);
+
+  const subjects = {};
+  subjectsArr.forEach((s, i) => subjects["subject" + (i + 1)] = s);
+
+  db.ref("classes/" + classId).update({ name, subjects }).then(() => {
+    showToast("Class updated");
+    showClasses();
+  });
+}
+
+function deleteClass(id) {
+  if (!confirm("Delete class?")) return;
+  db.ref("classes/" + id).remove().then(() => {
+    showToast("Class deleted", "error");
+    showClasses();
+  });
+}
+
+// ================= TEACHERS =================
+function showTeachers() {
+  closeSidebar();
+
+  mainView.innerHTML = `<h2>Teachers</h2><div class="card-grid" id="teachers"></div>`;
+  const list = document.getElementById("teachers");
+
+  db.ref("users").once("value").then(snap => {
+    snap.forEach(u => {
+      if (u.val().role === "teacher") {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h3>${u.val().name}</h3>
+          <p>${u.val().email}</p>
+          <button onclick="viewTeacher('${u.key}')">View</button>
         `;
         list.appendChild(card);
-        setTimeout(()=>card.classList.add("show"),50);
       }
     });
   });
 }
+
+function viewTeacher(uid) {
+  closeSidebar();
+
+  Promise.all([
+    db.ref("users/" + uid).once("value"),
+    db.ref("classes").once("value")
+  ]).then(([uSnap, cSnap]) => {
+
+    let options = "";
+    cSnap.forEach(c => {
+      options += `<option value="${c.key}">${c.val().name}</option>`;
+    });
+
+    mainView.innerHTML = `
+      <h2>Teacher</h2>
+      <div class="card">
+        <h3>${uSnap.val().name}</h3>
+        <p>${uSnap.val().email}</p>
+      </div>
+      <div class="card">
+        <select id="assign-class">${options}</select>
+        <button onclick="assignClass('${uid}')">Assign Class</button>
+      </div>
+      <button onclick="showTeachers()">Back</button>
+    `;
+  });
+}
+
+function assignClass(uid) {
+  const classId = document.getElementById("assign-class").value;
+  db.ref(`users/${uid}/classes/${classId}`).set(true).then(() => {
+    showToast("Class assigned");
+  });
+}
+
+// ================= SETTINGS =================
+function showSettings() {
+  closeSidebar();
+
+  mainView.innerHTML = `
+    <h2>Settings</h2>
+    <div class="card">
+      <p>Smart Attendance System</p>
+      <p>Version 1.0</p>
+      <button onclick="resetAttendance()">Reset Today Attendance</button>
+    </div>
+  `;
+}
+
+function resetAttendance() {
+  if (!confirm("Reset attendance?")) return;
+  const today = new Date().toISOString().split("T")[0];
+
+  db.ref("classes").once("value").then(snap => {
+    snap.forEach(cls => {
+      db.ref(`classes/${cls.key}/attendance/${today}`).remove();
+    });
+    showToast("Attendance reset");
+  });
+          }
