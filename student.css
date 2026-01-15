@@ -1,0 +1,64 @@
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(120deg,#fdfbfb,#ebedee);
+}
+
+.topbar {
+  background: linear-gradient(90deg,#11998e,#38ef7d);
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.container {
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  margin-bottom: 20px;
+}
+
+.profile {
+  border-left: 6px solid #38ef7d;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+  gap: 20px;
+}
+
+.subject {
+  padding: 15px;
+  border-radius: 12px;
+  color: white;
+}
+
+.good {
+  background: linear-gradient(135deg,#43cea2,#185a9d);
+}
+
+.warn {
+  background: linear-gradient(135deg,#ff9966,#ff5e62);
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #ccc;
+}
+
+button {
+  background: #ff5252;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: white;
+}
