@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard | Smart Attendance</title>
+  <link rel="stylesheet" href="admin.css">
+
+  <!-- Firebase v9 compat -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <!-- Charts.js for KPIs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script src="firebase.js"></script>
+  <script defer src="admin.js"></script>
+</head>
+
+<body>
+
+<div class="overlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="sidebar">
+  <div class="brand">
+    <img src="logo.png" alt="Logo">
+    <h2>Smart Attendance</h2>
+  </div>
+  <nav>
+    <button onclick="showDashboard()">📊 Dashboard</button>
+    <button onclick="showPending()">⏳ Approvals</button>
+    <button onclick="showClasses()">🏫 Classes</button>
+    <button onclick="showTeachers()">👨‍🏫 Teachers</button>
+    <button onclick="showSettings()">⚙️ Settings</button>
+    <button class="logout" onclick="logout()">🚪 Logout</button>
+  </nav>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <h1>Admin Dashboard</h1>
+  <span id="admin-name"></span>
+</header>
+
+<!-- Main -->
+<main id="main-view" class="main"></main>
+
+</body>
+</html>
