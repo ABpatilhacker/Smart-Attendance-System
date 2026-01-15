@@ -1,92 +1,43 @@
-const auth = firebase.auth();
-const db = firebase.database();
+// ---------- GLOBAL ----------
+const auth = window.auth;
+const db = window.db;
 
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
-
-function toggleSidebar() {
-  sidebar.classList.toggle("open");
-  overlay.classList.toggle("show");
-}
-
-overlay.onclick = toggleSidebar;
-
-function scrollTo(id) {
-  toggleSidebar();
-  document.getElementById(id).scrollIntoView({behavior:"smooth"});
-}
-
-function logout() {
-  auth.signOut().then(() => location.href="login.html");
-}
-
-auth.onAuthStateChanged(user => {
-  if (!user) location.href="login.html";
-  loadData();
-});
-
-function loadData() {
-  db.ref("classes").on("value", s => {
-    document.getElementById("kClasses").innerText = s.numChildren();
-    loadClassDropdowns(s);
-    loadClassList(s);
-  });
-
-  db.ref("users").on("value", s => {
-    let t=0, st=0;
-    s.forEach(u=>{
-      if(u.val().role==="teacher") t++;
-      if(u.val().role==="student") st++;
-    });
-    document.getElementById("kTeachers").innerText=t;
-    document.getElementById("kStudents").innerText=st;
-    loadStudents(s);
-  });
-}
-
+// ---------- CREATE CLASS ----------
 function createClass() {
-  const name=document.getElementById("className").value;
-  if(!name) return alert("Enter class name");
-  db.ref("classes").push({name});
-}
+  const className = document.getElementById("className").value.trim();
+  const subjectsInput = document.getElementById("subjects").value.trim();
+  const status = document.getElementById("status");
 
-function addSubject() {
-  const c=document.getElementById("subjectClass").value;
-  const s=document.getElementById("subjectName").value;
-  if(!c||!s) return;
-  db.ref(`classes/${c}/subjects`).push(s);
-}
+  if (!className || !subjectsInput) {
+    status.innerText = "❌ Please enter class name and subjects";
+    return;
+  }
 
-function assignStudent() {
-  const c=document.getElementById("assignClass").value;
-  const s=document.getElementById("assignStudentId").value;
-  db.ref(`classes/${c}/students/${s}`).set(true);
-}
+  // Convert subjects to object
+  const subjectsArray = subjectsInput.split(",");
+  const subjectsObj = {};
 
-function loadClassDropdowns(snap){
-  ["subjectClass","assignClass"].forEach(id=>{
-    const el=document.getElementById(id);
-    el.innerHTML="";
-    snap.forEach(c=>{
-      el.innerHTML+=`<option value="${c.key}">${c.val().name}</option>`;
-    });
+  subjectsArray.forEach((sub, index) => {
+    subjectsObj["sub" + (index + 1)] = sub.trim();
   });
-}
 
-function loadStudents(snap){
-  const el=document.getElementById("assignStudentId");
-  el.innerHTML="";
-  snap.forEach(u=>{
-    if(u.val().role==="student"){
-      el.innerHTML+=`<option value="${u.key}">${u.val().name}</option>`;
-    }
-  });
-}
+  // Create unique class ID
+  const classId = db.ref("classes").push().key;
 
-function loadClassList(snap){
-  const el=document.getElementById("classList");
-  el.innerHTML="";
-  snap.forEach(c=>{
-    el.innerHTML+=`<p>📌 ${c.val().name}</p>`;
+  // Save to Firebase
+  db.ref(`classes/${classId}`).set({
+    name: className,
+    subjects: subjectsObj,
+    teachers: {},
+    students: {},
+    attendance: {}
+  })
+  .then(() => {
+    status.innerText = "✅ Class created successfully!";
+    document.getElementById("className").value = "";
+    document.getElementById("subjects").value = "";
+  })
+  .catch(err => {
+    status.innerText = "❌ Error: " + err.message;
   });
 }
