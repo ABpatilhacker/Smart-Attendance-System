@@ -1,40 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Teacher Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="teacher.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Dashboard | Smart Attendance</title>
+<link rel="stylesheet" href="teacher.css">
+
+<!-- Firebase v9 compat -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script src="firebase.js"></script>
+<script defer src="teacher.js"></script>
 </head>
 <body>
 
-<div class="topbar">
-  <h2 id="teacherName">Teacher</h2>
-  <button onclick="logout()">Logout</button>
-</div>
+<!-- Overlay -->
+<div class="overlay" onclick="closeSidebar()"></div>
 
-<div class="container">
-
-  <h3>📚 My Subjects</h3>
-  <div id="subjectList" class="card-grid"></div>
-
-  <!-- ATTENDANCE -->
-  <div id="attendanceSection" class="card" style="display:none;">
-    <div class="row">
-      <h3 id="attendanceTitle"></h3>
-      <input type="date" id="datePicker">
-    </div>
-
-    <div id="analytics" class="analytics"></div>
-
-    <div id="studentCards"></div>
-
-    <button onclick="saveAttendance()">💾 Save Attendance</button>
-    <button onclick="exportCSV()">📥 Export CSV</button>
+<!-- Sidebar -->
+<aside id="sidebar" class="sidebar">
+  <div class="brand">
+    <img src="logo.png" alt="Logo">
+    <h2>Smart Attendance</h2>
   </div>
+  <nav>
+    <button onclick="showDashboard()">📊 Dashboard</button>
+    <button onclick="showAttendance()">📝 Mark Attendance</button>
+    <button onclick="showDefaulters()">📌 Defaulters</button>
+    <button onclick="showProfile()">👤 Profile</button>
+    <button class="logout" onclick="logout()">🚪 Logout</button>
+  </nav>
+</aside>
 
-</div>
+<!-- Topbar -->
+<header class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <h1>Teacher Dashboard</h1>
+  <span id="teacher-name"></span>
+</header>
 
-<script src="firebase.js"></script>
-<script src="teacher.js"></script>
+<!-- Main content -->
+<main id="main-view" class="main"></main>
+
 </body>
 </html>
