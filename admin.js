@@ -182,4 +182,4 @@ function saveSettings() {
   const val = Number(document.getElementById("minAttendance").value);
   db.ref("settings/minAttendance").set(val);
   alert("Settings saved");
-}
+  }
