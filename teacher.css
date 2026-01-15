@@ -1,0 +1,257 @@
+/* ================= THEME ================= */
+:root {
+  --bg-main: linear-gradient(135deg, #1d2671, #c33764);
+  --bg-soft: #f5f7fb;
+  --primary: linear-gradient(135deg, #667eea, #764ba2);
+  --accent: linear-gradient(135deg, #36d1dc, #5b86e5);
+  --success: linear-gradient(135deg, #56ab2f, #a8e063);
+  --danger: linear-gradient(135deg, #ff416c, #ff4b2b);
+  --glass: rgba(255, 255, 255, 0.2);
+  --blur: blur(14px);
+}
+
+/* ================= RESET ================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: var(--bg-soft);
+  color: #2b2b2b;
+}
+
+/* ================= TOPBAR ================= */
+.topbar {
+  height: 64px;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  position: fixed;
+  width: 100%;
+  z-index: 50;
+}
+
+.topbar h1 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.menu-btn {
+  font-size: 26px;
+  margin-right: 18px;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.menu-btn:hover {
+  transform: rotate(90deg);
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100%;
+  background: var(--bg-main);
+  color: #fff;
+  transform: translateX(-280px);
+  transition: 0.35s cubic-bezier(.4,0,.2,1);
+  z-index: 100;
+}
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* BRAND */
+.sidebar .brand {
+  padding: 30px 20px;
+  text-align: center;
+}
+.sidebar .brand img {
+  width: 72px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  box-shadow: 0 0 25px rgba(0,0,0,.5);
+}
+.sidebar .brand h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* NAV */
+.sidebar nav {
+  padding: 12px;
+}
+.sidebar nav button {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #fff;
+  padding: 14px 18px;
+  font-size: 15px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: 0.3s;
+}
+.sidebar nav button:hover {
+  background: var(--glass);
+  transform: translateX(6px);
+}
+.sidebar nav .logout {
+  background: var(--danger);
+}
+
+/* ================= OVERLAY ================= */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  display: none;
+  z-index: 90;
+}
+.overlay.show {
+  display: block;
+}
+
+/* ================= MAIN ================= */
+.main {
+  margin-top: 80px;
+  padding: 24px;
+  transition: margin-left .35s;
+}
+.sidebar.open ~ .main {
+  margin-left: 260px;
+}
+
+/* ================= WELCOME ================= */
+.welcome {
+  background: var(--accent);
+  color: #fff;
+  padding: 26px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.2);
+}
+.welcome h2 {
+  font-size: 24px;
+}
+.welcome p {
+  opacity: 0.9;
+  margin-top: 6px;
+}
+
+/* ================= GRID ================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 22px;
+  margin-top: 26px;
+}
+
+/* ================= CARD ================= */
+.card {
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: var(--blur);
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 20px 45px rgba(0,0,0,.12);
+  animation: fadeUp 0.5s ease;
+  transition: 0.35s;
+}
+.card:hover {
+  transform: translateY(-6px);
+}
+
+/* ================= STATS ================= */
+.stat {
+  text-align: center;
+}
+.stat h3 {
+  font-size: 18px;
+  font-weight: 500;
+}
+.stat p {
+  font-size: 34px;
+  font-weight: 700;
+  margin-top: 10px;
+  background: var(--primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ================= TABLE ================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 14px;
+  text-align: left;
+}
+th {
+  background: var(--primary);
+  color: #fff;
+}
+tr:nth-child(even) {
+  background: #f1f3f9;
+}
+
+/* ================= BUTTON ================= */
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.2);
+}
+
+/* ================= INPUT ================= */
+input, select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 768px) {
+  .sidebar.open ~ .main {
+    margin-left: 0;
+  }
+  .topbar h1 {
+    font-size: 16px;
+  }
+}

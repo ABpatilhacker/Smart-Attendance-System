@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Dashboard | Smart Attendance</title>
+<link rel="stylesheet" href="teacher.css">
+
+<!-- Firebase v9 compat -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+
+<!-- Chart.js for Attendance Trends -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script defer src="teacher.js"></script>
+</head>
+<body>
+
+<!-- Overlay -->
+<div class="overlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="sidebar">
+  <div class="brand">
+    <img src="logo.png" alt="Logo">
+    <h2>Smart Attendance</h2>
+  </div>
+  <nav>
+    <button onclick="showDashboard()">📊 Dashboard</button>
+    <button onclick="showClasses()">📚 My Classes</button>
+    <button onclick="showDefaulters()">📌 Defaulters</button>
+    <button class="logout" onclick="logout()">🚪 Logout</button>
+  </nav>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <h1>Teacher Dashboard</h1>
+  <span id="teacher-name"></span>
+</header>
+
+<!-- Main content -->
+<main id="main-view" class="main">
+  <!-- Content dynamically loaded here -->
+</main>
+
+</body>
+</html>
