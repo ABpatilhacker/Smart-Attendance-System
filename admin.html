@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Dashboard</title>
+  <title>Admin Dashboard | Smart Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Fonts & Icons -->
@@ -14,26 +14,50 @@
 </head>
 <body>
 
+<!-- ✅ OVERLAY (IMPORTANT FOR SIDEBAR CLOSE) -->
+<div id="overlay" class="overlay"></div>
+
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
   <div class="brand">
-    <h2>📊 Admin</h2>
+    <h2>📊 Admin Panel</h2>
     <p id="adminName">Loading...</p>
   </div>
+
   <nav>
-    <button onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
-    <button onclick="showSection('classes')"><i class="fas fa-school"></i> Classes</button>
-    <button onclick="showSection('teachers')"><i class="fas fa-chalkboard-teacher"></i> Teachers</button>
-    <button onclick="showSection('students')"><i class="fas fa-user-graduate"></i> Students</button>
-    <button onclick="showSection('settings')"><i class="fas fa-cog"></i> Settings</button>
-    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <button onclick="navigate('dashboard')">
+      <i class="fas fa-home"></i> Dashboard
+    </button>
+
+    <button onclick="navigate('classes')">
+      <i class="fas fa-school"></i> Classes
+    </button>
+
+    <button onclick="navigate('teachers')">
+      <i class="fas fa-chalkboard-teacher"></i> Teachers
+    </button>
+
+    <button onclick="navigate('students')">
+      <i class="fas fa-user-graduate"></i> Students
+    </button>
+
+    <button onclick="navigate('settings')">
+      <i class="fas fa-cog"></i> Settings
+    </button>
+
+    <button onclick="logout()" class="logout">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </button>
   </nav>
 </div>
 
+<!-- TOP BAR -->
 <div class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <h1 id="pageTitle">Dashboard</h1>
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="main">
 
   <!-- DASHBOARD -->
@@ -85,7 +109,7 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<!-- Firebase config -->
+<!-- Firebase Config -->
 <script src="firebase.js"></script>
 
 <!-- Admin Logic -->
