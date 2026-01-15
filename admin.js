@@ -204,7 +204,73 @@ function loadClasses() {
     });
   });
 }
+function loadClassesForAssign() {
+  const classSelect = document.getElementById("assign-class");
+  classSelect.innerHTML = `<option value="">Select Class</option>`;
 
+  db.ref("classes").once("value").then(snap => {
+    snap.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.key;
+      opt.textContent = c.val().name;
+      classSelect.appendChild(opt);
+    });
+  });
+
+  classSelect.onchange = loadSubjectsForAssign;
+}
+function loadSubjectsForAssign() {
+  const classId = document.getElementById("assign-class").value;
+  const subjectSelect = document.getElementById("assign-subject");
+
+  subjectSelect.innerHTML = `<option value="">Select Subject</option>`;
+  if (!classId) return;
+
+  db.ref(`classes/${classId}/subjects`).once("value").then(snap => {
+    snap.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s.key;
+      opt.textContent = s.val();
+      subjectSelect.appendChild(opt);
+    });
+  });
+}
+function loadTeachersForAssign() {
+  const teacherSelect = document.getElementById("assign-teacher");
+  teacherSelect.innerHTML = `<option value="">Select Teacher</option>`;
+
+  db.ref("users").once("value").then(snap => {
+    snap.forEach(u => {
+      if (u.val().role === "teacher") {
+        const opt = document.createElement("option");
+        opt.value = u.key;
+        opt.textContent = u.val().name;
+        teacherSelect.appendChild(opt);
+      }
+    });
+  });
+}
+function assignSubjectUI() {
+  const classId = document.getElementById("assign-class").value;
+  const subjectId = document.getElementById("assign-subject").value;
+  const teacherId = document.getElementById("assign-teacher").value;
+
+  if (!classId || !subjectId || !teacherId) {
+    alert("Please select all fields");
+    return;
+  }
+
+  // 1️⃣ Assign subject → teacher
+  db.ref(`classSubjects/${classId}/${subjectId}`).set({
+    teacherId,
+    assignedAt: Date.now()
+  });
+
+  // 2️⃣ Save in teacher profile
+  db.ref(`users/${teacherId}/assignments/${classId}_${subjectId}`).set(true);
+
+  alert("✅ Subject assigned successfully");
+}
 // ================= CREATE CLASS =================
 function createClassForm() {
   closeSidebar();
@@ -262,6 +328,29 @@ function assignSubject(classId, subjectId, teacherId) {
 
   // 2️⃣ Add assignment to teacher
   db.ref(`users/${teacherId}/assignments/${classId}_${subjectId}`).set(true);
+}
+function showAssignSubject() {
+  closeSidebar();
+
+  mainView.innerHTML = `
+    <h2>🎓 Assign Subject to Teacher</h2>
+
+    <div class="card">
+      <label>Class</label>
+      <select id="assign-class"></select>
+
+      <label>Subject</label>
+      <select id="assign-subject"></select>
+
+      <label>Teacher</label>
+      <select id="assign-teacher"></select>
+
+      <button onclick="assignSubjectUI()">✅ Assign</button>
+    </div>
+  `;
+
+  loadClassesForAssign();
+  loadTeachersForAssign();
 }
 // ================= EDIT CLASS =================
 function editClass(classId) {
