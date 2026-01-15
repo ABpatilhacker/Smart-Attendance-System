@@ -29,11 +29,11 @@
     <h2>Smart Attendance</h2>
   </div>
   <nav>
-    <button onclick="showDashboard()">📊 Dashboard</button>
-    <button onclick="showPending()">⏳ Approvals</button>
-    <button onclick="showClasses()">🏫 Classes</button>
-    <button onclick="showTeachers()">👨‍🏫 Teachers</button>
-    <button onclick="showSettings()">⚙️ Settings</button>
+    <button onclick="showDashboard(this)">📊 Dashboard</button>
+    <button onclick="showPending(this)">⏳ Approvals</button>
+    <button onclick="showClasses(this)">🏫 Classes</button>
+    <button onclick="showTeachers(this)">👨‍🏫 Teachers</button>
+    <button onclick="showSettings(this)">⚙️ Settings</button>
     <button class="logout" onclick="logout()">🚪 Logout</button>
   </nav>
 </aside>
@@ -41,8 +41,7 @@
 <!-- Topbar -->
 <header class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h1>Admin Dashboard</h1>
-  <span id="admin-name"></span>
+  <h1>Admin Dashboard <span id="admin-name"></span></h1>
 </header>
 
 <!-- Main -->
