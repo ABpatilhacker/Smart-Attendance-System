@@ -254,7 +254,15 @@ function createClass() {
     showClasses();
   });
 }
+function assignSubject(classId, subjectId, teacherId) {
+  // 1️⃣ Link subject to class
+  db.ref(`classSubjects/${classId}/${subjectId}`).set({
+    teacherId
+  });
 
+  // 2️⃣ Add assignment to teacher
+  db.ref(`users/${teacherId}/assignments/${classId}_${subjectId}`).set(true);
+}
 // ================= EDIT CLASS =================
 function editClass(classId) {
   closeSidebar();
