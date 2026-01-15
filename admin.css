@@ -1,0 +1,102 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg,#f5f7fa,#c3cfe2);
+}
+
+.sidebar {
+  position: fixed;
+  width: 260px;
+  height: 100%;
+  background: linear-gradient(180deg,#1e3c72,#2a5298);
+  color: #fff;
+  transform: translateX(-270px);
+  transition: 0.3s;
+  z-index: 1000;
+}
+
+.sidebar.open { transform: translateX(0); }
+
+.brand {
+  text-align: center;
+  padding: 20px;
+}
+
+.sidebar nav button {
+  width: 100%;
+  background: none;
+  border: none;
+  color: white;
+  padding: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar nav button:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.topbar {
+  height: 60px;
+  background: linear-gradient(90deg,#36d1dc,#5b86e5);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: white;
+  margin-right: 20px;
+}
+
+.main {
+  margin-top: 60px;
+  padding: 20px;
+}
+
+.section { display: none; }
+.section.active { display: block; }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 18px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.profile {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+.hidden { display: none; }
+
+input, select, button {
+  padding: 10px;
+  margin: 5px 0;
+  width: 100%;
+}
+
+button {
+  background: #5b86e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
