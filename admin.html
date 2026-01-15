@@ -15,66 +15,19 @@
 </head>
 
 <body>
+<div class="card">
+  <h2>Create Class</h2>
 
-<div class="overlay" id="overlay"></div>
+  <input type="text" id="className" placeholder="Class Name (eg. FY BCA A)" />
 
-<aside class="sidebar" id="sidebar">
-  <h2>👑 Admin</h2>
-  <button onclick="scrollTo('kpi')">📊 Dashboard</button>
-  <button onclick="scrollTo('createClass')">🏫 Create Class</button>
-  <button onclick="scrollTo('addSubject')">📘 Add Subject</button>
-  <button onclick="scrollTo('assignStudent')">🎓 Assign Student</button>
-  <button onclick="scrollTo('allClasses')">📋 All Classes</button>
-  <button class="logout" onclick="logout()">🚪 Logout</button>
-</aside>
+  <textarea id="subjects" placeholder="Enter subjects (comma separated)
+Example:
+Maths, C Programming, DBMS"></textarea>
 
-<div class="main">
-  <header class="topbar">
-    <button class="menu" onclick="toggleSidebar()">☰</button>
-    <h1>Admin Dashboard</h1>
-  </header>
-
-  <div class="content">
-
-    <!-- KPI -->
-    <section id="kpi" class="grid">
-      <div class="card"><h3>Total Classes</h3><p id="kClasses">0</p></div>
-      <div class="card"><h3>Total Teachers</h3><p id="kTeachers">0</p></div>
-      <div class="card"><h3>Total Students</h3><p id="kStudents">0</p></div>
-    </section>
-
-    <!-- CREATE CLASS -->
-    <section id="createClass" class="box">
-      <h3>🏫 Create Class</h3>
-      <input id="className" placeholder="Class name (e.g. BCA FY)">
-      <button onclick="createClass()">Create</button>
-    </section>
-
-    <!-- ADD SUBJECT -->
-    <section id="addSubject" class="box">
-      <h3>📘 Add Subject</h3>
-      <select id="subjectClass"></select>
-      <input id="subjectName" placeholder="Subject name">
-      <button onclick="addSubject()">Add</button>
-    </section>
-
-    <!-- ASSIGN STUDENT -->
-    <section id="assignStudent" class="box">
-      <h3>🎓 Assign Student</h3>
-      <select id="assignClass"></select>
-      <select id="assignStudentId"></select>
-      <button onclick="assignStudent()">Assign</button>
-    </section>
-
-    <!-- ALL CLASSES -->
-    <section id="allClasses" class="box">
-      <h3>📋 All Classes</h3>
-      <div id="classList"></div>
-    </section>
-
-  </div>
+  <button onclick="createClass()">Create Class</button>
 </div>
 
+<div id="status"></div>
 <script src="admin.js"></script>
 </body>
 </html>
