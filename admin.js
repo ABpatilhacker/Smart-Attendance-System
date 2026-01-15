@@ -309,7 +309,15 @@ function createClass() {
     showToast("Fill all fields", "error");
     return;
   }
-
+function createClass(name, year, division) {
+  const classRef = db.ref("classes").push();
+  classRef.set({
+    name,
+    year,
+    division,
+    createdAt: Date.now()
+  });
+}
   const subjects = {};
   subjectsArr.forEach((s, i) => subjects["subject" + (i + 1)] = s);
 
@@ -318,6 +326,29 @@ function createClass() {
     db.ref(`users/${teacher}/classes/${ref.key}`).set(true);
     showToast("Class created");
     showClasses();
+  });
+}
+function assignStudentToClass(studentUid, classId, rollNo, studentName) {
+
+  // 1️⃣ Add student under class
+  db.ref(`classes/${classId}/students/${studentUid}`).set({
+    rollNo: rollNo,
+    name: studentName
+  });
+
+  // 2️⃣ Add class info under student
+  db.ref(`students/${studentUid}`).set({
+    name: studentName,
+    rollNo: rollNo,
+    classId: classId
+  });
+  }
+function loadClassStudents(classId) {
+  db.ref(`classes/${classId}/students`).once("value", snap => {
+    snap.forEach(child => {
+      const student = child.val();
+      console.log(student.rollNo, student.name);
+    });
   });
 }
 function assignSubject(classId, subjectId, teacherId) {
