@@ -1,37 +1,39 @@
-// ------------------- GLOBAL -------------------
+// ==============================
+// Global Firebase refs
+// ==============================
 const auth = firebase.auth();
 const db = firebase.database();
 
 const sidebar = document.getElementById("sidebar");
-const mainView = document.querySelector(".main");
-const overlay = document.createElement("div");
-overlay.className = "overlay";
-document.body.appendChild(overlay);
+const mainSections = document.querySelectorAll(".section");
+const pageTitle = document.getElementById("pageTitle");
+const adminName = document.getElementById("adminName");
 
-// ------------------- SIDEBAR -------------------
+// ==============================
+// Sidebar toggle & section switch
+// ==============================
 function toggleSidebar() {
   sidebar.classList.toggle("open");
-  overlay.classList.toggle("show");
 }
-
-overlay.addEventListener("click", () => {
-  sidebar.classList.remove("open");
-  overlay.classList.remove("show");
-});
 
 function showSection(id) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  mainSections.forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  document.getElementById("pageTitle").innerText =
-    id.charAt(0).toUpperCase() + id.slice(1);
+  pageTitle.innerText = id.charAt(0).toUpperCase() + id.slice(1);
+  // Close sidebar on mobile
+  sidebar.classList.remove("open");
 }
 
-// ------------------- LOGOUT -------------------
+// ==============================
+// Logout
+// ==============================
 function logout() {
   auth.signOut().then(() => location.href = "index.html");
 }
 
-// ------------------- AUTH STATE -------------------
+// ==============================
+// Auth & Admin load
+// ==============================
 auth.onAuthStateChanged(user => {
   if (!user) location.href = "index.html";
 
@@ -40,7 +42,7 @@ auth.onAuthStateChanged(user => {
       alert("Access denied");
       auth.signOut();
     } else {
-      document.getElementById("adminName").innerText = snap.val().name;
+      adminName.innerText = snap.val().name;
       loadDashboard();
       loadClasses();
       loadTeachers();
@@ -50,154 +52,186 @@ auth.onAuthStateChanged(user => {
   });
 });
 
-// ------------------- TOAST -------------------
-function showToast(msg, type = "success") {
-  const t = document.createElement("div");
-  t.className = "toast " + type;
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.classList.add("show"), 50);
-  setTimeout(() => { t.classList.remove("show"); setTimeout(()=>t.remove(), 300); }, 2000);
-}
-
-// ------------------- DASHBOARD -------------------
+// ==============================
+// Dashboard KPIs
+// ==============================
 function loadDashboard() {
-  db.ref("users").once("value", snap => {
-    let teachers = 0, students = 0;
-    snap.forEach(u=>{
-      if(u.val().role==="teacher") teachers++;
-      if(u.val().role==="student") students++;
+  db.ref("users").once("value").then(snap => {
+    let teacherCount = 0, studentCount = 0;
+    snap.forEach(u => {
+      if (u.val().role === "teacher") teacherCount++;
+      if (u.val().role === "student") studentCount++;
     });
-    document.getElementById("teacherCount").innerText = teachers;
-    document.getElementById("studentCount").innerText = students;
+    document.getElementById("teacherCount").innerText = teacherCount;
+    document.getElementById("studentCount").innerText = studentCount;
   });
 
-  db.ref("classes").once("value", s=>{
-    document.getElementById("classCount").innerText = s.numChildren();
+  db.ref("classes").once("value").then(snap => {
+    document.getElementById("classCount").innerText = snap.numChildren();
   });
 }
 
-// ------------------- CLASSES -------------------
+// ==============================
+// Classes: Add/Edit/Delete
+// ==============================
 function createClass() {
   const name = document.getElementById("className").value.trim();
-  if(!name) return alert("Enter class name");
-  db.ref("classes").push({ name, subjects:{}, students:{} }).then(()=>{
-    document.getElementById("className").value = "";
-    showToast("Class created!");
-    loadClasses();
-  });
+  if (!name) return alert("Enter class name");
+
+  const newRef = db.ref("classes").push();
+  newRef.set({ name, students: {}, subjects: {} })
+    .then(() => loadClasses());
 }
 
 function loadClasses() {
   const list = document.getElementById("classList");
-  const select = document.getElementById("studentClass");
-  db.ref("classes").on("value", snap=>{
-    list.innerHTML = ""; select.innerHTML = "";
-    snap.forEach(c=>{
+  list.innerHTML = "";
+  db.ref("classes").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(c => {
       const val = c.val();
-      list.innerHTML += `<li>${val.name} <button onclick="editClass('${c.key}')">Edit</button></li>`;
-      select.innerHTML += `<option value="${c.key}">${val.name}</option>`;
+      const li = document.createElement("li");
+      li.innerHTML = `
+        ${val.name} 
+        <button onclick="editClass('${c.key}')">✏️</button>
+        <button onclick="deleteClass('${c.key}')">🗑️</button>
+      `;
+      list.appendChild(li);
     });
   });
 }
 
 function editClass(id) {
-  db.ref("classes/" + id).once("value").then(snap=>{
+  db.ref("classes/" + id).once("value").then(snap => {
     const cls = snap.val();
-    const newName = prompt("Edit class name:", cls.name);
-    if(newName) db.ref("classes/" + id + "/name").set(newName).then(()=>{
-      showToast("Class updated!");
-      loadClasses();
-    });
+    const name = prompt("Edit Class Name:", cls.name);
+    if (!name) return;
+    db.ref("classes/" + id + "/name").set(name).then(loadClasses);
   });
 }
 
-// ------------------- TEACHERS -------------------
+function deleteClass(id) {
+  if (!confirm("Delete this class?")) return;
+  db.ref("classes/" + id).remove().then(loadClasses);
+}
+
+// ==============================
+// Teachers: List & Profile + Assign Classes
+// ==============================
 function loadTeachers() {
   const list = document.getElementById("teacherList");
-  db.ref("users").orderByChild("role").equalTo("teacher").on("value", snap=>{
-    list.innerHTML = "";
-    snap.forEach(t=>{
-      list.innerHTML += `<li onclick="openTeacher('${t.key}')">${t.val().name}</li>`;
+  list.innerHTML = "";
+  db.ref("users").orderByChild("role").equalTo("teacher")
+    .on("value", snap => {
+      list.innerHTML = "";
+      snap.forEach(t => {
+        const li = document.createElement("li");
+        li.innerText = t.val().name;
+        li.onclick = () => openTeacher(t.key);
+        list.appendChild(li);
+      });
     });
-  });
 }
 
-function openTeacher(id){
-  db.ref("users/"+id).once("value").then(s=>{
-    const t = s.val();
-    const div = document.getElementById("teacherProfile");
-    div.classList.remove("hidden");
-    div.innerHTML = `<h3>${t.name}</h3>
+function openTeacher(id) {
+  db.ref("users/" + id).once("value").then(snap => {
+    const t = snap.val();
+    const profile = document.getElementById("teacherProfile");
+    profile.classList.remove("hidden");
+
+    // List assigned classes
+    let assignments = "";
+    if (t.assignments) {
+      assignments = "<ul>" + Object.keys(t.assignments).map(k => `<li>${k.replace("_", " - ")}</li>`).join("") + "</ul>";
+    } else assignments = "<p>No assignments yet.</p>";
+
+    profile.innerHTML = `
+      <h3>${t.name}</h3>
       <p>Email: ${t.email}</p>
-      <h4>Assign Subjects:</h4>
-      <div id="assignSubjects"></div>`;
+      <h4>Assignments:</h4>${assignments}
+      <h4>Assign Class & Subject:</h4>
+      <select id="assignClass"></select>
+      <input type="text" id="assignSubject" placeholder="Subject Name">
+      <button onclick="assignClassSubject('${id}')">Assign</button>
+    `;
 
-    // Load all classes & subjects
-    db.ref("classes").once("value").then(classesSnap=>{
-      const container = document.getElementById("assignSubjects");
-      container.innerHTML = "";
-      classesSnap.forEach(cSnap=>{
-        const cls = cSnap.val();
-        const clsId = cSnap.key;
-        const subjects = cls.subjects || {};
-        const clsDiv = document.createElement("div");
-        clsDiv.innerHTML = `<strong>${cls.name}</strong><ul></ul>`;
-        const ul = clsDiv.querySelector("ul");
-
-        Object.keys(subjects).forEach(subId=>{
-          const li = document.createElement("li");
-          li.innerHTML = `${subjects[subId]} 
-            <button onclick="assignSubject('${clsId}','${subId}','${id}')">Assign</button>`;
-          ul.appendChild(li);
-        });
-
-        container.appendChild(clsDiv);
+    // Load all classes in dropdown
+    const select = document.getElementById("assignClass");
+    db.ref("classes").once("value").then(snap => {
+      select.innerHTML = "";
+      snap.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.key;
+        opt.textContent = c.val().name;
+        select.appendChild(opt);
       });
     });
   });
 }
 
-function assignSubject(classId, subjectId, teacherId){
-  db.ref(`classSubjects/${classId}/${subjectId}`).set({teacherId});
-  db.ref(`users/${teacherId}/assignments/${classId}_${subjectId}`).set(true);
-  showToast("Subject assigned!");
+function assignClassSubject(teacherId) {
+  const clsId = document.getElementById("assignClass").value;
+  const subject = document.getElementById("assignSubject").value.trim();
+  if (!clsId || !subject) return alert("Fill both fields");
+
+  // Add to class subjects
+  db.ref(`classes/${clsId}/subjects`).push(subject);
+
+  // Add to teacher assignments
+  db.ref(`users/${teacherId}/assignments/${clsId + "_" + subject}`).set(true);
+
+  alert("Assigned!");
+  openTeacher(teacherId);
 }
 
-// ------------------- STUDENTS -------------------
+// ==============================
+// Students: Add & List
+// ==============================
 function addStudent() {
   const name = document.getElementById("studentName").value.trim();
   const roll = document.getElementById("rollNo").value.trim();
   const cls = document.getElementById("studentClass").value;
-  if(!name || !roll || !cls) return alert("Fill all fields");
+  if (!name || !roll || !cls) return alert("Fill all fields");
 
-  db.ref("students").push({ name, roll, classId: cls }).then(()=>{
-    document.getElementById("studentName").value = "";
-    document.getElementById("rollNo").value = "";
-    showToast("Student added!");
-    loadStudents();
-  });
+  db.ref("students").push({ name, roll, classId: cls })
+    .then(() => loadStudents());
 }
 
 function loadStudents() {
   const list = document.getElementById("studentList");
-  db.ref("students").on("value", snap=>{
+  db.ref("students").on("value", snap => {
     list.innerHTML = "";
-    snap.forEach(s=>{
-      const val = s.val();
-      list.innerHTML += `<li>${val.name} (Roll ${val.roll})</li>`;
+    snap.forEach(s => {
+      const li = document.createElement("li");
+      li.innerText = `${s.val().name} (Roll ${s.val().roll})`;
+      list.appendChild(li);
+    });
+  });
+
+  // Load classes in dropdown
+  const select = document.getElementById("studentClass");
+  db.ref("classes").once("value").then(snap => {
+    select.innerHTML = "";
+    snap.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c.key;
+      opt.textContent = c.val().name;
+      select.appendChild(opt);
     });
   });
 }
 
-// ------------------- SETTINGS -------------------
+// ==============================
+// Settings
+// ==============================
 function loadSettings() {
-  db.ref("settings/minAttendance").once("value", s=>{
-    document.getElementById("minAttendance").value = s.val() || 75;
+  db.ref("settings/minAttendance").once("value", snap => {
+    document.getElementById("minAttendance").value = snap.val() || 75;
   });
 }
 
 function saveSettings() {
-  const v = Number(document.getElementById("minAttendance").value);
-  db.ref("settings/minAttendance").set(v).then(()=> showToast("Settings saved!"));
+  const v = document.getElementById("minAttendance").value;
+  db.ref("settings/minAttendance").set(Number(v));
+  alert("Saved!");
     }
