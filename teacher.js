@@ -1,38 +1,49 @@
 const auth = firebase.auth();
 const db = firebase.database();
 
-let teacherId = null;
-let currentClass = null;
+let teacherId;
+let currentClass;
 
 function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("open");
+  sidebar.classList.add("open");
+  overlay.classList.add("show");
+}
+
+function closeSidebar() {
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+}
+
+function navigate(page) {
+  closeSidebar();
+  if (page === "dashboard") showDashboard();
+  if (page === "classes") showClasses();
+  if (page === "defaulters") showDefaulters();
 }
 
 function logout() {
   auth.signOut().then(() => location.href = "index.html");
 }
 
-/* AUTH */
 auth.onAuthStateChanged(user => {
   if (!user) location.href = "index.html";
   teacherId = user.uid;
 
   db.ref("users/" + teacherId).once("value").then(snap => {
-    document.getElementById("teacherName").innerText = snap.val().name;
+    teacherName.innerText = snap.val().name;
     showDashboard();
   });
 });
 
 /* DASHBOARD */
 function showDashboard() {
-  document.getElementById("pageTitle").innerText = "Dashboard";
+  pageTitle.innerText = "Dashboard";
   db.ref("users/" + teacherId + "/assignments").once("value").then(snap => {
-    const totalClasses = snap.numChildren();
-    document.getElementById("view").innerHTML = `
-      <div class="card-grid">
-        <div class="card">📚 Classes<br><b>${totalClasses}</b></div>
-        <div class="card">🎓 Students<br><b>Auto</b></div>
-        <div class="card">📊 Attendance<br><b>Live</b></div>
+    content.innerHTML = `
+      <div class="grid">
+        <div class="card">📚 Classes<br><h2>${snap.numChildren()}</h2></div>
+        <div class="card">🎓 Students<br><h2>Auto</h2></div>
+        <div class="card">📅 Attendance<br><h2>Live</h2></div>
       </div>
     `;
   });
@@ -40,21 +51,21 @@ function showDashboard() {
 
 /* CLASSES */
 function showClasses() {
-  document.getElementById("pageTitle").innerText = "My Classes";
-  let html = `<div class="card-grid">`;
+  pageTitle.innerText = "My Classes";
+  let html = `<div class="grid">`;
 
   db.ref("users/" + teacherId + "/assignments").once("value").then(snap => {
     snap.forEach(a => {
       const [classId, subject] = a.key.split("_");
-      db.ref("classes/" + classId).once("value").then(clsSnap => {
+      db.ref("classes/" + classId).once("value").then(c => {
         html += `
           <div class="card">
-            <h3>${clsSnap.val().name}</h3>
+            <h3>${c.val().name}</h3>
             <p>Subject: ${subject}</p>
-            <button onclick="openClass('${classId}')">Open</button>
+            <button onclick="openClass('${classId}')">Take Attendance</button>
           </div>
         `;
-        document.getElementById("view").innerHTML = html + "</div>";
+        content.innerHTML = html + "</div>";
       });
     });
   });
@@ -63,39 +74,57 @@ function showClasses() {
 /* OPEN CLASS */
 function openClass(classId) {
   currentClass = classId;
+  pageTitle.innerText = "Attendance";
+
   const date = new Date().toISOString().split("T")[0];
 
   db.ref(`classes/${classId}/students`).once("value").then(snap => {
-    let html = `<h2>Mark Attendance (${date})</h2><div class="card">`;
+    let rows = "";
     snap.forEach(s => {
-      html += `
-        <div class="student">
-          ${s.val().name} (Roll ${s.val().roll})
-          <select id="att-${s.key}">
-            <option value="present">Present</option>
-            <option value="absent">Absent</option>
-          </select>
-        </div>
+      rows += `
+        <tr>
+          <td>${s.val().roll}</td>
+          <td>${s.val().name}</td>
+          <td>
+            <button class="status-btn present" onclick="setStatus('${s.key}','present')">P</button>
+            <button class="status-btn absent" onclick="setStatus('${s.key}','absent')">A</button>
+          </td>
+        </tr>
       `;
     });
-    html += `<button onclick="saveAttendance('${date}')">Save Attendance</button></div>`;
-    document.getElementById("view").innerHTML = html;
+
+    content.innerHTML = `
+      <table>
+        <tr><th>Roll</th><th>Name</th><th>Status</th></tr>
+        ${rows}
+      </table>
+      <button class="save-btn" onclick="saveAttendance('${date}')">Save Attendance</button>
+    `;
   });
 }
 
-/* SAVE ATTENDANCE */
+let attendance = {};
+
+function setStatus(id, status) {
+  attendance[id] = status;
+}
+
+/* SAVE */
 function saveAttendance(date) {
-  db.ref(`classes/${currentClass}/students`).once("value").then(snap => {
-    snap.forEach(s => {
-      const status = document.getElementById(`att-${s.key}`).value;
-      db.ref(`classes/${currentClass}/attendance/${date}/${s.key}`).set(status);
-    });
-    alert("Attendance Saved!");
-  });
+  for (let id in attendance) {
+    db.ref(`classes/${currentClass}/attendance/${date}/${id}`).set(attendance[id]);
+  }
+  alert("✅ Attendance saved successfully");
+  showClasses();
 }
 
 /* DEFAULTERS */
 function showDefaulters() {
-  document.getElementById("pageTitle").innerText = "Defaulters";
-  document.getElementById("view").innerHTML = `<p>Defaulters logic auto from attendance %</p>`;
-                                             }
+  pageTitle.innerText = "Defaulters";
+  content.innerHTML = `
+    <div class="card">
+      <h3>Defaulters Section</h3>
+      <p>Auto-calculated based on minimum attendance (admin controlled)</p>
+    </div>
+  `;
+}
