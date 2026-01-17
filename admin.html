@@ -1,106 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Admin Dashboard | Smart Attendance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="admin.css">
 </head>
+
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-  <div class="brand">
-    <h2>📊 Admin</h2>
-    <p id="adminName">Loading...</p>
+  <!-- ===== TOP BAR ===== -->
+  <div class="topbar">
+    <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+    <h3>Smart Attendance – Admin Panel</h3>
+    <div>👤 Admin</div>
   </div>
-  <nav>
-    <button onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
-    <button onclick="showSection('classes')"><i class="fas fa-school"></i> Classes</button>
-    <button onclick="showSection('teachers')"><i class="fas fa-chalkboard-teacher"></i> Teachers</button>
-    <button onclick="showSection('students')"><i class="fas fa-user-graduate"></i> Students</button>
-    <button onclick="showSection('settings')"><i class="fas fa-cog"></i> Settings</button>
-    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-  </nav>
-</div>
 
-<!-- Topbar -->
-<div class="topbar">
-  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h1 id="pageTitle">Dashboard</h1>
-</div>
+  <!-- ===== SIDEBAR ===== -->
+  <div id="sidebar">
+    <h3>Navigation</h3>
+    <a href="#" onclick="openSection('dashboard')">📊 Dashboard</a>
+    <a href="#" onclick="openSection('classes')">🏫 Classes</a>
+    <a href="#" onclick="openSection('teachers')">👨‍🏫 Teachers</a>
+    <a href="#" onclick="openSection('students')">🎓 Students</a>
+    <a href="#" onclick="openSection('settings')">⚙️ Settings</a>
+  </div>
 
-<!-- Main Content -->
-<div class="main">
+  <!-- ===== MAIN ===== -->
+  <main onclick="closeSidebar()">
 
-  <!-- DASHBOARD -->
-  <section id="dashboard" class="section active">
-    <div class="card-grid">
-      <div class="card gradient-blue">👨‍🏫 Teachers<br><span id="teacherCount">0</span></div>
-      <div class="card gradient-green">🎓 Students<br><span id="studentCount">0</span></div>
-      <div class="card gradient-orange">🏫 Classes<br><span id="classCount">0</span></div>
-    </div>
-  </section>
+    <!-- ===== DASHBOARD ===== -->
+    <section id="dashboard" class="section active">
+      <h2>Dashboard Overview</h2>
+      <p class="muted">
+        Manage teachers, students, classes and attendance settings from one powerful control panel.
+      </p>
 
-  <!-- CLASSES -->
-  <section id="classes" class="section">
-    <h2>Manage Classes</h2>
-    <div class="input-group">
-      <input id="className" placeholder="Class Name">
-      <button onclick="createClass()">Add Class</button>
-    </div>
-    <ul id="classList" class="list"></ul>
-  </section>
+      <div class="cards">
+        <div class="card" onclick="openSection('classes')">
+          <h2 id="classCount">0</h2>
+          <p>Total Classes</p>
+        </div>
 
-  <!-- TEACHERS -->
-  <section id="teachers" class="section">
-    <h2>Teachers</h2>
-    <div class="flex-row">
-      <ul id="teacherList" class="list"></ul>
-      <div id="teacherProfile" class="profile hidden"></div>
-    </div>
-  </section>
+        <div class="card" onclick="openSection('teachers')">
+          <h2 id="teacherCount">0</h2>
+          <p>Total Teachers</p>
+        </div>
 
-  <!-- STUDENTS -->
-  <section id="students" class="section">
-    <h2>Add Student</h2>
-    <div class="input-group">
-      <input id="studentName" placeholder="Student Name">
-      <input id="rollNo" placeholder="Roll No">
+        <div class="card" onclick="openSection('students')">
+          <h2 id="studentCount">0</h2>
+          <p>Total Students</p>
+        </div>
+
+        <div class="card" onclick="openSection('settings')">
+          <h2>⚙️</h2>
+          <p>System Settings</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CLASSES ===== -->
+    <section id="classes" class="section">
+      <h2>Classes Management</h2>
+
+      <input type="text" id="className" placeholder="Class Name (e.g. FY BSc A)">
+      <button onclick="addClass()">➕ Add Class</button>
+
+      <ul id="classList"></ul>
+    </section>
+
+    <!-- ===== TEACHERS ===== -->
+    <section id="teachers" class="section">
+      <h2>Teachers</h2>
+
+      <input type="text" id="teacherName" placeholder="Teacher Name">
+      <input type="email" id="teacherEmail" placeholder="Teacher Email">
+      <button onclick="addTeacher()">➕ Add Teacher</button>
+
+      <ul id="teacherList"></ul>
+
+      <!-- Teacher Profile -->
+      <div id="teacherProfile" class="hidden">
+        <h3>Teacher Profile</h3>
+        <p id="profileDetails"></p>
+      </div>
+    </section>
+
+    <!-- ===== STUDENTS ===== -->
+    <section id="students" class="section">
+      <h2>Students</h2>
+
+      <input type="text" id="studentName" placeholder="Student Name">
+      <input type="number" id="studentRoll" placeholder="Roll Number">
+      <input type="email" id="studentEmail" placeholder="Student Email">
       <select id="studentClass"></select>
-      <button onclick="addStudent()">Add Student</button>
-    </div>
-    <ul id="studentList" class="list"></ul>
-  </section>
+      <button onclick="addStudent()">➕ Add Student</button>
 
-  <!-- SETTINGS -->
-  <section id="settings" class="section">
-    <h2>Settings</h2>
-    <div class="input-group">
+      <ul id="studentList"></ul>
+    </section>
+
+    <!-- ===== SETTINGS ===== -->
+    <section id="settings" class="section">
+      <h2>System Settings</h2>
+
       <label>Minimum Attendance (%)</label>
-      <input type="number" id="minAttendance">
-      <button onclick="saveSettings()">Save</button>
-    </div>
-  </section>
+      <input type="number" id="minAttendance" placeholder="e.g. 75">
+      <button onclick="saveSettings()">💾 Save Settings</button>
+    </section>
 
-</div>
+  </main>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <!-- ===== JS ===== -->
+  <script src="admin.js"></script>
 
-<!-- Firebase config -->
-<script src="firebase.js"></script>
+  <!-- ===== UI SCRIPT ===== -->
+  <script>
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+    }
 
-<!-- Admin Logic -->
-<script src="admin.js"></script>
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+    }
+
+    function openSection(id) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      closeSidebar();
+    }
+  </script>
 
 </body>
 </html>
