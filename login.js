@@ -1,11 +1,33 @@
-// LOGIN
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) return;
+
+  firebase.database().ref("users/" + user.uid).once("value")
+    .then(snapshot => {
+      if (!snapshot.exists()) return;
+
+      const u = snapshot.val();
+
+      if (u.approved !== true) {
+        firebase.auth().signOut();
+        return;
+      }
+
+      if (u.role === "admin") {
+        window.location.replace("admin.html");
+      } else if (u.role === "teacher") {
+        window.location.replace("teacher.html");
+      } else if (u.role === "student") {
+        window.location.replace("student.html");
+      }
+    });
+});
+// ---------- LOGIN ----------
 function login() {
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
-  const role = document.getElementById("loginRole").value;
 
-  if (!email || !password || !role) {
-    alert("Please fill all fields");
+  if (!email || !password) {
+    alert("Please enter email and password");
     return;
   }
 
@@ -17,30 +39,32 @@ function login() {
         .then((snapshot) => {
           if (!snapshot.exists()) {
             alert("User data not found");
+            firebase.auth().signOut();
             return;
           }
 
-          const userData = snapshot.val();
+          const user = snapshot.val();
 
-          // Role check
-          if (userData.role !== role) {
-            alert("Wrong role selected");
-            return;
-          }
-
-          // Approved check (always true by default)
-          if (userData.approved !== true) {
+          // Approved check
+          if (user.approved !== true) {
             alert("Your account is not approved");
+            firebase.auth().signOut();
             return;
           }
 
-          // Redirect based on role
-          if (role === "admin") {
+          // Auto redirect by role
+          if (user.role === "admin") {
             window.location.href = "admin.html";
-          } else if (role === "teacher") {
+          } 
+          else if (user.role === "teacher") {
             window.location.href = "teacher.html";
-          } else {
+          } 
+          else if (user.role === "student") {
             window.location.href = "student.html";
+          } 
+          else {
+            alert("Invalid role");
+            firebase.auth().signOut();
           }
         });
     })
@@ -49,7 +73,7 @@ function login() {
     });
 }
 
-// SIGNUP
+// ---------- SIGNUP ----------
 function signup() {
   const name = document.getElementById("signupName").value;
   const email = document.getElementById("signupEmail").value;
@@ -69,11 +93,11 @@ function signup() {
         name: name,
         email: email,
         role: role,
-        approved: true,   // 🔥 IMPORTANT: auto-approved
+        approved: true, // ✅ auto-approved
         createdAt: new Date().toISOString()
       });
 
-      alert("Account created successfully");
+      alert("Signup successful! Please login.");
       location.reload();
     })
     .catch((error) => {
