@@ -1,5 +1,5 @@
 /* =========================
-   GLOBAL RESET & THEME
+   RESET & BASE
 ========================= */
 * {
   margin: 0;
@@ -9,38 +9,38 @@
 }
 
 body {
-  min-height: 100vh;
-  background: radial-gradient(circle at top, #6366f1, #312e81);
+  background: #f4f6fb;
   color: #111827;
 }
 
 /* =========================
-   TOP BAR
+   TOPBAR
 ========================= */
 .topbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(18px);
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  color: white;
+  padding: 0 22px;
   z-index: 1000;
 }
 
 .topbar h3 {
-  font-weight: 700;
   font-size: 18px;
+  font-weight: 700;
+  color: #4338ca;
 }
 
 .menu-btn {
   font-size: 22px;
   cursor: pointer;
+  color: #374151;
 }
 
 /* =========================
@@ -48,15 +48,13 @@ body {
 ========================= */
 #sidebar {
   position: fixed;
-  top: 60px;
+  top: 64px;
   left: -260px;
   width: 260px;
-  height: calc(100vh - 60px);
-  background: rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(18px);
-  padding: 20px;
+  height: calc(100vh - 64px);
+  background: #111827;
+  padding: 22px;
   transition: 0.3s ease;
-  z-index: 999;
 }
 
 #sidebar.open {
@@ -64,64 +62,57 @@ body {
 }
 
 #sidebar h3 {
-  color: white;
-  margin-bottom: 20px;
+  color: #ffffff;
+  margin-bottom: 24px;
+  font-size: 16px;
+  opacity: 0.9;
 }
 
 #sidebar a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 14px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-  color: white;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  color: #d1d5db;
   text-decoration: none;
   font-weight: 500;
-  transition: 0.25s;
+  transition: 0.2s;
 }
 
 #sidebar a:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: #1f2937;
+  color: #ffffff;
 }
 
 /* =========================
    MAIN CONTENT
 ========================= */
 main {
-  padding: 90px 20px 30px;
+  padding: 90px 26px 30px;
   max-width: 1200px;
   margin: auto;
 }
 
 .section {
   display: none;
-  animation: fade 0.3s ease;
 }
 
 .section.active {
   display: block;
 }
 
-@keyframes fade {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .section h2 {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  margin-bottom: 6px;
 }
 
 .muted {
-  color: #4b5563;
-  margin: 8px 0 20px;
+  color: #6b7280;
   font-size: 14px;
+  margin-bottom: 24px;
 }
 
 /* =========================
@@ -134,106 +125,97 @@ main {
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(14px);
-  padding: 25px;
-  border-radius: 18px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
   cursor: pointer;
-  transition: 0.3s;
-  text-align: center;
+  transition: 0.25s;
 }
 
 .card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
 }
 
 .card h2 {
-  font-size: 36px;
-  color: #4f46e5;
+  font-size: 34px;
+  color: #4338ca;
 }
 
 .card p {
-  margin-top: 8px;
+  margin-top: 6px;
   font-weight: 600;
+  color: #374151;
 }
 
 /* =========================
    FORMS
 ========================= */
-.form-row,
-.form-grid {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.form-grid input,
-.form-grid select,
-.form-row input {
-  flex: 1;
-}
-
 input,
 select {
-  padding: 14px;
-  border-radius: 12px;
-  border: none;
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 14px;
+}
+
+input:focus,
+select:focus {
+  border-color: #4338ca;
   outline: none;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 15px;
 }
 
 button {
-  padding: 14px 18px;
-  border-radius: 14px;
+  padding: 13px 18px;
+  border-radius: 10px;
   border: none;
-  cursor: pointer;
-  font-weight: 700;
-  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  background: #4338ca;
   color: white;
-  transition: 0.3s;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
 }
 
 button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 25px rgba(79, 70, 229, 0.4);
+  background: #3730a3;
 }
 
 /* =========================
    LISTS
 ========================= */
-.list {
+ul {
   list-style: none;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
-.list li {
-  background: rgba(255, 255, 255, 0.85);
+ul li {
+  background: #ffffff;
   padding: 14px 16px;
   margin-bottom: 10px;
-  border-radius: 14px;
-  font-weight: 500;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
   cursor: pointer;
-  transition: 0.25s;
+  transition: 0.2s;
 }
 
-.list li:hover {
-  background: rgba(255, 255, 255, 1);
+ul li:hover {
+  border-color: #4338ca;
 }
 
 /* =========================
    PROFILE BOX
 ========================= */
-.profile-box {
+#teacherProfile {
   margin-top: 20px;
+  background: #ffffff;
   padding: 18px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.85);
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
 }
 
-.profile-box h3 {
+#teacherProfile h3 {
   margin-bottom: 10px;
 }
 
@@ -248,11 +230,11 @@ button:hover {
    RESPONSIVE
 ========================= */
 @media (max-width: 768px) {
-  .topbar h3 {
-    font-size: 16px;
+  main {
+    padding: 90px 16px 20px;
   }
 
-  main {
-    padding: 90px 15px 20px;
+  .topbar h3 {
+    font-size: 16px;
   }
 }
