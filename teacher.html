@@ -1,44 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Teacher Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Teacher Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="teacher.css">
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>
 
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="teacher.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <h2>👨‍🏫 Teacher</h2>
+  <p id="teacherName">Loading...</p>
+
+  <button onclick="openSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+  <button onclick="openSection('classes')"><i class="fas fa-school"></i> Classes</button>
+  <button onclick="openSection('attendance')"><i class="fas fa-calendar-check"></i> Attendance</button>
+  <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <h1 id="pageTitle">Dashboard</h1>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="section active">
+    <h2>Welcome 👋</h2>
+    <p class="subtitle">Track your classes and attendance performance</p>
+
+    <div class="cards">
+      <div class="card">📚 Classes <span id="classCount">0</span></div>
+      <div class="card">🎓 Students <span id="studentCount">0</span></div>
+      <div class="card">📊 Avg Attendance <span id="avgAttendance">0%</span></div>
+    </div>
+
+    <canvas id="attendanceChart"></canvas>
+  </section>
+
+  <!-- CLASSES -->
+  <section id="classes" class="section">
+    <h2>Your Classes</h2>
+    <div id="classCards" class="class-grid"></div>
+  </section>
+
+  <!-- ATTENDANCE -->
+  <section id="attendance" class="section">
+    <h2 id="attendanceTitle">Take Attendance</h2>
+    <input type="date" id="attendanceDate">
+    <table>
+      <thead>
+        <tr>
+          <th>Roll</th>
+          <th>Name</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="attendanceTable"></tbody>
+    </table>
+    <button class="save-btn" onclick="saveAttendance()">Save Attendance</button>
+  </section>
+
+</div>
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script src="firebase.js"></script>
-</head>
-
-<body>
-
-<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-
-<aside class="sidebar" id="sidebar">
-  <div class="profile">
-    <h2>Teacher Panel</h2>
-    <p id="teacherName">Loading...</p>
-  </div>
-
-  <nav>
-    <button onclick="navigate('dashboard')">Dashboard</button>
-    <button onclick="navigate('classes')">Classes</button>
-    <button onclick="navigate('attendance')">Attendance</button>
-    <button onclick="logout()">Logout</button>
-  </nav>
-</aside>
-
-<header class="topbar">
-  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h1 id="pageTitle">Dashboard</h1>
-</header>
-
-<main id="content"></main>
-
 <script src="teacher.js"></script>
+
 </body>
-</html>
+  </html>
