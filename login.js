@@ -1,77 +1,55 @@
-console.log("login.js loaded");
+// login.js
 
-// ---------- LOGIN ----------
-document.getElementById("login-btn").addEventListener("click", () => {
-  const email = document.getElementById("login-email").value.trim();
-  const password = document.getElementById("login-password").value.trim();
+// Firebase auth login
+function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
   if (!email || !password) {
-    alert("Enter email and password");
+    alert("Please enter email and password");
     return;
   }
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then((cred) => {
-      const uid = cred.user.uid;
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((result) => {
+      const uid = result.user.uid;
 
-      db.ref("users/" + uid).once("value").then((snap) => {
-        if (!snap.exists()) {
-          alert("Account not found. Please sign up.");
-          auth.signOut();
-          return;
-        }
+      // 🔥 IMPORTANT: only ONE path → users/{uid}
+      firebase.database().ref("users/" + uid).once("value")
+        .then((snapshot) => {
 
-        const user = snap.val();
+          if (!snapshot.exists()) {
+            alert("User record not found in database");
+            firebase.auth().signOut();
+            return;
+          }
 
-        if (user.status !== "approved") {
-          alert("Your account is pending admin approval.");
-          auth.signOut();
-          return;
-        }
+          const user = snapshot.val();
 
-        // ROLE REDIRECT
-        if (user.role === "admin") {
-          location.href = "admin.html";
-        } else if (user.role === "teacher") {
-          location.href = "teacher.html";
-        } else {
-          location.href = "student.html";
-        }
-      });
+          // ✅ APPROVAL CHECK (BOOLEAN ONLY)
+          if (user.approved !== true) {
+            alert("Your account is not approved by admin");
+            firebase.auth().signOut();
+            return;
+          }
+
+          // ✅ ROLE BASED REDIRECT
+          if (user.role === "admin") {
+            window.location.href = "admin.html";
+          } 
+          else if (user.role === "teacher") {
+            window.location.href = "teacher.html";
+          } 
+          else if (user.role === "student") {
+            window.location.href = "student.html";
+          } 
+          else {
+            alert("Invalid user role");
+            firebase.auth().signOut();
+          }
+        });
     })
-    .catch((err) => alert(err.message));
-});
-
-// ---------- SIGN UP ----------
-// ---------- SIGN UP ----------
-document.getElementById("signup-btn").onclick = function () {
-  const name = document.getElementById("signup-name").value.trim();
-  const email = document.getElementById("signup-email").value.trim();
-  const password = document.getElementById("signup-password").value.trim();
-  const role = document.getElementById("signup-role").value;
-
-  if (!name || !email || !password) {
-    alert("Fill all fields");
-    return;
-  }
-
-  auth.createUserWithEmailAndPassword(email, password)
-    .then((cred) => {
-      const uid = cred.user.uid;
-
-      // 👇 THIS IS THE IMPORTANT PART
-      const status = role === "admin" ? "approved" : "pending";
-
-      db.ref("users/" + uid).set({
-        name: name,
-        email: email,
-        role: role,
-        status: status,
-        createdAt: Date.now()
-      });
-
-      alert("Signup successful! Wait for admin approval.");
-      auth.signOut();
-    })
-    .catch((err) => alert(err.message));
-};
+    .catch((error) => {
+      alert(error.message);
+    });
+}
