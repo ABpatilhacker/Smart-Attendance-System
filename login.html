@@ -1,70 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login | Smart Attendance</title>
+  <meta charset="UTF-8">
+  <title>Smart Attendance | Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="login.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-    }
-    .box {
-      width: 320px;
-      margin: 100px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 6px;
-      box-shadow: 0 0 10px rgba(0,0,0,.1);
-    }
-    h2 {
-      text-align: center;
-    }
-    input, select, button {
-      width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-    }
-    button {
-      background: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-  </style>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
-<div class="box">
-  <h2>Login</h2>
-  <input type="email" id="login-email" placeholder="Email">
-  <input type="password" id="login-password" placeholder="Password">
-  <button id="login-btn">Login</button>
-</div>
+  <div class="login-wrapper">
 
-<div class="box">
-  <h2>Sign Up</h2>
-  <input type="text" id="signup-name" placeholder="Full Name">
-  <input type="email" id="signup-email" placeholder="Email">
-  <input type="password" id="signup-password" placeholder="Password">
-  <select id="signup-role">
-    <option value="student">Student</option>
-    <option value="teacher">Teacher</option>
-    <option value="admin">Admin</option>
-  </select>
-  <button id="signup-btn">Sign Up</button>
-</div>
+    <!-- HEADER -->
+    <div class="login-info">
+      <div class="hero-icon">📊</div>
+      <h1>Smart Attendance</h1>
+      <p>
+        A modern attendance management system<br>
+        for Admins, Teachers & Students
+      </p>
+    </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- TABS -->
+    <div class="tabs">
+      <button id="loginTab" class="active-tab" onclick="showLogin()">Login</button>
+      <button id="signupTab" onclick="showSignup()">Signup</button>
+    </div>
 
-<script src="firebase.js"></script>
-<script src="login.js"></script>
+    <!-- LOGIN FORM -->
+    <div id="loginForm" class="form-box">
+      <input type="email" id="loginEmail" placeholder="Email address">
+      <input type="password" id="loginPassword" placeholder="Password">
+
+      <select id="loginRole">
+        <option value="">Select Role</option>
+        <option value="admin">Admin</option>
+        <option value="teacher">Teacher</option>
+        <option value="student">Student</option>
+      </select>
+
+      <button class="btn primary" onclick="login()">Login</button>
+    </div>
+
+    <!-- SIGNUP FORM -->
+    <div id="signupForm" class="form-box hidden">
+      <input type="text" id="signupName" placeholder="Full Name">
+      <input type="email" id="signupEmail" placeholder="Email address">
+      <input type="password" id="signupPassword" placeholder="Password">
+
+      <select id="signupRole">
+        <option value="">Select Role</option>
+        <option value="teacher">Teacher</option>
+        <option value="student">Student</option>
+      </select>
+
+      <button class="btn primary" onclick="signup()">Create Account</button>
+    </div>
+
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <!-- Firebase config -->
+  <script src="firebase.js"></script>
+
+  <!-- Login Logic -->
+  <script src="login.js"></script>
+
+  <!-- UI Script -->
+  <script>
+    function showLogin() {
+      document.getElementById("loginForm").classList.remove("hidden");
+      document.getElementById("signupForm").classList.add("hidden");
+      document.getElementById("loginTab").classList.add("active-tab");
+      document.getElementById("signupTab").classList.remove("active-tab");
+    }
+
+    function showSignup() {
+      document.getElementById("signupForm").classList.remove("hidden");
+      document.getElementById("loginForm").classList.add("hidden");
+      document.getElementById("signupTab").classList.add("active-tab");
+      document.getElementById("loginTab").classList.remove("active-tab");
+    }
+  </script>
 
 </body>
 </html>
