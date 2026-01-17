@@ -1,36 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Student Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="student.css">
 </head>
 <body>
 
+<!-- TOP BAR -->
 <div class="topbar">
-  <h2 id="studentName">Student</h2>
+  <h2>🎓 Student Dashboard</h2>
   <button onclick="logout()">Logout</button>
 </div>
 
+<!-- MAIN -->
 <div class="container">
 
   <!-- PROFILE -->
   <div class="card profile">
-    <h3>🎓 My Profile</h3>
-    <p><b>Roll:</b> <span id="roll"></span></p>
-    <p><b>Class:</b> <span id="className"></span></p>
-    <p><b>Overall Attendance:</b> <span id="overall"></span></p>
+    <h3 id="studentName">Student Name</h3>
+    <p id="studentClass">Class</p>
+    <p id="studentRoll">Roll No</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-card">
+      <h4>Overall Attendance</h4>
+      <p id="attendancePercent">0%</p>
+    </div>
+    <div class="stat-card danger" id="defaulterBox">
+      ⚠️ Below Minimum Attendance
+    </div>
   </div>
 
   <!-- SUBJECT ATTENDANCE -->
-  <h3>📚 Subject-wise Attendance</h3>
-  <div id="subjects" class="card-grid"></div>
-
-  <!-- HISTORY -->
-  <h3>📅 Attendance History</h3>
-  <div id="history" class="card"></div>
+  <div class="card">
+    <h3>📚 Subject-wise Attendance</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Subject</th>
+          <th>Present</th>
+          <th>Total</th>
+          <th>%</th>
+        </tr>
+      </thead>
+      <tbody id="attendanceTable"></tbody>
+    </table>
+  </div>
 
 </div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script src="firebase.js"></script>
 <script src="student.js"></script>
