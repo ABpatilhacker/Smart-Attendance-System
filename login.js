@@ -1,55 +1,48 @@
-// login.js
-
-// Firebase auth login
 function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
   if (!email || !password) {
-    alert("Please enter email and password");
+    alert("Enter email and password");
     return;
   }
 
   firebase.auth().signInWithEmailAndPassword(email, password)
-    .then((result) => {
-      const uid = result.user.uid;
+    .then((cred) => {
+      const uid = cred.user.uid;
 
-      // 🔥 IMPORTANT: only ONE path → users/{uid}
       firebase.database().ref("users/" + uid).once("value")
-        .then((snapshot) => {
+        .then((snap) => {
 
-          if (!snapshot.exists()) {
-            alert("User record not found in database");
+          if (!snap.exists()) {
+            alert("User data not found in database.\nAsk admin to add you.");
             firebase.auth().signOut();
             return;
           }
 
-          const user = snapshot.val();
+          const user = snap.val();
 
-          // ✅ APPROVAL CHECK (BOOLEAN ONLY)
-          if (user.approved !== true) {
-            alert("Your account is not approved by admin");
-            firebase.auth().signOut();
-            return;
-          }
+          // ✅ ROLE ONLY (NO APPROVAL CONFUSION)
+          switch (user.role) {
+            case "admin":
+              window.location.href = "admin.html";
+              break;
 
-          // ✅ ROLE BASED REDIRECT
-          if (user.role === "admin") {
-            window.location.href = "admin.html";
-          } 
-          else if (user.role === "teacher") {
-            window.location.href = "teacher.html";
-          } 
-          else if (user.role === "student") {
-            window.location.href = "student.html";
-          } 
-          else {
-            alert("Invalid user role");
-            firebase.auth().signOut();
+            case "teacher":
+              window.location.href = "teacher.html";
+              break;
+
+            case "student":
+              window.location.href = "student.html";
+              break;
+
+            default:
+              alert("Invalid role");
+              firebase.auth().signOut();
           }
         });
     })
-    .catch((error) => {
-      alert(error.message);
+    .catch(err => {
+      alert(err.message);
     });
 }
