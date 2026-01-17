@@ -1,243 +1,259 @@
-/* ===========================
-   GLOBAL RESET & BASE
-============================ */
+/* ==========================
+   GLOBAL RESET & FONT
+========================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", "Segoe UI", sans-serif;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
 }
 
 body {
-  background: #F0F2F5;
-  color: #2C2A4A;
   min-height: 100vh;
-  overflow-x: hidden;
+  background: #F5F7FA;
+  color: #1A1F36;
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
 }
 
-/* ===========================
+/* ==========================
    TOPBAR
-============================ */
+========================== */
 .topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: #2C2A4A;
-  color: #FFFFFF;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 24px;
-  font-weight: 600;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  z-index: 1000;
+  background: #1A1F36;
+  color: #FFF;
+  padding: 12px 24px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .topbar h3 {
-  font-family: "Playfair Display", serif;
-  font-size: 20px;
+  font-family: 'Merriweather', serif;
+  font-weight: 700;
 }
 
 .menu-btn {
   font-size: 24px;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-/* ===========================
+.menu-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ==========================
    SIDEBAR
-============================ */
+========================== */
 #sidebar {
+  width: 220px;
+  background: #1F2432;
+  color: #FFF;
   position: fixed;
   top: 60px;
-  left: -280px;
-  width: 280px;
-  height: calc(100vh - 60px);
-  background: #1F1D36;
-  padding: 24px;
-  transition: 0.3s ease;
-  z-index: 900;
-  border-right: 1px solid #3A2F5D;
+  left: -220px;
+  height: calc(100% - 60px);
+  padding: 20px;
+  transition: 0.4s;
+  overflow-y: auto;
+  border-right: 1px solid #2D3348;
+  z-index: 99;
 }
 
-#sidebar.open { left: 0; }
+#sidebar.open {
+  left: 0;
+}
 
 #sidebar h3 {
-  font-family: "Playfair Display", serif;
-  color: #E8E8F0;
-  font-weight: 700;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  font-family: 'Merriweather', serif;
 }
 
 #sidebar a {
   display: block;
-  padding: 12px 18px;
-  margin-bottom: 10px;
-  border-radius: 10px;
+  color: #FFF;
   text-decoration: none;
-  color: #D1D3E0;
-  font-weight: 500;
-  transition: 0.25s;
+  padding: 12px 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: 0.3s;
 }
 
 #sidebar a:hover {
-  background: #3A2F5D;
-  color: #FFFFFF;
+  background: #2D3348;
+  color: #FFD93D;
 }
 
-/* ===========================
-   MAIN CONTENT
-============================ */
+/* ==========================
+   MAIN SECTION
+========================== */
 main {
-  margin-top: 80px;
-  padding: 24px;
-  max-width: 1300px;
-  margin-left: auto;
-  margin-right: auto;
+  flex: 1;
+  margin-left: 0;
+  padding: 20px 30px;
+  transition: 0.4s;
 }
 
-.section { display: none; animation: fadeIn 0.4s ease-in-out; }
-.section.active { display: block; }
+#sidebar.open ~ main {
+  margin-left: 220px;
+}
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px);}
-  to { opacity: 1; transform: translateY(0);}
+/* ==========================
+   SECTIONS
+========================== */
+.section {
+  display: none;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.section.active {
+  display: block;
 }
 
 .section h2 {
-  font-family: "Playfair Display", serif;
-  font-size: 26px;
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: #1F1D36;
+  font-family: 'Merriweather', serif;
+  font-size: 28px;
+  margin-bottom: 12px;
+  color: #1A1F36;
 }
 
 .muted {
-  font-size: 14px;
-  color: #5B5875;
+  color: #5E6272;
   margin-bottom: 20px;
 }
 
-/* ===========================
-   DASHBOARD CARDS
-============================ */
+/* ==========================
+   CARDS (DASHBOARD)
+========================== */
 .cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
 .card {
-  background: #FFFFFF;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  flex: 1 1 200px;
+  background: #FFF;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
   cursor: pointer;
-  transition: 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
 }
 
 .card h2 {
-  font-family: "Playfair Display", serif;
   font-size: 32px;
-  color: #6B5B95;
-  font-weight: 700;
+  margin-bottom: 5px;
+  color: #1A1F36;
 }
 
 .card p {
-  font-size: 16px;
-  color: #2C2A4A;
-  margin-top: 6px;
+  color: #5E6272;
 }
 
-/* ===========================
-   FORM ELEMENTS
-============================ */
+/* ==========================
+   INPUTS & BUTTONS
+========================== */
 input, select {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #E2E5ED;
+  outline: none;
   width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid #D1D3E0;
-  background: #FFFFFF;
   font-size: 15px;
-  color: #1F1D36;
-  margin-bottom: 14px;
-  transition: 0.25s;
+  margin-bottom: 12px;
+  transition: 0.3s;
 }
 
 input:focus, select:focus {
-  border-color: #6B5B95;
-  outline: none;
+  border-color: #FF6B6B;
+  box-shadow: 0 0 5px rgba(255,107,107,0.5);
 }
 
 button {
   padding: 12px 20px;
-  border-radius: 12px;
   border: none;
-  background: linear-gradient(90deg, #6B5B95, #8C7AE6);
-  color: #FFFFFF;
-  font-weight: 600;
-  font-size: 16px;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 600;
   transition: 0.3s;
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(107,91,149,0.3);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
 }
 
-/* ===========================
-   LISTS & PROFILE BOX
-============================ */
+button.primary {
+  background: linear-gradient(90deg, #FF6B6B, #FFD93D);
+  color: #1A1F36;
+}
+
+/* ==========================
+   LISTS
+========================== */
 ul {
   list-style: none;
-  margin-top: 18px;
+  padding: 0;
+  margin-top: 12px;
 }
 
 ul li {
-  background: #FFFFFF;
-  padding: 14px 18px;
-  margin-bottom: 12px;
-  border-radius: 14px;
-  border: 1px solid #D1D3E0;
-  font-weight: 500;
-  color: #1F1D36;
-  transition: 0.25s;
+  padding: 10px;
+  background: #FFF;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 ul li:hover {
-  border-color: #6B5B95;
-  background: #F8F8FB;
+  background: #FFD93D;
+  color: #1A1F36;
 }
 
-.profile-box {
-  background: #FFFFFF;
-  padding: 18px;
-  border-radius: 14px;
-  border: 1px solid #D1D3E0;
-  margin-top: 18px;
+/* ==========================
+   TEACHER PROFILE BOX
+========================== */
+#teacherProfile {
+  background: #FFF;
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-top: 15px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
 }
 
-.profile-box h3 {
-  margin-bottom: 8px;
-  font-weight: 700;
-  color: #1F1D36;
+/* ==========================
+   ANIMATIONS
+========================== */
+@keyframes fadeIn {
+  0% {opacity: 0; transform: translateY(10px);}
+  100% {opacity: 1; transform: translateY(0);}
 }
 
-/* ===========================
-   UTILITIES
-============================ */
-.hidden { display: none; }
-
-/* ===========================
+/* ==========================
    RESPONSIVE
-============================ */
+========================== */
 @media (max-width: 768px) {
-  main { padding: 16px; }
+  #sidebar {
+    left: -220px;
+  }
+  #sidebar.open ~ main {
+    margin-left: 0;
+  }
+  .cards {
+    flex-direction: column;
+  }
 }
