@@ -1,64 +1,92 @@
-body {
+* {
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(120deg,#fdfbfb,#ebedee);
+}
+
+body {
+  background: linear-gradient(135deg, #1d2671, #c33764);
+  min-height: 100vh;
+  color: #333;
 }
 
 .topbar {
-  background: linear-gradient(90deg,#11998e,#38ef7d);
-  color: white;
+  background: #fff;
   padding: 15px 20px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.topbar button {
+  background: #c33764;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
 }
 
 .container {
   padding: 20px;
+  max-width: 1000px;
+  margin: auto;
 }
 
 .card {
-  background: white;
-  padding: 15px;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.profile h3 {
+  font-size: 22px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
   margin-bottom: 20px;
 }
 
-.profile {
-  border-left: 6px solid #38ef7d;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
-  gap: 20px;
-}
-
-.subject {
-  padding: 15px;
+.stat-card {
+  background: #fff;
+  padding: 20px;
   border-radius: 12px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.stat-card p {
+  font-size: 26px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.stat-card.danger {
+  background: #ffebee;
+  color: #c62828;
+  display: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  text-align: center;
+}
+
+thead {
+  background: #1d2671;
   color: white;
 }
 
-.good {
-  background: linear-gradient(135deg,#43cea2,#185a9d);
-}
-
-.warn {
-  background: linear-gradient(135deg,#ff9966,#ff5e62);
-}
-
-.history-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px dashed #ccc;
-}
-
-button {
-  background: #ff5252;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  color: white;
+tbody tr:nth-child(even) {
+  background: #f4f4f4;
 }
