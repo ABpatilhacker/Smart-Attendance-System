@@ -6,63 +6,56 @@
 
   <style>
     body {
-      font-family: Arial;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
     }
     .box {
-      background: white;
-      padding: 25px;
-      border-radius: 10px;
-      width: 100%;
-      max-width: 360px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.2);
+      width: 320px;
+      margin: 100px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,.1);
     }
-    h2 { text-align: center; }
+    h2 {
+      text-align: center;
+    }
     input, select, button {
       width: 100%;
-      padding: 12px;
       margin-top: 10px;
-      font-size: 15px;
+      padding: 10px;
     }
     button {
-      background: #667eea;
+      background: #007bff;
       color: white;
       border: none;
       cursor: pointer;
-      border-radius: 5px;
     }
-    button:hover { background: #5a67d8; }
-    .toggle {
-      text-align: center;
-      margin-top: 10px;
-      cursor: pointer;
-      color: #667eea;
+    button:hover {
+      background: #0056b3;
     }
   </style>
 </head>
 <body>
 
 <div class="box">
-  <h2 id="title">Login</h2>
+  <h2>Login</h2>
+  <input type="email" id="login-email" placeholder="Email">
+  <input type="password" id="login-password" placeholder="Password">
+  <button id="login-btn">Login</button>
+</div>
 
-  <input id="name" placeholder="Full Name" style="display:none">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-
-  <select id="role" style="display:none">
+<div class="box">
+  <h2>Sign Up</h2>
+  <input type="text" id="signup-name" placeholder="Full Name">
+  <input type="email" id="signup-email" placeholder="Email">
+  <input type="password" id="signup-password" placeholder="Password">
+  <select id="signup-role">
     <option value="student">Student</option>
     <option value="teacher">Teacher</option>
     <option value="admin">Admin</option>
   </select>
-
-  <button onclick="submit()">Login</button>
-
-  <div class="toggle" onclick="toggle()">Create new account</div>
+  <button id="signup-btn">Sign Up</button>
 </div>
 
 <!-- Firebase -->
