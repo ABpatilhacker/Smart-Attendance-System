@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Admin Dashboard | Smart Attendance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="admin.css">
@@ -14,33 +14,30 @@
 
 <body>
 
-  <!-- ===== TOP BAR ===== -->
+  <!-- ===== TOPBAR ===== -->
   <div class="topbar">
     <div class="menu-btn" onclick="toggleSidebar()">☰</div>
     <h3>Smart Attendance – Admin Panel</h3>
-    <div class="admin-user">👤 Admin</div>
+    <div>👤 Admin</div>
   </div>
 
   <!-- ===== SIDEBAR ===== -->
-  <aside id="sidebar">
+  <div id="sidebar">
     <h3>Navigation</h3>
-    <a onclick="openSection('dashboard')">📊 Dashboard</a>
-    <a onclick="openSection('classes')">🏫 Classes</a>
-    <a onclick="openSection('teachers')">👨‍🏫 Teachers</a>
-    <a onclick="openSection('students')">🎓 Students</a>
-    <a onclick="openSection('settings')">⚙️ Settings</a>
-    <a onclick="logout()">🚪 Logout</a>
-  </aside>
+    <a href="#" onclick="openSection('dashboard')">📊 Dashboard</a>
+    <a href="#" onclick="openSection('classes')">🏫 Classes</a>
+    <a href="#" onclick="openSection('teachers')">👨‍🏫 Teachers</a>
+    <a href="#" onclick="openSection('students')">🎓 Students</a>
+    <a href="#" onclick="openSection('settings')">⚙️ Settings</a>
+  </div>
 
-  <!-- ===== MAIN CONTENT ===== -->
+  <!-- ===== MAIN ===== -->
   <main onclick="closeSidebar()">
 
-    <!-- ===== DASHBOARD ===== -->
+    <!-- DASHBOARD -->
     <section id="dashboard" class="section active">
       <h2>Dashboard Overview</h2>
-      <p class="muted">
-        Control teachers, students, classes and attendance settings from one powerful admin panel.
-      </p>
+      <p class="muted">Manage teachers, students, classes and settings from one control panel.</p>
 
       <div class="cards">
         <div class="card" onclick="openSection('classes')">
@@ -65,83 +62,64 @@
       </div>
     </section>
 
-    <!-- ===== CLASSES ===== -->
+    <!-- CLASSES -->
     <section id="classes" class="section">
       <h2>Classes Management</h2>
-      <p class="muted">Create and manage academic classes.</p>
-
-      <div class="form-row">
-        <input type="text" id="className" placeholder="Class Name (e.g. FY BCA)">
-        <button onclick="addClass()">➕ Add Class</button>
-      </div>
-
-      <ul id="classList" class="list"></ul>
+      <input type="text" id="className" placeholder="Class Name (e.g. FY BCA)">
+      <button class="primary" onclick="addClass()">➕ Add Class</button>
+      <ul id="classList"></ul>
     </section>
 
-    <!-- ===== TEACHERS ===== -->
+    <!-- TEACHERS -->
     <section id="teachers" class="section">
       <h2>Teachers</h2>
-      <p class="muted">Add teachers and view their profiles.</p>
-
-      <div class="form-grid">
-        <input type="text" id="teacherName" placeholder="Teacher Name">
-        <input type="email" id="teacherEmail" placeholder="Teacher Email">
-        <button onclick="addTeacher()">➕ Add Teacher</button>
-      </div>
-
-      <ul id="teacherList" class="list"></ul>
+      <input type="text" id="teacherName" placeholder="Teacher Name">
+      <input type="email" id="teacherEmail" placeholder="Teacher Email">
+      <button class="primary" onclick="addTeacher()">➕ Add Teacher</button>
+      <ul id="teacherList"></ul>
 
       <!-- Teacher Profile -->
-      <div id="teacherProfile" class="profile-box hidden">
+      <div id="teacherProfile" class="hidden">
         <h3>Teacher Profile</h3>
         <p id="profileDetails"></p>
       </div>
     </section>
 
-    <!-- ===== STUDENTS ===== -->
+    <!-- STUDENTS -->
     <section id="students" class="section">
       <h2>Students</h2>
-      <p class="muted">Register students and assign them to classes.</p>
-
-      <div class="form-grid">
-        <input type="text" id="studentName" placeholder="Student Name">
-        <input type="number" id="studentRoll" placeholder="Roll Number">
-        <input type="email" id="studentEmail" placeholder="Student Email">
-        <select id="studentClass">
-          <option value="">Select Class</option>
-        </select>
-        <button onclick="addStudent()">➕ Add Student</button>
-      </div>
-
-      <ul id="studentList" class="list"></ul>
+      <input type="text" id="studentName" placeholder="Student Name">
+      <input type="number" id="studentRoll" placeholder="Roll Number">
+      <input type="email" id="studentEmail" placeholder="Student Email">
+      <select id="studentClass"></select>
+      <button class="primary" onclick="addStudent()">➕ Add Student</button>
+      <ul id="studentList"></ul>
     </section>
 
-    <!-- ===== SETTINGS ===== -->
+    <!-- SETTINGS -->
     <section id="settings" class="section">
       <h2>System Settings</h2>
-      <p class="muted">Configure attendance rules.</p>
-
-      <div class="form-row">
-        <input type="number" id="minAttendance" placeholder="Minimum Attendance (%)">
-        <button onclick="saveSettings()">💾 Save</button>
-      </div>
+      <label>Minimum Attendance (%)</label>
+      <input type="number" id="minAttendance" placeholder="e.g. 75">
+      <button class="primary" onclick="saveSettings()">💾 Save Settings</button>
     </section>
 
   </main>
 
-  <!-- ===== ADMIN JS ===== -->
+  <!-- JS -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="admin.js"></script>
 
-  <!-- ===== UI SCRIPT ===== -->
+  <!-- UI SCRIPT -->
   <script>
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("open");
     }
-
     function closeSidebar() {
       document.getElementById("sidebar").classList.remove("open");
     }
-
     function openSection(id) {
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
