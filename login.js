@@ -1,67 +1,69 @@
-let isSignup = false;
+console.log("login.js loaded");
 
-function toggle() {
-  isSignup = !isSignup;
+// ---------- LOGIN ----------
+document.getElementById("login-btn").onclick = function () {
+  const email = document.getElementById("login-email").value;
+  const password = document.getElementById("login-password").value;
 
-  document.getElementById("title").innerText = isSignup ? "Sign Up" : "Login";
-  document.getElementById("name").style.display = isSignup ? "block" : "none";
-  document.getElementById("role").style.display = isSignup ? "block" : "none";
+  if (!email || !password) {
+    alert("Enter email and password");
+    return;
+  }
 
-  document.querySelector("button").innerText = isSignup ? "Sign Up" : "Login";
-  document.querySelector(".toggle").innerText =
-    isSignup ? "Already have an account?" : "Create new account";
-}
+  auth.signInWithEmailAndPassword(email, password)
+    .then(cred => {
+      const uid = cred.user.uid;
 
-function submit() {
-  const email = emailInput();
-  const password = passwordInput();
+      db.ref("users/" + uid).once("value").then(snap => {
+        if (!snap.exists()) {
+          alert("User record not found");
+          auth.signOut();
+          return;
+        }
 
-  if (isSignup) signup(email, password);
-  else login(email, password);
-}
+        const user = snap.val();
 
-function signup(email, password) {
-  const name = document.getElementById("name").value;
-  const role = document.getElementById("role").value;
+        if (user.status !== "approved") {
+          alert("Your account is not approved by admin");
+          auth.signOut();
+          return;
+        }
 
-  if (!name || !role) {
+        if (user.role === "admin") location.href = "admin.html";
+        else if (user.role === "teacher") location.href = "teacher.html";
+        else location.href = "student.html";
+      });
+    })
+    .catch(err => alert(err.message));
+};
+
+// ---------- SIGN UP ----------
+document.getElementById("signup-btn").onclick = function () {
+  const name = document.getElementById("signup-name").value;
+  const email = document.getElementById("signup-email").value;
+  const password = document.getElementById("signup-password").value;
+  const role = document.getElementById("signup-role").value;
+
+  if (!name || !email || !password) {
     alert("Fill all fields");
     return;
   }
 
-  firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then(res => {
-      return firebase.database().ref("users/" + res.user.uid).set({
-        name,
-        email,
-        role
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(cred => {
+      const uid = cred.user.uid;
+
+      const status = role === "admin" ? "approved" : "pending";
+
+      db.ref("users/" + uid).set({
+        name: name,
+        email: email,
+        role: role,
+        status: status
       });
-    })
-    .then(() => {
-      alert("Account created. Please login.");
-      toggle();
+
+      alert("Signup successful. Wait for admin approval.");
+      auth.signOut();
     })
     .catch(err => alert(err.message));
-}
-
-function login(email, password) {
-  firebase.auth().signInWithEmailAndPassword(email, password)
-    .then(res => {
-      return firebase.database().ref("users/" + res.user.uid).once("value");
-    })
-    .then(snap => {
-      const role = snap.val().role;
-
-      if (role === "admin") location.href = "admin.html";
-      else if (role === "teacher") location.href = "teacher.html";
-      else location.href = "student.html";
-    })
-    .catch(err => alert(err.message));
-}
-
-function emailInput() {
-  return document.getElementById("email").value;
-}
-function passwordInput() {
-  return document.getElementById("password").value;
-}
+};
