@@ -1,69 +1,82 @@
-console.log("login.js loaded");
+// LOGIN
+function login() {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  const role = document.getElementById("loginRole").value;
 
-// ---------- LOGIN ----------
-document.getElementById("login-btn").onclick = function () {
-  const email = document.getElementById("login-email").value;
-  const password = document.getElementById("login-password").value;
-
-  if (!email || !password) {
-    alert("Enter email and password");
+  if (!email || !password || !role) {
+    alert("Please fill all fields");
     return;
   }
 
-  auth.signInWithEmailAndPassword(email, password)
-    .then(cred => {
-      const uid = cred.user.uid;
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const uid = userCredential.user.uid;
 
-      db.ref("users/" + uid).once("value").then(snap => {
-        if (!snap.exists()) {
-          alert("User record not found");
-          auth.signOut();
-          return;
-        }
+      firebase.database().ref("users/" + uid).once("value")
+        .then((snapshot) => {
+          if (!snapshot.exists()) {
+            alert("User data not found");
+            return;
+          }
 
-        const user = snap.val();
+          const userData = snapshot.val();
 
-        if (user.status !== "approved") {
-          alert("Your account is not approved by admin");
-          auth.signOut();
-          return;
-        }
+          // Role check
+          if (userData.role !== role) {
+            alert("Wrong role selected");
+            return;
+          }
 
-        if (user.role === "admin") location.href = "admin.html";
-        else if (user.role === "teacher") location.href = "teacher.html";
-        else location.href = "student.html";
-      });
+          // Approved check (always true by default)
+          if (userData.approved !== true) {
+            alert("Your account is not approved");
+            return;
+          }
+
+          // Redirect based on role
+          if (role === "admin") {
+            window.location.href = "admin.html";
+          } else if (role === "teacher") {
+            window.location.href = "teacher.html";
+          } else {
+            window.location.href = "student.html";
+          }
+        });
     })
-    .catch(err => alert(err.message));
-};
+    .catch((error) => {
+      alert(error.message);
+    });
+}
 
-// ---------- SIGN UP ----------
-document.getElementById("signup-btn").onclick = function () {
-  const name = document.getElementById("signup-name").value;
-  const email = document.getElementById("signup-email").value;
-  const password = document.getElementById("signup-password").value;
-  const role = document.getElementById("signup-role").value;
+// SIGNUP
+function signup() {
+  const name = document.getElementById("signupName").value;
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+  const role = document.getElementById("signupRole").value;
 
-  if (!name || !email || !password) {
-    alert("Fill all fields");
+  if (!name || !email || !password || !role) {
+    alert("Please fill all fields");
     return;
   }
 
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(cred => {
-      const uid = cred.user.uid;
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const uid = userCredential.user.uid;
 
-      const status = role === "admin" ? "approved" : "pending";
-
-      db.ref("users/" + uid).set({
+      firebase.database().ref("users/" + uid).set({
         name: name,
         email: email,
         role: role,
-        status: status
+        approved: true,   // 🔥 IMPORTANT: auto-approved
+        createdAt: new Date().toISOString()
       });
 
-      alert("Signup successful. Wait for admin approval.");
-      auth.signOut();
+      alert("Account created successfully");
+      location.reload();
     })
-    .catch(err => alert(err.message));
-};
+    .catch((error) => {
+      alert(error.message);
+    });
+}
