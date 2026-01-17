@@ -1,45 +1,34 @@
 function login() {
+  alert("Login button clicked ✅");
+
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
+  console.log(email, password);
+
   if (!email || !password) {
-    alert("Enter email and password");
+    alert("Enter email & password");
     return;
   }
 
   firebase.auth().signInWithEmailAndPassword(email, password)
     .then((cred) => {
-      const uid = cred.user.uid;
+      alert("Firebase login success ✅");
 
+      const uid = cred.user.uid;
       firebase.database().ref("users/" + uid).once("value")
         .then((snap) => {
-
           if (!snap.exists()) {
-            alert("User data not found in database.\nAsk admin to add you.");
-            firebase.auth().signOut();
+            alert("User not found in database ❌");
             return;
           }
 
-          const user = snap.val();
+          const role = snap.val().role;
+          alert("Role: " + role);
 
-          // ✅ ROLE ONLY (NO APPROVAL CONFUSION)
-          switch (user.role) {
-            case "admin":
-              window.location.href = "admin.html";
-              break;
-
-            case "teacher":
-              window.location.href = "teacher.html";
-              break;
-
-            case "student":
-              window.location.href = "student.html";
-              break;
-
-            default:
-              alert("Invalid role");
-              firebase.auth().signOut();
-          }
+          if (role === "admin") location.href = "admin.html";
+          if (role === "teacher") location.href = "teacher.html";
+          if (role === "student") location.href = "student.html";
         });
     })
     .catch(err => {
