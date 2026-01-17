@@ -1,76 +1,58 @@
-// ================= FIREBASE GLOBALS =================
+/* ==========================
+   FIREBASE REFERENCES
+========================== */
 const auth = firebase.auth();
 const db = firebase.database();
 
-// ================= DOM REFS =================
-const sidebar = document.getElementById("sidebar");
-const sections = document.querySelectorAll(".section");
-
-// ================= SIDEBAR =================
-function toggleSidebar() {
-  sidebar.classList.toggle("open");
-}
-
-document.addEventListener("click", e => {
-  if (!sidebar.contains(e.target) && !e.target.classList.contains("menu-btn")) {
-    sidebar.classList.remove("open");
-  }
-});
-
-function showSection(id) {
-  sections.forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.getElementById("pageTitle").innerText =
-    id.charAt(0).toUpperCase() + id.slice(1);
-  sidebar.classList.remove("open");
-}
-
-// ================= AUTH =================
+/* ==========================
+   AUTH CHECK (ADMIN ONLY)
+========================== */
 auth.onAuthStateChanged(user => {
-  if (!user) return location.href = "index.html";
+  if (!user) {
+    location.href = "index.html";
+    return;
+  }
 
   db.ref("users/" + user.uid).once("value").then(snap => {
     if (!snap.exists() || snap.val().role !== "admin") {
       alert("Access denied");
       auth.signOut();
-      return;
+    } else {
+      loadDashboard();
+      loadClasses();
+      loadTeachers();
+      loadStudents();
+      loadSettings();
     }
-
-    document.getElementById("adminName").innerText = snap.val().name;
-    loadDashboard();
-    loadClasses();
-    loadTeachers();
-    loadStudents();
-    loadSettings();
   });
 });
 
-// ================= LOGOUT =================
-function logout() {
-  auth.signOut().then(() => location.href = "index.html");
-}
-
-// ================= DASHBOARD =================
+/* ==========================
+   DASHBOARD
+========================== */
 function loadDashboard() {
-  let teachers = 0, students = 0;
+  let teacherCount = 0;
+  let studentCount = 0;
 
   db.ref("users").once("value", snap => {
     snap.forEach(u => {
-      if (u.val().role === "teacher") teachers++;
-      if (u.val().role === "student") students++;
+      if (u.val().role === "teacher") teacherCount++;
+      if (u.val().role === "student") studentCount++;
     });
 
-    document.getElementById("teacherCount").innerText = teachers;
-    document.getElementById("studentCount").innerText = students;
+    document.getElementById("teacherCount").innerText = teacherCount;
+    document.getElementById("studentCount").innerText = studentCount;
   });
 
-  db.ref("classes").once("value", s => {
-    document.getElementById("classCount").innerText = s.numChildren();
+  db.ref("classes").once("value", snap => {
+    document.getElementById("classCount").innerText = snap.numChildren();
   });
 }
 
-// ================= CLASSES =================
-function createClass() {
+/* ==========================
+   CLASSES
+========================== */
+function addClass() {
   const name = document.getElementById("className").value.trim();
   if (!name) return alert("Enter class name");
 
@@ -79,42 +61,42 @@ function createClass() {
 }
 
 function loadClasses() {
-  const list = document.getElementById("classList");
-  const studentSelect = document.getElementById("studentClass");
+  const classList = document.getElementById("classList");
+  const classSelect = document.getElementById("studentClass");
 
   db.ref("classes").on("value", snap => {
-    list.innerHTML = "";
-    studentSelect.innerHTML = "";
+    classList.innerHTML = "";
+    classSelect.innerHTML = "<option value=''>Select Class</option>";
 
     snap.forEach(c => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <b>${c.val().name}</b>
-        <button onclick="editClass('${c.key}','${c.val().name}')">✏️</button>
-        <button onclick="deleteClass('${c.key}')">🗑️</button>
-      `;
-      list.appendChild(li);
-
-      const opt = document.createElement("option");
-      opt.value = c.key;
-      opt.textContent = c.val().name;
-      studentSelect.appendChild(opt);
+      classList.innerHTML += `<li>${c.val().name}</li>`;
+      classSelect.innerHTML += `<option value="${c.key}">${c.val().name}</option>`;
     });
   });
 }
 
-function editClass(id, oldName) {
-  const name = prompt("Edit class name", oldName);
-  if (!name) return;
-  db.ref("classes/" + id + "/name").set(name);
+/* ==========================
+   TEACHERS
+========================== */
+function addTeacher() {
+  const name = document.getElementById("teacherName").value.trim();
+  const email = document.getElementById("teacherEmail").value.trim();
+
+  if (!name || !email) return alert("Fill all fields");
+
+  const id = db.ref("users").push().key;
+
+  db.ref("users/" + id).set({
+    name,
+    email,
+    role: "teacher",
+    assignments: {}
+  });
+
+  document.getElementById("teacherName").value = "";
+  document.getElementById("teacherEmail").value = "";
 }
 
-function deleteClass(id) {
-  if (!confirm("Delete this class?")) return;
-  db.ref("classes/" + id).remove();
-}
-
-// ================= TEACHERS =================
 function loadTeachers() {
   const list = document.getElementById("teacherList");
 
@@ -122,10 +104,10 @@ function loadTeachers() {
     .on("value", snap => {
       list.innerHTML = "";
       snap.forEach(t => {
-        const li = document.createElement("li");
-        li.textContent = t.val().name;
-        li.onclick = () => openTeacher(t.key);
-        list.appendChild(li);
+        list.innerHTML += `
+          <li onclick="openTeacher('${t.key}')">
+            👨‍🏫 ${t.val().name}
+          </li>`;
       });
     });
 }
@@ -134,58 +116,88 @@ function openTeacher(id) {
   db.ref("users/" + id).once("value", snap => {
     const t = snap.val();
     const box = document.getElementById("teacherProfile");
+    const details = document.getElementById("profileDetails");
 
     box.classList.remove("hidden");
-    box.innerHTML = `
-      <h3>${t.name}</h3>
-      <p>Email: ${t.email}</p>
-      <p>Assigned Subjects: ${Object.keys(t.assignments || {}).length}</p>
+
+    details.innerHTML = `
+      <strong>Name:</strong> ${t.name}<br>
+      <strong>Email:</strong> ${t.email}<br>
+      <strong>Subjects:</strong> ${t.assignments ? Object.keys(t.assignments).length : 0}
     `;
   });
 }
 
-// ================= STUDENTS =================
+/* ==========================
+   STUDENTS
+========================== */
 function addStudent() {
   const name = document.getElementById("studentName").value.trim();
-  const roll = document.getElementById("rollNo").value.trim();
+  const roll = document.getElementById("studentRoll").value.trim();
+  const email = document.getElementById("studentEmail").value.trim();
   const classId = document.getElementById("studentClass").value;
 
-  if (!name || !roll || !classId) return alert("Fill all fields");
+  if (!name || !roll || !email || !classId) {
+    return alert("Fill all student fields");
+  }
 
-  const ref = db.ref("students").push({
+  const id = db.ref("users").push().key;
+
+  // Create student login record
+  db.ref("users/" + id).set({
     name,
-    roll,
-    classId
+    email,
+    role: "student",
+    classId,
+    roll
   });
 
-  db.ref("classes/" + classId + "/students/" + ref.key).set(true);
+  // Add student to class
+  db.ref("classes/" + classId + "/students/" + id).set({
+    name,
+    roll
+  });
 
   document.getElementById("studentName").value = "";
-  document.getElementById("rollNo").value = "";
+  document.getElementById("studentRoll").value = "";
+  document.getElementById("studentEmail").value = "";
 }
 
 function loadStudents() {
   const list = document.getElementById("studentList");
 
-  db.ref("students").on("value", snap => {
-    list.innerHTML = "";
-    snap.forEach(s => {
-      const li = document.createElement("li");
-      li.textContent = `${s.val().name} (Roll ${s.val().roll})`;
-      list.appendChild(li);
+  db.ref("users").orderByChild("role").equalTo("student")
+    .on("value", snap => {
+      list.innerHTML = "";
+      snap.forEach(s => {
+        list.innerHTML += `
+          <li>
+            🎓 ${s.val().name} (Roll ${s.val().roll})
+          </li>`;
+      });
     });
-  });
 }
 
-// ================= SETTINGS =================
+/* ==========================
+   SETTINGS
+========================== */
 function loadSettings() {
-  db.ref("settings/minAttendance").once("value", s => {
-    document.getElementById("minAttendance").value = s.val() || 75;
+  db.ref("settings/minAttendance").once("value", snap => {
+    document.getElementById("minAttendance").value = snap.val() || 75;
   });
 }
 
 function saveSettings() {
-  const v = Number(document.getElementById("minAttendance").value);
-  db.ref("settings/minAttendance").set(v);
-  alert("Settings saved");
+  const val = Number(document.getElementById("minAttendance").value);
+  if (!val) return alert("Enter valid percentage");
+
+  db.ref("settings/minAttendance").set(val);
+  alert("Settings saved successfully");
+}
+
+/* ==========================
+   LOGOUT
+========================== */
+function logout() {
+  auth.signOut().then(() => location.href = "index.html");
 }
