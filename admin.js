@@ -1,20 +1,5 @@
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
-
-  firebase.database().ref("users/" + user.uid).once("value")
-    .then(snap => {
-      if (!snap.exists() || snap.val().role !== "admin") {
-        alert("Access Denied");
-        firebase.auth().signOut();
-        window.location.href = "login.html";
-      }
-    });
-});
 /* ==========================
-   FIREBASE REFERENCES
+   FIREBASE INIT
 ========================== */
 const auth = firebase.auth();
 const db = firebase.database();
@@ -24,7 +9,7 @@ const db = firebase.database();
 ========================== */
 auth.onAuthStateChanged(user => {
   if (!user) {
-    location.href = "index.html";
+    location.href = "login.html";
     return;
   }
 
@@ -32,7 +17,9 @@ auth.onAuthStateChanged(user => {
     if (!snap.exists() || snap.val().role !== "admin") {
       alert("Access denied");
       auth.signOut();
+      location.href = "login.html";
     } else {
+      document.getElementById("adminName").innerText = snap.val().name || "Admin";
       loadDashboard();
       loadClasses();
       loadTeachers();
@@ -49,17 +36,18 @@ function loadDashboard() {
   let teacherCount = 0;
   let studentCount = 0;
 
-  db.ref("users").once("value", snap => {
+  db.ref("users").on("value", snap => {
     snap.forEach(u => {
-      if (u.val().role === "teacher") teacherCount++;
-      if (u.val().role === "student") studentCount++;
+      const d = u.val();
+      if (d.role === "teacher") teacherCount++;
+      if (d.role === "student") studentCount++;
     });
 
     document.getElementById("teacherCount").innerText = teacherCount;
     document.getElementById("studentCount").innerText = studentCount;
   });
 
-  db.ref("classes").once("value", snap => {
+  db.ref("classes").on("value", snap => {
     document.getElementById("classCount").innerText = snap.numChildren();
   });
 }
@@ -71,21 +59,24 @@ function addClass() {
   const name = document.getElementById("className").value.trim();
   if (!name) return alert("Enter class name");
 
-  db.ref("classes").push({ name });
+  const id = name.toLowerCase().replace(/\s+/g, "");
+  db.ref("classes/" + id).set({ name });
+
   document.getElementById("className").value = "";
 }
 
 function loadClasses() {
-  const classList = document.getElementById("classList");
-  const classSelect = document.getElementById("studentClass");
+  const list = document.getElementById("classList");
+  const select = document.getElementById("studentClass");
 
   db.ref("classes").on("value", snap => {
-    classList.innerHTML = "";
-    classSelect.innerHTML = "<option value=''>Select Class</option>";
+    list.innerHTML = "";
+    select.innerHTML = "<option value=''>Select Class</option>";
 
     snap.forEach(c => {
-      classList.innerHTML += `<li>${c.val().name}</li>`;
-      classSelect.innerHTML += `<option value="${c.key}">${c.val().name}</option>`;
+      const cls = c.val();
+      list.innerHTML += `<li>🏫 ${cls.name}</li>`;
+      select.innerHTML += `<option value="${c.key}">${cls.name}</option>`;
     });
   });
 }
@@ -93,25 +84,6 @@ function loadClasses() {
 /* ==========================
    TEACHERS
 ========================== */
-function addTeacher() {
-  const name = document.getElementById("teacherName").value.trim();
-  const email = document.getElementById("teacherEmail").value.trim();
-
-  if (!name || !email) return alert("Fill all fields");
-
-  const id = db.ref("users").push().key;
-
-  db.ref("users/" + id).set({
-    name,
-    email,
-    role: "teacher",
-    assignments: {}
-  });
-
-  document.getElementById("teacherName").value = "";
-  document.getElementById("teacherEmail").value = "";
-}
-
 function loadTeachers() {
   const list = document.getElementById("teacherList");
 
@@ -131,14 +103,12 @@ function openTeacher(id) {
   db.ref("users/" + id).once("value", snap => {
     const t = snap.val();
     const box = document.getElementById("teacherProfile");
-    const details = document.getElementById("profileDetails");
 
     box.classList.remove("hidden");
-
-    details.innerHTML = `
-      <strong>Name:</strong> ${t.name}<br>
-      <strong>Email:</strong> ${t.email}<br>
-      <strong>Subjects:</strong> ${t.assignments ? Object.keys(t.assignments).length : 0}
+    box.innerHTML = `
+      <h3>${t.name}</h3>
+      <p><strong>Email:</strong> ${t.email}</p>
+      <p><strong>Assignments:</strong> ${t.assignments ? Object.keys(t.assignments).length : 0}</p>
     `;
   });
 }
@@ -158,19 +128,18 @@ function addStudent() {
 
   const id = db.ref("users").push().key;
 
-  // Create student login record
   db.ref("users/" + id).set({
     name,
     email,
+    roll: Number(roll),
     role: "student",
     classId,
-    roll
+    approved: true
   });
 
-  // Add student to class
   db.ref("classes/" + classId + "/students/" + id).set({
     name,
-    roll
+    roll: Number(roll)
   });
 
   document.getElementById("studentName").value = "";
@@ -185,9 +154,10 @@ function loadStudents() {
     .on("value", snap => {
       list.innerHTML = "";
       snap.forEach(s => {
+        const st = s.val();
         list.innerHTML += `
           <li>
-            🎓 ${s.val().name} (Roll ${s.val().roll})
+            🎓 ${st.roll}. ${st.name} (${st.classId.toUpperCase()})
           </li>`;
       });
     });
@@ -203,16 +173,16 @@ function loadSettings() {
 }
 
 function saveSettings() {
-  const val = Number(document.getElementById("minAttendance").value);
-  if (!val) return alert("Enter valid percentage");
+  const v = Number(document.getElementById("minAttendance").value);
+  if (!v) return alert("Enter valid percentage");
 
-  db.ref("settings/minAttendance").set(val);
-  alert("Settings saved successfully");
+  db.ref("settings/minAttendance").set(v);
+  alert("Settings saved");
 }
 
 /* ==========================
    LOGOUT
 ========================== */
 function logout() {
-  auth.signOut().then(() => location.href = "index.html");
+  auth.signOut().then(() => location.href = "login.html");
 }
