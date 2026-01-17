@@ -1,117 +1,112 @@
-const auth = firebase.auth();
-const db = firebase.database();
+let currentClass = null;
+let currentSubject = null;
+let attendanceData = {};
 
-let teacherId, currentClass, currentSubject;
-let attendance = {};
+auth.onAuthStateChanged(user => {
+  if (!user) location.href = "index.html";
+
+  db.ref("users/" + user.uid).once("value").then(snap => {
+    if (snap.val().role !== "teacher") {
+      alert("Access denied");
+      auth.signOut();
+    }
+    document.getElementById("teacherName").innerText = snap.val().name;
+    loadDashboard(user.uid);
+    loadClasses(user.uid);
+  });
+});
 
 function toggleSidebar() {
-  sidebar.classList.add("open");
-  overlay.classList.add("show");
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
 }
-
 function closeSidebar() {
   sidebar.classList.remove("open");
   overlay.classList.remove("show");
 }
 
-function navigate(page) {
+function openSection(id) {
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("pageTitle").innerText = id.charAt(0).toUpperCase()+id.slice(1);
   closeSidebar();
-  if (page === "dashboard") loadDashboard();
-  if (page === "classes") loadClasses();
 }
-
-function logout() {
-  auth.signOut().then(() => location.href = "index.html");
-}
-
-auth.onAuthStateChanged(user => {
-  if (!user) location.href = "index.html";
-  teacherId = user.uid;
-
-  db.ref("users/" + teacherId).once("value").then(snap => {
-    teacherName.innerText = snap.val().name;
-    loadDashboard();
-  });
-});
 
 /* DASHBOARD */
-function loadDashboard() {
-  pageTitle.innerText = "Dashboard";
-  content.innerHTML = `
-    <div class="grid">
-      <div class="card" onclick="loadClasses()">📚 Classes</div>
-      <div class="card" onclick="loadClasses()">🧑‍🎓 Students</div>
-      <div class="card" onclick="loadClasses()">📅 Attendance</div>
-    </div>
-  `;
+function loadDashboard(uid) {
+  db.ref("users/"+uid+"/assignments").once("value", snap=>{
+    document.getElementById("classCount").innerText = snap.numChildren();
+  });
 }
 
 /* CLASSES */
-function loadClasses() {
-  pageTitle.innerText = "My Classes";
-  let html = `<div class="grid">`;
-
-  db.ref("users/" + teacherId + "/assignments").once("value").then(snap => {
-    snap.forEach(a => {
-      const [classId, subject] = a.key.split("_");
-      db.ref("classes/" + classId).once("value").then(c => {
-        html += `
-          <div class="card" onclick="openClass('${classId}','${subject}')">
-            <h3>${c.val().name}</h3>
-            <p>Subject: ${subject}</p>
-          </div>
-        `;
-        content.innerHTML = html + `</div>`;
+function loadClasses(uid) {
+  const container = document.getElementById("classCards");
+  db.ref("users/"+uid+"/assignments").once("value", snap=>{
+    container.innerHTML="";
+    snap.forEach(a=>{
+      const [classId, subjectId] = a.key.split("_");
+      db.ref("classes/"+classId).once("value", cls=>{
+        container.innerHTML += `
+          <div class="class-card" onclick="openAttendance('${classId}','${subjectId}')">
+            <h3>${cls.val().name}</h3>
+            <p>Subject: ${subjectId.toUpperCase()}</p>
+          </div>`;
       });
     });
   });
 }
 
-/* OPEN CLASS */
-function openClass(classId, subject) {
+/* ATTENDANCE */
+function openAttendance(classId, subjectId) {
   currentClass = classId;
-  currentSubject = subject;
-  pageTitle.innerText = subject + " - Attendance";
+  currentSubject = subjectId;
+  openSection("attendance");
+  document.getElementById("attendanceTitle").innerText =
+    `Attendance – ${classId.toUpperCase()} (${subjectId.toUpperCase()})`;
 
-  const date = new Date().toISOString().split("T")[0];
-  attendance = {};
+  const table = document.getElementById("attendanceTable");
+  table.innerHTML="";
+  attendanceData={};
 
-  db.ref(`classes/${classId}/students`).once("value").then(snap => {
-    let rows = "";
-    snap.forEach(s => {
-      rows += `
+  db.ref(`classes/${classId}/students`).once("value", snap=>{
+    snap.forEach(s=>{
+      attendanceData[s.key] = "P";
+      table.innerHTML += `
         <tr>
           <td>${s.val().roll}</td>
           <td>${s.val().name}</td>
           <td>
-            <button class="status-btn present" onclick="setStatus('${s.key}',this,'present')">P</button>
-            <button class="status-btn absent" onclick="setStatus('${s.key}',this,'absent')">A</button>
+            <button class="status-btn present"
+              onclick="toggleStatus(this,'${s.key}')">Present</button>
           </td>
-        </tr>
-      `;
+        </tr>`;
     });
-
-    content.innerHTML = `
-      <table>
-        <tr><th>Roll</th><th>Name</th><th>Status</th></tr>
-        ${rows}
-      </table>
-      <button class="save-btn" onclick="saveAttendance('${date}')">Save Attendance</button>
-    `;
   });
 }
 
-function setStatus(id, btn, status) {
-  const parent = btn.parentElement;
-  parent.querySelectorAll(".status-btn").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  attendance[id] = status;
+function toggleStatus(btn, id) {
+  if (attendanceData[id] === "P") {
+    attendanceData[id] = "A";
+    btn.className = "status-btn absent";
+    btn.innerText = "Absent";
+  } else {
+    attendanceData[id] = "P";
+    btn.className = "status-btn present";
+    btn.innerText = "Present";
+  }
 }
 
-function saveAttendance(date) {
-  for (let id in attendance) {
-    db.ref(`classes/${currentClass}/attendance/${date}/${id}`).set(attendance[id]);
-  }
-  alert("Attendance saved successfully");
-  loadClasses();
+function saveAttendance() {
+  const date = document.getElementById("attendanceDate").value;
+  if (!date) return alert("Select date");
+
+  db.ref(`attendance/${currentClass}/${currentSubject}/${date}`)
+    .set(attendanceData);
+
+  alert("Attendance saved successfully ✅");
+}
+
+function logout() {
+  auth.signOut().then(()=>location.href="index.html");
 }
