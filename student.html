@@ -1,57 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Student Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="student.css">
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- CSS -->
+<link rel="stylesheet" href="student.css">
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <h2>🎓 Student Dashboard</h2>
-  <button onclick="logout()">Logout</button>
+<div class="sidebar" id="sidebar">
+  <div class="brand">
+    <h2>🎓 Student</h2>
+    <p id="studentName">Loading...</p>
+  </div>
+  <nav>
+    <button onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+    <button onclick="showSection('attendance')"><i class="fas fa-check-circle"></i> Attendance</button>
+    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </nav>
 </div>
 
-<!-- MAIN -->
-<div class="container">
+<div class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <h1 id="pageTitle">Dashboard</h1>
+</div>
 
-  <!-- PROFILE -->
-  <div class="card profile">
-    <h3 id="studentName">Student Name</h3>
-    <p id="studentClass">Class</p>
-    <p id="studentRoll">Roll No</p>
-  </div>
+<div class="main">
 
-  <!-- STATS -->
-  <div class="stats">
-    <div class="stat-card">
-      <h4>Overall Attendance</h4>
-      <p id="attendancePercent">0%</p>
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="section active">
+    <div class="card-grid">
+      <div class="card">
+        📊 Overall Attendance<br>
+        <span id="overallAttendance">0%</span>
+      </div>
+      <div class="card">
+        ⚠️ Defaulter Status<br>
+        <span id="defaulterStatus">Safe</span>
+      </div>
     </div>
-    <div class="stat-card danger" id="defaulterBox">
-      ⚠️ Below Minimum Attendance
-    </div>
-  </div>
 
-  <!-- SUBJECT ATTENDANCE -->
-  <div class="card">
-    <h3>📚 Subject-wise Attendance</h3>
-    <table>
+    <h3>Subject-wise Attendance</h3>
+    <canvas id="subjectChart"></canvas>
+
+    <h3>Attendance Calendar</h3>
+    <div id="calendar" class="calendar"></div>
+  </section>
+
+  <!-- ATTENDANCE -->
+  <section id="attendance" class="section">
+    <h2>Attendance Details</h2>
+    <table id="attendanceTable">
       <thead>
         <tr>
+          <th>Date</th>
           <th>Subject</th>
-          <th>Present</th>
-          <th>Total</th>
-          <th>%</th>
+          <th>Status</th>
         </tr>
       </thead>
-      <tbody id="attendanceTable"></tbody>
+      <tbody></tbody>
     </table>
-  </div>
+  </section>
 
 </div>
 
@@ -59,8 +77,10 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
 <script src="firebase.js"></script>
+
+<!-- Student JS -->
 <script src="student.js"></script>
+
 </body>
 </html>
