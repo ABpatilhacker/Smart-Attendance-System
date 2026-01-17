@@ -1,3 +1,18 @@
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  firebase.database().ref("users/" + user.uid).once("value")
+    .then(snap => {
+      if (!snap.exists() || snap.val().role !== "admin") {
+        alert("Access Denied");
+        firebase.auth().signOut();
+        window.location.href = "login.html";
+      }
+    });
+});
 /* ==========================
    FIREBASE REFERENCES
 ========================== */
