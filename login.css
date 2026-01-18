@@ -1,95 +1,69 @@
-/* ===============================
-   GLOBAL RESET & BASE
+/* ================================
+   GLOBAL RESET
 ================================ */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", "Segoe UI", sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f4f7fb, #e9eef6);
+  background:
+    radial-gradient(circle at top left, #e9f0ff, transparent 45%),
+    radial-gradient(circle at bottom right, #f3f6fb, transparent 50%),
+    linear-gradient(135deg, #f7f9fc, #eef2f7);
   display: flex;
-  align-items: center;
   justify-content: center;
-  color: #1f2937;
+  align-items: center;
+  padding: 20px;
 }
 
-/* ===============================
-   BACKGROUND DESIGN ELEMENTS
-================================ */
-body::before,
-body::after {
-  content: "";
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.4;
-  z-index: -1;
-}
-
-body::before {
-  width: 420px;
-  height: 420px;
-  background: #4f46e5;
-  top: -120px;
-  left: -120px;
-}
-
-body::after {
-  width: 420px;
-  height: 420px;
-  background: #22c55e;
-  bottom: -120px;
-  right: -120px;
-}
-
-/* ===============================
-   LOGIN CARD
+/* ================================
+   AUTH CARD
 ================================ */
 .auth-container {
   width: 100%;
   max-width: 420px;
   background: #ffffff;
   border-radius: 18px;
-  padding: 36px 32px;
+  padding: 32px 28px;
   box-shadow:
-    0 25px 50px rgba(0, 0, 0, 0.08),
-    0 10px 20px rgba(79, 70, 229, 0.05);
-  animation: fadeUp 0.8s ease;
+    0 20px 40px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  animation: fadeUp 0.6s ease;
 }
 
-/* ===============================
-   HEADER / BRAND
+/* ================================
+   HEADER
 ================================ */
 .auth-header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 26px;
 }
 
 .auth-header h2 {
-  font-size: 1.9rem;
+  font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: #1f2937;
 }
 
 .auth-header p {
-  font-size: 0.9rem;
+  font-size: 13px;
   color: #6b7280;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
-/* ===============================
-   TABS (LOGIN / SIGNUP)
+/* ================================
+   TABS
 ================================ */
 .tabs {
   display: flex;
   background: #f1f5f9;
   border-radius: 12px;
-  padding: 6px;
-  margin-bottom: 26px;
+  padding: 5px;
+  margin-bottom: 22px;
 }
 
 .tabs button {
@@ -97,94 +71,88 @@ body::after {
   border: none;
   background: transparent;
   padding: 10px 0;
-  border-radius: 10px;
-  font-size: 0.95rem;
   font-weight: 600;
-  color: #475569;
+  font-size: 14px;
   cursor: pointer;
+  border-radius: 10px;
+  color: #475569;
   transition: all 0.3s ease;
 }
 
-.tabs button.active-tab {
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
+.tabs .active-tab {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
   color: #ffffff;
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
 }
 
-/* ===============================
-   FORM
+/* ================================
+   FORMS
 ================================ */
 form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
-form.hidden {
-  display: none;
-}
-
-/* ===============================
-   INPUTS
-================================ */
 input {
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1.5px solid #e5e7eb;
-  font-size: 0.95rem;
-  background: #ffffff;
-  transition: all 0.3s ease;
+  padding: 13px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 14px;
+  transition: all 0.25s ease;
 }
 
 input:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* ===============================
+/* ================================
    BUTTON
 ================================ */
-button.primary-btn {
-  margin-top: 10px;
-  padding: 14px;
-  border-radius: 14px;
+.primary-btn {
+  margin-top: 6px;
+  padding: 13px;
   border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
   color: #ffffff;
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
-  box-shadow: 0 12px 25px rgba(79, 70, 229, 0.4);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-button.primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 35px rgba(79, 70, 229, 0.45);
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(37, 99, 235, 0.35);
 }
 
-button.primary-btn:active {
-  transform: scale(0.98);
-}
-
-/* ===============================
-   SMALL TEXT / INFO
+/* ================================
+   INFO TEXT
 ================================ */
 .form-info {
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 12px;
   color: #6b7280;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
-/* ===============================
-   ANIMATIONS
+/* ================================
+   UTILITIES
+================================ */
+.hidden {
+  display: none;
+}
+
+/* ================================
+   ANIMATION
 ================================ */
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(25px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -192,11 +160,16 @@ button.primary-btn:active {
   }
 }
 
-/* ===============================
-   RESPONSIVE
+/* ================================
+   MOBILE OPTIMIZATION
 ================================ */
 @media (max-width: 480px) {
   .auth-container {
-    padding: 28px 22px;
+    padding: 26px 22px;
+    border-radius: 14px;
+  }
+
+  .auth-header h2 {
+    font-size: 22px;
   }
 }
