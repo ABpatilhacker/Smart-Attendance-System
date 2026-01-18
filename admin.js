@@ -13,20 +13,19 @@ firebase.auth().onAuthStateChanged(user => {
     return;
   }
 
-  const dbRef = firebase.database().ref("users/" + user.uid);
-  dbRef.once("value")
+  db.ref("users/" + user.uid).once("value")
     .then(snap => {
       const data = snap.val();
       if (!data) {
         alert("User not found in database");
-        firebase.auth().signOut();
+        auth.signOut();
         window.location.href = "login.html";
         return;
       }
 
       if (data.role !== "admin" || !data.approved) {
         alert("Access Denied. Admin not approved yet!");
-        firebase.auth().signOut();
+        auth.signOut();
         window.location.href = "login.html";
         return;
       }
@@ -40,7 +39,7 @@ firebase.auth().onAuthStateChanged(user => {
     })
     .catch(err => {
       console.error("Database error:", err);
-      firebase.auth().signOut();
+      auth.signOut();
       window.location.href = "login.html";
     });
 });
@@ -52,20 +51,24 @@ function loadDashboard() {
   let teacherCount = 0;
   let studentCount = 0;
 
-  db.ref("users").once("value", snap => {
-    snap.forEach(u => {
-      const val = u.val();
-      if (val.role === "teacher" && val.approved) teacherCount++;
-      if (val.role === "student" && val.approved) studentCount++;
-    });
+  db.ref("users").once("value")
+    .then(snap => {
+      snap.forEach(u => {
+        const val = u.val();
+        if (val.role === "teacher" && val.approved) teacherCount++;
+        if (val.role === "student" && val.approved) studentCount++;
+      });
 
-    document.getElementById("teacherCount").innerText = teacherCount;
-    document.getElementById("studentCount").innerText = studentCount;
-  });
+      document.getElementById("teacherCount").innerText = teacherCount;
+      document.getElementById("studentCount").innerText = studentCount;
+    })
+    .catch(err => console.error("Error loading users:", err));
 
-  db.ref("classes").once("value", snap => {
-    document.getElementById("classCount").innerText = snap.numChildren();
-  });
+  db.ref("classes").once("value")
+    .then(snap => {
+      document.getElementById("classCount").innerText = snap.numChildren();
+    })
+    .catch(err => console.error("Error loading classes:", err));
 }
 
 /* ==========================
@@ -75,10 +78,12 @@ function addClass() {
   const name = document.getElementById("className").value.trim();
   if (!name) return alert("Enter class name");
 
-  db.ref("classes").push({ name }).then(() => {
-    alert(`Class "${name}" added successfully!`);
-    document.getElementById("className").value = "";
-  });
+  db.ref("classes").push({ name })
+    .then(() => {
+      alert(`Class "${name}" added successfully!`);
+      document.getElementById("className").value = "";
+    })
+    .catch(err => console.error("Error adding class:", err));
 }
 
 function loadClasses() {
@@ -117,24 +122,20 @@ function addTeacher() {
     alert(`Teacher "${name}" added successfully!`);
     document.getElementById("teacherName").value = "";
     document.getElementById("teacherEmail").value = "";
-  });
+  }).catch(err => console.error("Error adding teacher:", err));
 }
 
 function loadTeachers() {
   const list = document.getElementById("teacherList");
 
-  db.ref("users").orderByChild("role").equalTo("teacher")
-    .on("value", snap => {
-      list.innerHTML = "";
-      snap.forEach(t => {
-        if (t.val().approved) {
-          list.innerHTML += `
-            <li onclick="openTeacher('${t.key}')">
-              👨‍🏫 ${t.val().name}
-            </li>`;
-        }
-      });
+  db.ref("users").orderByChild("role").equalTo("teacher").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(t => {
+      if (t.val().approved) {
+        list.innerHTML += `<li onclick="openTeacher('${t.key}')">👨‍🏫 ${t.val().name}</li>`;
+      }
     });
+  });
 }
 
 function openTeacher(id) {
@@ -152,7 +153,7 @@ function openTeacher(id) {
       <strong>Email:</strong> ${t.email}<br>
       <strong>Subjects Assigned:</strong> ${t.assignments ? Object.keys(t.assignments).length : 0}
     `;
-  });
+  }).catch(err => console.error("Error opening teacher:", err));
 }
 
 /* ==========================
@@ -160,7 +161,7 @@ function openTeacher(id) {
 ========================== */
 function addStudent() {
   const name = document.getElementById("studentName").value.trim();
-  const roll = document.getElementById("studentRoll").value.trim();
+  const roll = Number(document.getElementById("studentRoll").value.trim());
   const email = document.getElementById("studentEmail").value.trim();
   const classId = document.getElementById("studentClass").value;
 
@@ -177,52 +178,43 @@ function addStudent() {
     approved: true
   }).then(() => {
     alert(`Student "${name}" added successfully!`);
-
-    // Add student to class
-    db.ref(`classes/${classId}/students/${id}`).set({
-      name,
-      roll
-    });
+    db.ref(`classes/${classId}/students/${id}`).set({ name, roll });
 
     document.getElementById("studentName").value = "";
     document.getElementById("studentRoll").value = "";
     document.getElementById("studentEmail").value = "";
-  });
+  }).catch(err => console.error("Error adding student:", err));
 }
 
 function loadStudents() {
   const list = document.getElementById("studentList");
 
-  db.ref("users").orderByChild("role").equalTo("student")
-    .on("value", snap => {
-      list.innerHTML = "";
-      snap.forEach(s => {
-        if (s.val().approved) {
-          list.innerHTML += `
-            <li>
-              🎓 ${s.val().name} (Roll ${s.val().roll})
-            </li>`;
-        }
-      });
+  db.ref("users").orderByChild("role").equalTo("student").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(s => {
+      if (s.val().approved) {
+        list.innerHTML += `<li>🎓 ${s.val().name} (Roll ${s.val().roll})</li>`;
+      }
     });
+  });
 }
 
 /* ==========================
    SETTINGS
 ========================== */
 function loadSettings() {
-  db.ref("settings/minAttendance").once("value").then(snap => {
-    document.getElementById("minAttendance").value = snap.val() || 75;
-  });
+  db.ref("settings/minAttendance").once("value")
+    .then(snap => document.getElementById("minAttendance").value = snap.val() || 75)
+    .catch(err => console.error("Error loading settings:", err));
 }
 
 function saveSettings() {
   const val = Number(document.getElementById("minAttendance").value);
   if (!val || val < 0 || val > 100) return alert("Enter valid percentage");
 
-  db.ref("settings/minAttendance").set(val).then(() => {
-    alert("Settings saved successfully!");
-  });
+  db.ref("settings/minAttendance").set(val)
+    .then(() => alert("Settings saved successfully!"))
+    .catch(err => console.error("Error saving settings:", err));
 }
 
 /* ==========================
@@ -230,4 +222,4 @@ function saveSettings() {
 ========================== */
 function logout() {
   auth.signOut().then(() => location.href = "login.html");
-}
+                                        }
