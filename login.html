@@ -3,41 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Attendance - Login</title>
+  <title>Smart Attendance | Login</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="login.css">
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
 </head>
 <body>
+
   <div class="login-wrapper">
+
+    <!-- Header -->
     <div class="login-info">
       <h1>Smart Attendance</h1>
-      <p>Login to continue</p>
+      <p>Login or Signup to continue</p>
     </div>
 
-    <form id="loginForm" class="form-box">
-      <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required>
-      <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" required>
-      <button type="submit" class="btn primary">Login</button>
-    </form>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button id="loginTab" class="active-tab" onclick="switchTab('login')">Login</button>
+      <button id="signupTab" onclick="switchTab('signup')">Signup</button>
+    </div>
 
-    <p style="text-align:center; margin-top:10px;">Don't have an account? <a href="#" id="signupLink">Sign up</a></p>
+    <!-- Forms -->
+    <div class="form-box">
 
-    <form id="signupForm" class="form-box hidden">
-      <input type="text" id="signupName" placeholder="Full Name" required>
-      <input type="email" id="signupEmail" placeholder="Email" required>
-      <input type="password" id="signupPassword" placeholder="Password" required>
-      <select id="signupRole" required>
-        <option value="">Select Role</option>
-        <option value="student">Student</option>
-        <option value="teacher">Teacher</option>
-      </select>
-      <button type="submit" class="btn primary">Sign Up</button>
-      <p style="text-align:center; margin-top:10px;"><a href="#" id="loginLink">Back to Login</a></p>
-    </form>
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginPassword" placeholder="Password">
+        <button class="btn primary" onclick="loginUser()">Login</button>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signupForm" class="hidden">
+        <input type="text" id="signupName" placeholder="Full Name">
+        <input type="email" id="signupEmail" placeholder="Email">
+        <input type="password" id="signupPassword" placeholder="Password">
+        <button class="btn primary" onclick="signupUser()">Signup</button>
+      </div>
+
+    </div>
+
   </div>
 
+  <!-- JS -->
   <script src="login.js"></script>
+
+  <script>
+    // Tab switch
+    function switchTab(tab) {
+      const loginTab = document.getElementById("loginTab");
+      const signupTab = document.getElementById("signupTab");
+      const loginForm = document.getElementById("loginForm");
+      const signupForm = document.getElementById("signupForm");
+
+      if(tab === "login"){
+        loginTab.classList.add("active-tab");
+        signupTab.classList.remove("active-tab");
+        loginForm.classList.remove("hidden");
+        signupForm.classList.add("hidden");
+      } else {
+        signupTab.classList.add("active-tab");
+        loginTab.classList.remove("active-tab");
+        signupForm.classList.remove("hidden");
+        loginForm.classList.add("hidden");
+      }
+    }
+  </script>
+
 </body>
 </html>
