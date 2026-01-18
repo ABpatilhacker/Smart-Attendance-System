@@ -1,50 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>Smart Attendance | Login</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
   <!-- CSS -->
-  <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="login.css" />
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
+
 <body>
-  <div class="login-wrapper">
-    <div class="login-info">
-      <h1>Smart Attendance</h1>
-      <p>Login or Signup to continue</p>
+
+  <div class="login-container">
+
+    <h2>Smart Attendance</h2>
+    <p>Secure Academic Management System</p>
+
+    <!-- MESSAGE BOX -->
+    <div id="messageBox"></div>
+
+    <!-- EMAIL -->
+    <div class="input-group">
+      <label for="email">Email Address</label>
+      <input
+        type="email"
+        id="email"
+        placeholder="Enter your email"
+        autocomplete="off"
+      />
     </div>
 
-    <div class="tabs">
-      <button class="active-tab" id="loginTab" onclick="showLogin()">Login</button>
-      <button id="signupTab" onclick="showSignup()">Signup</button>
+    <!-- PASSWORD -->
+    <div class="input-group">
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        placeholder="Enter your password"
+      />
     </div>
 
-    <!-- LOGIN FORM -->
-    <div class="form-box" id="loginForm">
-      <input type="email" id="loginEmail" placeholder="Email">
-      <input type="password" id="loginPassword" placeholder="Password">
-      <button class="btn primary" onclick="loginUser()">Login</button>
+    <!-- LOGIN BUTTON -->
+    <button onclick="login()">Login</button>
+
+    <!-- LINKS -->
+    <div class="links">
+      <a href="signup.html">Create new account</a>
     </div>
 
-    <!-- SIGNUP FORM -->
-    <div class="form-box hidden" id="signupForm">
-      <input type="text" id="signupName" placeholder="Full Name">
-      <input type="email" id="signupEmail" placeholder="Email">
-      <input type="password" id="signupPassword" placeholder="Password">
-      <button class="btn primary" onclick="signupUser()">Signup</button>
-    </div>
   </div>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-  <!-- JS -->
+  <!-- LOGIN SCRIPT -->
   <script src="login.js"></script>
+
 </body>
 </html>
