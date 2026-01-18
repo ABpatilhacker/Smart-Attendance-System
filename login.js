@@ -91,7 +91,3 @@ function signupUser() {
     });
 }
 
-// Prevent auto-login
-auth.onAuthStateChanged(user => {
-  if (user) auth.signOut();
-});
