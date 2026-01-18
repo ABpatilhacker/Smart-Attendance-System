@@ -8,86 +8,71 @@ const firebaseConfig = {
   messagingSenderId: "168700970246",
   appId: "1:168700970246:web:392156387db81e92544a87"
 };
-
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.database();
 
-// LOGIN FUNCTION
+// Toggle Tabs
+function showLogin() {
+  document.getElementById("loginForm").classList.remove("hidden");
+  document.getElementById("signupForm").classList.add("hidden");
+  document.getElementById("loginTab").classList.add("active-tab");
+  document.getElementById("signupTab").classList.remove("active-tab");
+}
+
+function showSignup() {
+  document.getElementById("signupForm").classList.remove("hidden");
+  document.getElementById("loginForm").classList.add("hidden");
+  document.getElementById("signupTab").classList.add("active-tab");
+  document.getElementById("loginTab").classList.remove("active-tab");
+}
+
+// LOGIN
 function loginUser() {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
-
-  if (!email || !password) return alert("Enter email & password");
+  if (!email || !password) return alert("Enter email and password");
 
   auth.signInWithEmailAndPassword(email, password)
-    .then((cred) => {
-      const uid = cred.user.uid;
-
+    .then(res => {
+      const uid = res.user.uid;
       db.ref("users/" + uid).once("value").then(snap => {
-        if (!snap.exists()) {
-          alert("User not found in database");
-          auth.signOut();
-          return;
-        }
-
+        if (!snap.exists()) return alert("No user record found!");
         const user = snap.val();
-
         if (!user.approved) {
-          alert("Your account is not approved by admin yet.");
           auth.signOut();
-          return;
+          return alert("Your account is not approved by admin yet.");
         }
 
         // Redirect based on role
-        if (user.role === "admin") {
-          window.location.href = "admin.html";
-        } else if (user.role === "teacher") {
-          window.location.href = "teacher.html";
-        } else if (user.role === "student") {
-          window.location.href = "student.html";
-        } else {
-          alert("Invalid role!");
-          auth.signOut();
-        }
+        if (user.role === "admin") window.location.href = "admin.html";
+        else if (user.role === "teacher") window.location.href = "teacher.html";
+        else if (user.role === "student") window.location.href = "student.html";
+        else alert("Role not recognized.");
       });
     })
-    .catch(err => {
-      console.error(err);
-      alert("Invalid login credentials");
-    });
+    .catch(err => alert("Invalid login credentials!"));
 }
 
-// SIGNUP FUNCTION
+// SIGNUP
 function signupUser() {
   const name = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPassword").value.trim();
-
   if (!name || !email || !password) return alert("Fill all fields");
 
   auth.createUserWithEmailAndPassword(email, password)
-    .then(cred => {
-      const uid = cred.user.uid;
-
-      // Add user to database with approved = false
+    .then(res => {
+      const uid = res.user.uid;
       db.ref("users/" + uid).set({
-        name: name,
-        email: email,
-        role: "student", // Signup always creates student
-        approved: false,
-        classId: "", // Can be updated later by admin
-        roll: ""
+        name,
+        email,
+        role: "student",
+        approved: false
       });
-
-      alert("Signup successful! Wait for admin approval to login.");
-      // Switch to login tab
-      document.getElementById("loginTab").click();
+      alert("Signup successful! Wait for admin approval.");
+      showLogin();
     })
-    .catch(err => {
-      console.error(err);
-      alert(err.message);
-    });
+    .catch(err => alert(err.message));
 }
-
