@@ -1,5 +1,5 @@
 /* ==========================
-   FIREBASE
+   FIREBASE INITIALIZATION
 ========================== */
 const auth = firebase.auth();
 const db = firebase.database();
@@ -7,44 +7,54 @@ const db = firebase.database();
 /* ==========================
    AUTH CHECK (ADMIN ONLY)
 ========================== */
-auth.onAuthStateChanged(user => {
+firebase.auth().onAuthStateChanged(user => {
   if (!user) {
-    location.href = "login.html";
+    window.location.href = "login.html";
     return;
   }
 
-  db.ref("users/" + user.uid).once("value").then(snap => {
-    if (!snap.exists() || snap.val().role !== "admin" || !snap.val().approved) {
-      alert("Access denied");
-      auth.signOut();
-      location.href = "login.html";
-      return;
-    }
+  db.ref("users/" + user.uid).once("value")
+    .then(snap => {
+      if (!snap.exists()) {
+        alert("User record not found");
+        auth.signOut();
+        window.location.href = "login.html";
+        return;
+      }
 
-    loadDashboard();
-    loadClasses();
-    loadTeachers();
-    loadStudents();
-    loadSettings();
-  });
+      const data = snap.val();
+      if (data.role !== "admin" || !data.approved) {
+        alert("Access Denied");
+        auth.signOut();
+        window.location.href = "login.html";
+        return;
+      }
+
+      // ✅ LOAD EVERYTHING
+      loadDashboard();
+      loadClasses();
+      loadTeachers();
+      loadStudents();
+      loadSettings();
+    });
 });
 
 /* ==========================
-   DASHBOARD COUNTS
+   DASHBOARD
 ========================== */
 function loadDashboard() {
-  let teachers = 0;
-  let students = 0;
+  let teacherCount = 0;
+  let studentCount = 0;
 
   db.ref("users").once("value").then(snap => {
     snap.forEach(u => {
-      const v = u.val();
-      if (v.role === "teacher") teachers++;
-      if (v.role === "student") students++;
+      const user = u.val();
+      if (user.role === "teacher" && user.approved) teacherCount++;
+      if (user.role === "student" && user.approved) studentCount++;
     });
 
-    document.getElementById("teacherCount").innerText = teachers;
-    document.getElementById("studentCount").innerText = students;
+    document.getElementById("teacherCount").innerText = teacherCount;
+    document.getElementById("studentCount").innerText = studentCount;
   });
 
   db.ref("classes").once("value").then(snap => {
@@ -53,19 +63,21 @@ function loadDashboard() {
 }
 
 /* ==========================
-   CLASSES (READ ONLY)
+   CLASSES (FIXED FOR YOUR JSON)
 ========================== */
 function loadClasses() {
-  const list = document.getElementById("classList");
-  const select = document.getElementById("studentClass");
+  const classList = document.getElementById("classList");
+  if (!classList) return;
 
   db.ref("classes").once("value").then(snap => {
-    list.innerHTML = "";
-    select.innerHTML = `<option value="">Select Class</option>`;
+    classList.innerHTML = "";
 
-    snap.forEach(c => {
-      list.innerHTML += `<li>🏫 ${c.val().name}</li>`;
-      select.innerHTML += `<option value="${c.key}">${c.val().name}</option>`;
+    const classes = snap.val();
+    if (!classes) return;
+
+    Object.keys(classes).forEach(classId => {
+      const cls = classes[classId];
+      classList.innerHTML += `<li>🏫 ${cls.name}</li>`;
     });
   });
 }
@@ -75,14 +87,15 @@ function loadClasses() {
 ========================== */
 function loadTeachers() {
   const list = document.getElementById("teacherList");
+  if (!list) return;
+
+  list.innerHTML = "";
 
   db.ref("users").once("value").then(snap => {
-    list.innerHTML = "";
-
     snap.forEach(u => {
-      const t = u.val();
-      if (t.role === "teacher") {
-        list.innerHTML += `<li>👨‍🏫 ${t.name}</li>`;
+      const user = u.val();
+      if (user.role === "teacher" && user.approved) {
+        list.innerHTML += `<li>👨‍🏫 ${user.name}</li>`;
       }
     });
   });
@@ -93,14 +106,15 @@ function loadTeachers() {
 ========================== */
 function loadStudents() {
   const list = document.getElementById("studentList");
+  if (!list) return;
+
+  list.innerHTML = "";
 
   db.ref("users").once("value").then(snap => {
-    list.innerHTML = "";
-
     snap.forEach(u => {
-      const s = u.val();
-      if (s.role === "student") {
-        list.innerHTML += `<li>🎓 ${s.name} (Roll ${s.roll})</li>`;
+      const user = u.val();
+      if (user.role === "student" && user.approved) {
+        list.innerHTML += `<li>🎓 ${user.name} (Roll ${user.roll})</li>`;
       }
     });
   });
@@ -110,22 +124,30 @@ function loadStudents() {
    SETTINGS
 ========================== */
 function loadSettings() {
+  const input = document.getElementById("minAttendance");
+  if (!input) return;
+
   db.ref("settings/minAttendance").once("value").then(snap => {
-    document.getElementById("minAttendance").value = snap.val() || 75;
+    input.value = snap.val() || 75;
   });
 }
 
 function saveSettings() {
-  const v = Number(document.getElementById("minAttendance").value);
-  if (!v || v < 1 || v > 100) return alert("Invalid percentage");
+  const val = Number(document.getElementById("minAttendance").value);
+  if (!val || val < 1 || val > 100) {
+    alert("Enter valid attendance percentage");
+    return;
+  }
 
-  db.ref("settings/minAttendance").set(v);
-  alert("Settings saved");
+  db.ref("settings/minAttendance").set(val)
+    .then(() => alert("Settings saved successfully"));
 }
 
 /* ==========================
    LOGOUT
 ========================== */
 function logout() {
-  auth.signOut().then(() => location.href = "login.html");
-                 }
+  auth.signOut().then(() => {
+    window.location.href = "login.html";
+  });
+}
