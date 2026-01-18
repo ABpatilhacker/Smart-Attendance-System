@@ -2,67 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Smart Attendance | Login</title>
 
   <!-- CSS -->
   <link rel="stylesheet" href="login.css">
 
-  <!-- Firebase SDKs (v8 – REQUIRED for your JS) -->
+  <!-- Firebase v8 SDKs (IMPORTANT) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-  <!-- Firebase Config -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-      authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-      databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-      projectId: "smart-attendance-system-17e89",
-      storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
-      messagingSenderId: "168700970246",
-      appId: "1:168700970246:web:392156387db81e92544a87"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
 </head>
 
-<body>
+<body onload="showLogin()">
 
-  <div class="login-container">
+  <div class="auth-container">
 
-    <h2>Smart Attendance System</h2>
-    <p>Login to continue</p>
+    <!-- TABS -->
+    <div class="tabs">
+      <button id="loginTab" class="active-tab" onclick="showLogin()">Login</button>
+      <button id="signupTab" onclick="showSignup()">Signup</button>
+    </div>
 
-    <!-- MESSAGE -->
-    <div id="messageBox"></div>
+    <!-- LOGIN FORM -->
+    <div id="loginForm" class="form-box">
+      <h2>Login</h2>
 
-    <!-- EMAIL -->
-    <input
-      type="email"
-      id="email"
-      placeholder="Email"
-      autocomplete="off"
-    >
+      <input
+        type="email"
+        id="loginEmail"
+        placeholder="Email"
+        autocomplete="off"
+      >
 
-    <!-- PASSWORD -->
-    <input
-      type="password"
-      id="password"
-      placeholder="Password"
-    >
+      <input
+        type="password"
+        id="loginPassword"
+        placeholder="Password"
+      >
 
-    <!-- LOGIN BUTTON -->
-    <button id="loginBtn">Login</button>
+      <button onclick="loginUser()">Login</button>
+    </div>
 
-    <!-- SIGNUP -->
-    <div class="links">
-      <a href="signup.html">Create Account</a>
+    <!-- SIGNUP FORM -->
+    <div id="signupForm" class="form-box hidden">
+      <h2>Signup</h2>
+
+      <input
+        type="text"
+        id="signupName"
+        placeholder="Full Name"
+      >
+
+      <input
+        type="email"
+        id="signupEmail"
+        placeholder="Email"
+        autocomplete="off"
+      >
+
+      <input
+        type="password"
+        id="signupPassword"
+        placeholder="Password"
+      >
+
+      <button onclick="signupUser()">Create Account</button>
+
+      <p class="note">
+        After signup, wait for admin approval.
+      </p>
     </div>
 
   </div>
 
-  <!-- LOGIN JS (LAST LINE ALWAYS) -->
+  <!-- YOUR LOGIN.JS (UNCHANGED) -->
   <script src="login.js"></script>
 
 </body>
