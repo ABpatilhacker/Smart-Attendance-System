@@ -1,61 +1,109 @@
-// Firebase config (YOUR SAME CONFIG)
-const firebaseConfig = {
-  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-  projectId: "smart-attendance-system-17e89",
-  storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
-  messagingSenderId: "168700970246",
-  appId: "1:168700970246:web:392156387db81e92544a87"
-};
-
+// ===============================
+// FIREBASE INIT (DO NOT CHANGE)
+// ===============================
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.database();
 
+// ===============================
+// TAB SWITCHING
+// ===============================
+function showLogin() {
+  document.getElementById("loginBox").classList.remove("hidden");
+  document.getElementById("signupBox").classList.add("hidden");
+}
+
+function showSignup() {
+  document.getElementById("signupBox").classList.remove("hidden");
+  document.getElementById("loginBox").classList.add("hidden");
+}
+
+// ===============================
 // LOGIN
+// ===============================
 document.getElementById("loginForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
   const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  if (!email || !password) {
+    alert("Please enter email and password");
+    return;
+  }
 
   auth.signInWithEmailAndPassword(email, password)
-    .then(cred => {
-      const uid = cred.user.uid;
+    .then(res => {
+      const uid = res.user.uid;
 
-      return db.ref("users/" + uid).once("value");
-    })
-    .then(snap => {
-      if (!snap.exists()) {
-        alert("No user data found");
-        auth.signOut();
-        return;
-      }
+      db.ref("users/" + uid).once("value").then(snap => {
+        if (!snap.exists()) {
+          alert("User data not found");
+          auth.signOut();
+          return;
+        }
 
-      const user = snap.val();
+        const user = snap.val();
 
-      if (!user.approved) {
-        alert("Your account is not approved by admin");
-        auth.signOut();
-        return;
-      }
+        if (!user.approved) {
+          alert("Your account is not approved by admin yet");
+          auth.signOut();
+          return;
+        }
 
-      // REDIRECT BY ROLE
-      if (user.role === "admin") {
-        window.location.href = "admin.html";
-      } else if (user.role === "teacher") {
-        window.location.href = "teacher.html";
-      } else if (user.role === "student") {
-        window.location.href = "student.html";
-      } else {
-        alert("Invalid role");
-        auth.signOut();
-      }
+        // REDIRECT BASED ON ROLE
+        if (user.role === "admin") {
+          window.location.href = "admin.html";
+        } else if (user.role === "teacher") {
+          window.location.href = "teacher.html";
+        } else if (user.role === "student") {
+          window.location.href = "student.html";
+        } else {
+          alert("Invalid role");
+          auth.signOut();
+        }
+      });
     })
     .catch(err => {
-      alert("Invalid email or password");
-      console.error(err);
+      alert(err.message);
+    });
+});
+
+// ===============================
+// SIGNUP
+// ===============================
+document.getElementById("signupForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+  const role = document.getElementById("signupRole").value;
+
+  if (!name || !email || !password || !role) {
+    alert("Fill all signup fields");
+    return;
+  }
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(res => {
+      const uid = res.user.uid;
+
+      return db.ref("users/" + uid).set({
+        name: name,
+        email: email,
+        role: role,
+        approved: false
+      });
+    })
+    .then(() => {
+      alert("Signup successful! Wait for admin approval.");
+      auth.signOut();
+      showLogin();
+      document.getElementById("signupForm").reset();
+    })
+    .catch(err => {
+      alert(err.message);
     });
 });
