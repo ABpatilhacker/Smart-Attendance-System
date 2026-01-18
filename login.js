@@ -1,83 +1,73 @@
-// ---------- LOGIN ----------
-function login() {
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
+const loginBox = document.getElementById("loginBox");
+const signupBox = document.getElementById("signupBox");
+const tabs = document.querySelectorAll(".tabs button");
 
-  if (!email || !password) {
-    alert("Please enter email and password");
-    return;
-  }
-
-  firebase.auth().signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      const uid = userCredential.user.uid;
-
-      firebase.database().ref("users/" + uid).once("value")
-        .then((snapshot) => {
-          if (!snapshot.exists()) {
-            alert("User data not found");
-            firebase.auth().signOut();
-            return;
-          }
-
-          const user = snapshot.val();
-
-          // Approved check
-          if (user.approved !== true) {
-            alert("Your account is not approved");
-            firebase.auth().signOut();
-            return;
-          }
-
-          // Auto redirect by role
-          if (user.role === "admin") {
-            window.location.href = "admin.html";
-          } 
-          else if (user.role === "teacher") {
-            window.location.href = "teacher.html";
-          } 
-          else if (user.role === "student") {
-            window.location.href = "student.html";
-          } 
-          else {
-            alert("Invalid role");
-            firebase.auth().signOut();
-          }
-        });
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
+function showLogin() {
+  loginBox.classList.remove("hidden");
+  signupBox.classList.add("hidden");
+  tabs[0].classList.add("active");
+  tabs[1].classList.remove("active");
 }
 
-// ---------- SIGNUP ----------
-function signup() {
-  const name = document.getElementById("signupName").value;
-  const email = document.getElementById("signupEmail").value;
-  const password = document.getElementById("signupPassword").value;
-  const role = document.getElementById("signupRole").value;
+function showSignup() {
+  signupBox.classList.remove("hidden");
+  loginBox.classList.add("hidden");
+  tabs[1].classList.add("active");
+  tabs[0].classList.remove("active");
+}
 
-  if (!name || !email || !password || !role) {
-    alert("Please fill all fields");
-    return;
-  }
+/* LOGIN */
+loginBox.addEventListener("submit", e => {
+  e.preventDefault();
 
-  firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      const uid = userCredential.user.uid;
+  const email = loginEmail.value;
+  const password = loginPassword.value;
 
-      firebase.database().ref("users/" + uid).set({
-        name: name,
-        email: email,
-        role: role,
-        approved: true, // ✅ auto-approved
-        createdAt: new Date().toISOString()
-      });
+  auth.signInWithEmailAndPassword(email, password)
+    .then(res => {
+      const uid = res.user.uid;
 
-      alert("Signup successful! Please login.");
-      location.reload();
+      return db.ref("users/" + uid).once("value");
     })
-    .catch((error) => {
-      alert(error.message);
+    .then(snapshot => {
+      if (!snapshot.exists()) {
+        alert("User data not found");
+        auth.signOut();
+        return;
+      }
+
+      const user = snapshot.val();
+
+      if (!user.approved) {
+        alert("Waiting for admin approval");
+        auth.signOut();
+        return;
+      }
+
+      if (user.role === "admin") location.href = "admin.html";
+      else if (user.role === "teacher") location.href = "teacher.html";
+      else location.href = "student.html";
+    })
+    .catch(() => alert("Invalid email or password"));
+});
+
+/* SIGNUP */
+function signup() {
+  auth.createUserWithEmailAndPassword(
+    signupEmail.value,
+    signupPassword.value
+  )
+  .then(res => {
+    return db.ref("users/" + res.user.uid).set({
+      name: signupName.value,
+      email: signupEmail.value,
+      role: signupRole.value,
+      approved: false
     });
+  })
+  .then(() => {
+    alert("Signup successful! Wait for admin approval.");
+    showLogin();
+  })
+  .catch(err => alert(err.message));
 }
