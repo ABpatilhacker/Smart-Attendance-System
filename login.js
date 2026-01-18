@@ -1,14 +1,11 @@
-// ==========================
-// FIREBASE CONFIG
-// ==========================
-var const firebaseConfig = {
-  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-  projectId: "smart-attendance-system-17e89",
-  storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
-  messagingSenderId: "168700970246",
-  appId: "1:168700970246:web:392156387db81e92544a87"
+/* ==========================
+   FIREBASE CONFIG
+========================== */
+var firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT",
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -16,27 +13,27 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// ==========================
-// UI TOGGLE
-// ==========================
+/* ==========================
+   UI TOGGLE
+========================== */
 function showLogin() {
-  document.getElementById("loginForm").classList.remove("hidden");
-  document.getElementById("signupForm").classList.add("hidden");
-  document.getElementById("loginTab").classList.add("active-tab");
-  document.getElementById("signupTab").classList.remove("active-tab");
+  loginForm.classList.remove("hidden");
+  signupForm.classList.add("hidden");
+  loginTab.classList.add("active-tab");
+  signupTab.classList.remove("active-tab");
 }
 
 function showSignup() {
-  document.getElementById("signupForm").classList.remove("hidden");
-  document.getElementById("loginForm").classList.add("hidden");
-  document.getElementById("signupTab").classList.add("active-tab");
-  document.getElementById("loginTab").classList.remove("active-tab");
+  signupForm.classList.remove("hidden");
+  loginForm.classList.add("hidden");
+  signupTab.classList.add("active-tab");
+  loginTab.classList.remove("active-tab");
 }
 
-// ==========================
-// LOGIN
-// ==========================
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+/* ==========================
+   LOGIN (WITH APPROVAL)
+========================== */
+loginForm.addEventListener("submit", e => {
   e.preventDefault();
 
   const email = loginEmail.value;
@@ -48,26 +45,33 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
 
       db.ref("users/" + uid).once("value").then(snap => {
         if (!snap.exists()) {
-          alert("User data not found");
+          alert("Account data not found");
           auth.signOut();
           return;
         }
 
-        const role = snap.val().role;
+        const user = snap.val();
 
-        if (role === "admin") location.href = "admin.html";
-        else if (role === "teacher") location.href = "teacher.html";
-        else if (role === "student") location.href = "student.html";
+        if (!user.approved) {
+          alert("Your account is not approved by admin yet.");
+          auth.signOut();
+          return;
+        }
+
+        // ROLE REDIRECT
+        if (user.role === "admin") location.href = "admin.html";
+        else if (user.role === "teacher") location.href = "teacher.html";
+        else if (user.role === "student") location.href = "student.html";
         else alert("Invalid role");
       });
     })
     .catch(() => alert("Invalid email or password"));
 });
 
-// ==========================
-// SIGNUP
-// ==========================
-document.getElementById("signupForm").addEventListener("submit", function (e) {
+/* ==========================
+   SIGNUP (WAIT FOR APPROVAL)
+========================== */
+signupForm.addEventListener("submit", e => {
   e.preventDefault();
 
   const name = signupName.value;
@@ -82,11 +86,13 @@ document.getElementById("signupForm").addEventListener("submit", function (e) {
       return db.ref("users/" + uid).set({
         name,
         email,
-        role
+        role,
+        approved: false
       });
     })
     .then(() => {
-      alert("Account created successfully! Please login.");
+      alert("Signup successful! Please wait for admin approval.");
+      auth.signOut(); // IMPORTANT
       showLogin();
     })
     .catch(err => alert(err.message));
