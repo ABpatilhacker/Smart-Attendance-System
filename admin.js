@@ -7,25 +7,42 @@ const db = firebase.database();
 /* ==========================
    AUTH CHECK (ADMIN ONLY)
 ========================== */
-auth.onAuthStateChanged(user => {
+firebase.auth().onAuthStateChanged(user => {
   if (!user) {
-    location.href = "login.html";
+    window.location.href = "login.html";
     return;
   }
 
-  db.ref("users/" + user.uid).once("value").then(snap => {
-    if (!snap.exists() || snap.val().role !== "admin") {
-      alert("Access denied");
-      auth.signOut().then(() => location.href = "login.html");
-    } else {
-      // Load dashboard content
+  const dbRef = firebase.database().ref("users/" + user.uid);
+  dbRef.once("value")
+    .then(snap => {
+      const data = snap.val();
+      if (!data) {
+        alert("User not found in database");
+        firebase.auth().signOut();
+        window.location.href = "login.html";
+        return;
+      }
+
+      if (data.role !== "admin" || !data.approved) {
+        alert("Access Denied. Admin not approved yet!");
+        firebase.auth().signOut();
+        window.location.href = "login.html";
+        return;
+      }
+
+      // ✅ User is approved admin, load dashboard
       loadDashboard();
       loadClasses();
       loadTeachers();
       loadStudents();
       loadSettings();
-    }
-  });
+    })
+    .catch(err => {
+      console.error("Database error:", err);
+      firebase.auth().signOut();
+      window.location.href = "login.html";
+    });
 });
 
 /* ==========================
