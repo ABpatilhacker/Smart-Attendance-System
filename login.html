@@ -2,64 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smart Attendance | Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="stylesheet" href="login.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Login | Smart Attendance</title>
+  <link rel="stylesheet" href="login.css" />
 </head>
-
 <body>
 
 <div class="login-wrapper">
-  <h1>Smart Attendance</h1>
-  <p class="subtitle">Login or create account</p>
-
-  <div class="tabs">
-    <button class="active" onclick="showLogin()">Login</button>
-    <button onclick="showSignup()">Signup</button>
+  <div class="login-info">
+    <h1>Smart Attendance</h1>
+    <p>Login to your account</p>
   </div>
 
-  <!-- LOGIN -->
-  <form id="loginBox">
-    <input id="loginEmail" type="email" placeholder="Email" required>
-    <input id="loginPassword" type="password" placeholder="Password" required>
-    <button type="submit">Login</button>
+  <form id="loginForm" class="form-box">
+    <input type="email" id="loginEmail" placeholder="Email" required />
+    <input type="password" id="loginPassword" placeholder="Password" required />
+    <button type="submit" class="btn primary">Login</button>
   </form>
 
-  <!-- SIGNUP -->
-  <form id="signupBox" class="hidden">
-    <input id="signupName" type="text" placeholder="Full Name" required>
-    <input id="signupEmail" type="email" placeholder="Email" required>
-    <input id="signupPassword" type="password" placeholder="Password" required>
-    <select id="signupRole">
-      <option value="student">Student</option>
-      <option value="teacher">Teacher</option>
-    </select>
-    <button type="button" onclick="signup()">Create Account</button>
-  </form>
+  <p style="margin-top:15px;text-align:center;">
+    New user? <a href="#" onclick="alert('Signup disabled for demo')">Signup</a>
+  </p>
 </div>
 
-<!-- FIREBASE v8 (DO NOT CHANGE) -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-    authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-    databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-    projectId: "smart-attendance-system-17e89",
-    storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
-    messagingSenderId: "168700970246",
-    appId: "1:168700970246:web:392156387db81e92544a87"
-  };
-  firebase.initializeApp(firebaseConfig);
-
-  const auth = firebase.auth();
-  const db = firebase.database();
-</script>
 
 <script src="login.js"></script>
 </body>
