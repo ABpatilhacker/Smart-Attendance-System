@@ -1,4 +1,4 @@
-// ===== FIREBASE CONFIG =====
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
@@ -9,79 +9,89 @@ const firebaseConfig = {
   appId: "1:168700970246:web:392156387db81e92544a87"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// ===== TOGGLE LOGIN/SIGNUP =====
-const loginForm = document.getElementById("loginForm");
-const signupForm = document.getElementById("signupForm");
-const loginLink = document.getElementById("loginLink");
-const signupLink = document.getElementById("signupLink");
+// LOGIN FUNCTION
+function loginUser() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value.trim();
 
-signupLink.onclick = () => { loginForm.classList.add("hidden"); signupForm.classList.remove("hidden"); }
-loginLink.onclick = () => { signupForm.classList.add("hidden"); loginForm.classList.remove("hidden"); }
+  if (!email || !password) return alert("Enter email & password");
 
-// ===== LOGIN =====
-loginForm.addEventListener("submit", function(e) {
-  e.preventDefault();
+  auth.signInWithEmailAndPassword(email, password)
+    .then((cred) => {
+      const uid = cred.user.uid;
 
-  const emailInput = document.getElementById("loginEmail");
-  const passInput = document.getElementById("loginPassword");
+      db.ref("users/" + uid).once("value").then(snap => {
+        if (!snap.exists()) {
+          alert("User not found in database");
+          auth.signOut();
+          return;
+        }
 
-  emailInput.blur();
-  passInput.blur();
+        const user = snap.val();
 
-  setTimeout(() => {
-    const email = emailInput.value.trim();
-    const password = passInput.value.trim();
+        if (!user.approved) {
+          alert("Your account is not approved by admin yet.");
+          auth.signOut();
+          return;
+        }
 
-    if (!email || !password) return alert("Enter email and password");
+        // Redirect based on role
+        if (user.role === "admin") {
+          window.location.href = "admin.html";
+        } else if (user.role === "teacher") {
+          window.location.href = "teacher.html";
+        } else if (user.role === "student") {
+          window.location.href = "student.html";
+        } else {
+          alert("Invalid role!");
+          auth.signOut();
+        }
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Invalid login credentials");
+    });
+}
 
-    auth.signInWithEmailAndPassword(email, password)
-      .then(cred => {
-        db.ref("users/" + cred.user.uid).once("value").then(snap => {
-          if (!snap.exists()) { alert("User record not found"); auth.signOut(); return; }
-          const user = snap.val();
-
-          if (!user.approved) {
-            alert("Your account is not approved by admin yet");
-            auth.signOut();
-            return;
-          }
-
-          // Redirect based on role
-          if (user.role === "admin") window.location.href = "admin.html";
-          else if (user.role === "teacher") window.location.href = "teacher.html";
-          else window.location.href = "student.html";
-        });
-      })
-      .catch(err => alert(err.message));
-  }, 150);
-});
-
-// ===== SIGNUP =====
-signupForm.addEventListener("submit", function(e) {
-  e.preventDefault();
-
+// SIGNUP FUNCTION
+function signupUser() {
   const name = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPassword").value.trim();
-  const role = document.getElementById("signupRole").value;
 
-  if (!name || !email || !password || !role) return alert("Fill all fields");
+  if (!name || !email || !password) return alert("Fill all fields");
 
   auth.createUserWithEmailAndPassword(email, password)
     .then(cred => {
-      db.ref("users/" + cred.user.uid).set({
-        name,
-        email,
-        role,
-        approved: false // must be approved by admin
+      const uid = cred.user.uid;
+
+      // Add user to database with approved = false
+      db.ref("users/" + uid).set({
+        name: name,
+        email: email,
+        role: "student", // Signup always creates student
+        approved: false,
+        classId: "", // Can be updated later by admin
+        roll: ""
       });
-      alert("Signup successful! Wait for admin approval.");
-      signupForm.classList.add("hidden");
-      loginForm.classList.remove("hidden");
+
+      alert("Signup successful! Wait for admin approval to login.");
+      // Switch to login tab
+      document.getElementById("loginTab").click();
     })
-    .catch(err => alert(err.message));
+    .catch(err => {
+      console.error(err);
+      alert(err.message);
+    });
+}
+
+// Prevent auto-login
+auth.onAuthStateChanged(user => {
+  if (user) auth.signOut();
 });
