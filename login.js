@@ -1,49 +1,46 @@
 // ==========================
 // FIREBASE CONFIG
 // ==========================
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+var const firebaseConfig = {
+  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
+  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
+  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
+  projectId: "smart-attendance-system-17e89",
+  storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
+  messagingSenderId: "168700970246",
+  appId: "1:168700970246:web:392156387db81e92544a87"
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.database();
 
 // ==========================
-// TAB SWITCH
+// UI TOGGLE
 // ==========================
-const loginTab = document.getElementById("loginTab");
-const signupTab = document.getElementById("signupTab");
-const loginForm = document.getElementById("loginForm");
-const signupForm = document.getElementById("signupForm");
+function showLogin() {
+  document.getElementById("loginForm").classList.remove("hidden");
+  document.getElementById("signupForm").classList.add("hidden");
+  document.getElementById("loginTab").classList.add("active-tab");
+  document.getElementById("signupTab").classList.remove("active-tab");
+}
 
-loginTab.onclick = () => {
-  loginTab.classList.add("active-tab");
-  signupTab.classList.remove("active-tab");
-  loginForm.classList.remove("hidden");
-  signupForm.classList.add("hidden");
-};
-
-signupTab.onclick = () => {
-  signupTab.classList.add("active-tab");
-  loginTab.classList.remove("active-tab");
-  signupForm.classList.remove("hidden");
-  loginForm.classList.add("hidden");
-};
+function showSignup() {
+  document.getElementById("signupForm").classList.remove("hidden");
+  document.getElementById("loginForm").classList.add("hidden");
+  document.getElementById("signupTab").classList.add("active-tab");
+  document.getElementById("loginTab").classList.remove("active-tab");
+}
 
 // ==========================
 // LOGIN
 // ==========================
-loginForm.addEventListener("submit", e => {
+document.getElementById("loginForm").addEventListener("submit", function (e) {
   e.preventDefault();
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
+
+  const email = loginEmail.value;
+  const password = loginPassword.value;
 
   auth.signInWithEmailAndPassword(email, password)
     .then(res => {
@@ -51,52 +48,46 @@ loginForm.addEventListener("submit", e => {
 
       db.ref("users/" + uid).once("value").then(snap => {
         if (!snap.exists()) {
-          alert("Account not found!");
+          alert("User data not found");
           auth.signOut();
           return;
         }
 
-        const user = snap.val();
-        if (!user.approved) {
-          alert("Your account is not approved by Admin!");
-          auth.signOut();
-          return;
-        }
+        const role = snap.val().role;
 
-        // Redirect based on role
-        if (user.role === "admin") window.location.href = "admin.html";
-        else if (user.role === "teacher") window.location.href = "teacher.html";
-        else window.location.href = "student.html";
+        if (role === "admin") location.href = "admin.html";
+        else if (role === "teacher") location.href = "teacher.html";
+        else if (role === "student") location.href = "student.html";
+        else alert("Invalid role");
       });
     })
-    .catch(err => alert(err.message));
+    .catch(() => alert("Invalid email or password"));
 });
 
 // ==========================
 // SIGNUP
 // ==========================
-signupForm.addEventListener("submit", e => {
+document.getElementById("signupForm").addEventListener("submit", function (e) {
   e.preventDefault();
-  const name = document.getElementById("signupName").value;
-  const email = document.getElementById("signupEmail").value;
-  const password = document.getElementById("signupPassword").value;
+
+  const name = signupName.value;
+  const email = signupEmail.value;
+  const password = signupPassword.value;
+  const role = signupRole.value;
 
   auth.createUserWithEmailAndPassword(email, password)
     .then(res => {
       const uid = res.user.uid;
 
-      db.ref("users/" + uid).set({
+      return db.ref("users/" + uid).set({
         name,
         email,
-        role: "student", // default signup is student
-        approved: false,
-        classId: "",
-        roll: ""
-      }).then(() => {
-        alert("Signup successful! Wait for admin approval.");
-        signupForm.reset();
-        loginTab.click();
+        role
       });
+    })
+    .then(() => {
+      alert("Account created successfully! Please login.");
+      showLogin();
     })
     .catch(err => alert(err.message));
 });
