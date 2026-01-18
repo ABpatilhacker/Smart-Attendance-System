@@ -10,75 +10,41 @@
 
   <!-- CSS -->
   <link rel="stylesheet" href="login.css">
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
 </head>
 <body>
-
   <div class="login-wrapper">
-
-    <!-- Header -->
     <div class="login-info">
       <h1>Smart Attendance</h1>
       <p>Login or Signup to continue</p>
     </div>
 
-    <!-- Tabs -->
     <div class="tabs">
-      <button id="loginTab" class="active-tab" onclick="switchTab('login')">Login</button>
-      <button id="signupTab" onclick="switchTab('signup')">Signup</button>
+      <button class="active-tab" id="loginTab" onclick="showLogin()">Login</button>
+      <button id="signupTab" onclick="showSignup()">Signup</button>
     </div>
 
-    <!-- Forms -->
-    <div class="form-box">
-
-      <!-- LOGIN FORM -->
-      <div id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Email">
-        <input type="password" id="loginPassword" placeholder="Password">
-        <button class="btn primary" onclick="loginUser()">Login</button>
-      </div>
-
-      <!-- SIGNUP FORM -->
-      <div id="signupForm" class="hidden">
-        <input type="text" id="signupName" placeholder="Full Name">
-        <input type="email" id="signupEmail" placeholder="Email">
-        <input type="password" id="signupPassword" placeholder="Password">
-        <button class="btn primary" onclick="signupUser()">Signup</button>
-      </div>
-
+    <!-- LOGIN FORM -->
+    <div class="form-box" id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email">
+      <input type="password" id="loginPassword" placeholder="Password">
+      <button class="btn primary" onclick="loginUser()">Login</button>
     </div>
 
+    <!-- SIGNUP FORM -->
+    <div class="form-box hidden" id="signupForm">
+      <input type="text" id="signupName" placeholder="Full Name">
+      <input type="email" id="signupEmail" placeholder="Email">
+      <input type="password" id="signupPassword" placeholder="Password">
+      <button class="btn primary" onclick="signupUser()">Signup</button>
+    </div>
   </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <!-- JS -->
   <script src="login.js"></script>
-
-  <script>
-    // Tab switch
-    function switchTab(tab) {
-      const loginTab = document.getElementById("loginTab");
-      const signupTab = document.getElementById("signupTab");
-      const loginForm = document.getElementById("loginForm");
-      const signupForm = document.getElementById("signupForm");
-
-      if(tab === "login"){
-        loginTab.classList.add("active-tab");
-        signupTab.classList.remove("active-tab");
-        loginForm.classList.remove("hidden");
-        signupForm.classList.add("hidden");
-      } else {
-        signupTab.classList.add("active-tab");
-        loginTab.classList.remove("active-tab");
-        signupForm.classList.remove("hidden");
-        loginForm.classList.add("hidden");
-      }
-    }
-  </script>
-
 </body>
 </html>
