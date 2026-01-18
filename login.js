@@ -25,6 +25,58 @@ function showSignup() {
 document.getElementById("loginForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
+  // FORCE READ VALUES (fix autofill issue)
+  const emailInput = document.getElementById("loginEmail");
+  const passInput = document.getElementById("loginPassword");
+
+  emailInput.blur();
+  passInput.blur();
+
+  setTimeout(() => {
+    const email = emailInput.value.trim();
+    const password = passInput.value.trim();
+
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
+    }
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then((cred) => {
+        const uid = cred.user.uid;
+
+        firebase.database().ref("users/" + uid).once("value")
+          .then((snap) => {
+            if (!snap.exists()) {
+              alert("User record not found");
+              firebase.auth().signOut();
+              return;
+            }
+
+            const user = snap.val();
+
+            if (!user.approved) {
+              alert("Your account is not approved by admin yet");
+              firebase.auth().signOut();
+              return;
+            }
+
+            // REDIRECT BASED ON ROLE
+            if (user.role === "admin") {
+              window.location.href = "admin.html";
+            } else if (user.role === "teacher") {
+              window.location.href = "teacher.html";
+            } else {
+              window.location.href = "student.html";
+            }
+          });
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
+  }, 150); // IMPORTANT delay for mobile autofill
+});
+
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
 
