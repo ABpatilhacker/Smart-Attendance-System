@@ -1,116 +1,82 @@
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
-  font-family: "Inter", "Segoe UI", sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
+  margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle at top, #6c6cff, #4338ca);
+  background: linear-gradient(135deg, #312e81, #4338ca);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
 }
 
-/* MAIN CARD */
 .login-wrapper {
   width: 100%;
-  max-width: 420px;
-  background: rgba(255, 255, 255, 0.12);
+  max-width: 380px;
+  background: rgba(255,255,255,0.12);
   backdrop-filter: blur(18px);
+  padding: 30px;
   border-radius: 20px;
-  padding: 30px 25px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
   color: white;
-}
-
-/* HEADER */
-.login-info {
+  box-shadow: 0 25px 60px rgba(0,0,0,0.3);
   text-align: center;
-  margin-bottom: 25px;
 }
 
-.login-info h1 {
-  font-size: 26px;
-  font-weight: 800;
-  margin-bottom: 10px;
+h1 {
+  margin-bottom: 5px;
 }
 
-.login-info p {
+.subtitle {
   font-size: 14px;
-  opacity: 0.9;
-  line-height: 1.5;
+  opacity: 0.8;
 }
 
-/* ICON */
-.hero-icon {
-  font-size: 60px;
-  margin: 15px 0;
-}
-
-/* TABS */
 .tabs {
   display: flex;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 20px;
+  margin: 20px 0;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
 }
 
 .tabs button {
   flex: 1;
-  padding: 12px;
-  background: transparent;
+  padding: 10px;
+  background: none;
   border: none;
   color: white;
   font-weight: 600;
   cursor: pointer;
 }
 
-.tabs .active-tab {
+.tabs .active {
   background: white;
   color: #4338ca;
+  border-radius: 10px;
 }
 
-/* FORM */
-.form-box {
+form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
-input,
-select {
-  padding: 14px;
-  border-radius: 12px;
+input, select {
+  padding: 12px;
+  border-radius: 10px;
   border: none;
   outline: none;
-  font-size: 15px;
 }
 
-input::placeholder {
-  color: #9ca3af;
-}
-
-/* BUTTON */
-.btn.primary {
-  margin-top: 10px;
-  padding: 14px;
-  border-radius: 14px;
+button {
+  padding: 12px;
+  border-radius: 12px;
   border: none;
+  font-weight: 700;
   background: linear-gradient(90deg, #6366f1, #4f46e5);
   color: white;
-  font-weight: 700;
-  font-size: 16px;
   cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 }
 
 .hidden {
