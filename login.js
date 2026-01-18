@@ -1,31 +1,31 @@
-// ===============================
-// FIREBASE INIT (DO NOT CHANGE)
-// ===============================
-firebase.initializeApp(firebaseConfig);
+// ===== FIREBASE CONFIG =====
+const firebaseConfig = {
+  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
+  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
+  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
+  projectId: "smart-attendance-system-17e89",
+  storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
+  messagingSenderId: "168700970246",
+  appId: "1:168700970246:web:392156387db81e92544a87"
+};
 
+firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// ===============================
-// TAB SWITCHING
-// ===============================
-function showLogin() {
-  document.getElementById("loginBox").classList.remove("hidden");
-  document.getElementById("signupBox").classList.add("hidden");
-}
+// ===== TOGGLE LOGIN/SIGNUP =====
+const loginForm = document.getElementById("loginForm");
+const signupForm = document.getElementById("signupForm");
+const loginLink = document.getElementById("loginLink");
+const signupLink = document.getElementById("signupLink");
 
-function showSignup() {
-  document.getElementById("signupBox").classList.remove("hidden");
-  document.getElementById("loginBox").classList.add("hidden");
-}
+signupLink.onclick = () => { loginForm.classList.add("hidden"); signupForm.classList.remove("hidden"); }
+loginLink.onclick = () => { signupForm.classList.add("hidden"); loginForm.classList.remove("hidden"); }
 
-// ===============================
-// LOGIN
-// ===============================
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+// ===== LOGIN =====
+loginForm.addEventListener("submit", function(e) {
   e.preventDefault();
 
-  // FORCE READ VALUES (fix autofill issue)
   const emailInput = document.getElementById("loginEmail");
   const passInput = document.getElementById("loginPassword");
 
@@ -36,126 +36,52 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
     const email = emailInput.value.trim();
     const password = passInput.value.trim();
 
-    if (!email || !password) {
-      alert("Please enter email and password");
-      return;
-    }
+    if (!email || !password) return alert("Enter email and password");
 
-    firebase.auth().signInWithEmailAndPassword(email, password)
-      .then((cred) => {
-        const uid = cred.user.uid;
+    auth.signInWithEmailAndPassword(email, password)
+      .then(cred => {
+        db.ref("users/" + cred.user.uid).once("value").then(snap => {
+          if (!snap.exists()) { alert("User record not found"); auth.signOut(); return; }
+          const user = snap.val();
 
-        firebase.database().ref("users/" + uid).once("value")
-          .then((snap) => {
-            if (!snap.exists()) {
-              alert("User record not found");
-              firebase.auth().signOut();
-              return;
-            }
+          if (!user.approved) {
+            alert("Your account is not approved by admin yet");
+            auth.signOut();
+            return;
+          }
 
-            const user = snap.val();
-
-            if (!user.approved) {
-              alert("Your account is not approved by admin yet");
-              firebase.auth().signOut();
-              return;
-            }
-
-            // REDIRECT BASED ON ROLE
-            if (user.role === "admin") {
-              window.location.href = "admin.html";
-            } else if (user.role === "teacher") {
-              window.location.href = "teacher.html";
-            } else {
-              window.location.href = "student.html";
-            }
-          });
+          // Redirect based on role
+          if (user.role === "admin") window.location.href = "admin.html";
+          else if (user.role === "teacher") window.location.href = "teacher.html";
+          else window.location.href = "student.html";
+        });
       })
-      .catch((error) => {
-        alert(error.message);
-      });
-  }, 150); // IMPORTANT delay for mobile autofill
+      .catch(err => alert(err.message));
+  }, 150);
 });
 
-  const email = document.getElementById("loginEmail").value.trim();
-  const password = document.getElementById("loginPassword").value;
-
-  if (!email || !password) {
-    alert("Please enter email and password");
-    return;
-  }
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(res => {
-      const uid = res.user.uid;
-
-      db.ref("users/" + uid).once("value").then(snap => {
-        if (!snap.exists()) {
-          alert("User data not found");
-          auth.signOut();
-          return;
-        }
-
-        const user = snap.val();
-
-        if (!user.approved) {
-          alert("Your account is not approved by admin yet");
-          auth.signOut();
-          return;
-        }
-
-        // REDIRECT BASED ON ROLE
-        if (user.role === "admin") {
-          window.location.href = "admin.html";
-        } else if (user.role === "teacher") {
-          window.location.href = "teacher.html";
-        } else if (user.role === "student") {
-          window.location.href = "student.html";
-        } else {
-          alert("Invalid role");
-          auth.signOut();
-        }
-      });
-    })
-    .catch(err => {
-      alert(err.message);
-    });
-});
-
-// ===============================
-// SIGNUP
-// ===============================
-document.getElementById("signupForm").addEventListener("submit", function (e) {
+// ===== SIGNUP =====
+signupForm.addEventListener("submit", function(e) {
   e.preventDefault();
 
   const name = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim();
-  const password = document.getElementById("signupPassword").value;
+  const password = document.getElementById("signupPassword").value.trim();
   const role = document.getElementById("signupRole").value;
 
-  if (!name || !email || !password || !role) {
-    alert("Fill all signup fields");
-    return;
-  }
+  if (!name || !email || !password || !role) return alert("Fill all fields");
 
   auth.createUserWithEmailAndPassword(email, password)
-    .then(res => {
-      const uid = res.user.uid;
-
-      return db.ref("users/" + uid).set({
-        name: name,
-        email: email,
-        role: role,
-        approved: false
+    .then(cred => {
+      db.ref("users/" + cred.user.uid).set({
+        name,
+        email,
+        role,
+        approved: false // must be approved by admin
       });
-    })
-    .then(() => {
       alert("Signup successful! Wait for admin approval.");
-      auth.signOut();
-      showLogin();
-      document.getElementById("signupForm").reset();
+      signupForm.classList.add("hidden");
+      loginForm.classList.remove("hidden");
     })
-    .catch(err => {
-      alert(err.message);
-    });
+    .catch(err => alert(err.message));
 });
