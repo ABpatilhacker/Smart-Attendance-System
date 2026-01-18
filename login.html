@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Smart Attendance | Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Attendance – Login</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="login.css" />
 
-  <!-- Firebase v8 SDKs (IMPORTANT) -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 
-<body onload="showLogin()">
+<body>
 
   <div class="auth-container">
 
@@ -27,18 +28,8 @@
     <div id="loginForm" class="form-box">
       <h2>Login</h2>
 
-      <input
-        type="email"
-        id="loginEmail"
-        placeholder="Email"
-        autocomplete="off"
-      >
-
-      <input
-        type="password"
-        id="loginPassword"
-        placeholder="Password"
-      >
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
 
       <button onclick="loginUser()">Login</button>
     </div>
@@ -47,36 +38,18 @@
     <div id="signupForm" class="form-box hidden">
       <h2>Signup</h2>
 
-      <input
-        type="text"
-        id="signupName"
-        placeholder="Full Name"
-      >
-
-      <input
-        type="email"
-        id="signupEmail"
-        placeholder="Email"
-        autocomplete="off"
-      >
-
-      <input
-        type="password"
-        id="signupPassword"
-        placeholder="Password"
-      >
+      <input type="text" id="signupName" placeholder="Full Name" />
+      <input type="email" id="signupEmail" placeholder="Email" />
+      <input type="password" id="signupPassword" placeholder="Password" />
 
       <button onclick="signupUser()">Create Account</button>
 
-      <p class="note">
-        After signup, wait for admin approval.
-      </p>
+      <p class="note">After signup, wait for admin approval.</p>
     </div>
 
   </div>
 
-  <!-- YOUR LOGIN.JS (UNCHANGED) -->
+  <!-- JS -->
   <script src="login.js"></script>
-
 </body>
 </html>
