@@ -1,52 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Attendance – Login</title>
+  <meta charset="UTF-8">
+  <title>Smart Attendance System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="login.css" />
+  <link rel="stylesheet" href="login.css">
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
-
 <body>
 
-  <div class="auth-container">
+  <div class="container">
 
-    <!-- TABS -->
-    <div class="tabs">
-      <button id="loginTab" class="active-tab" onclick="showLogin()">Login</button>
-      <button id="signupTab" onclick="showSignup()">Signup</button>
+    <!-- TITLE (THIS WAS MISSING VISUALLY BEFORE) -->
+    <h1 class="app-title">Smart Attendance System</h1>
+
+    <div class="card">
+
+      <!-- TOGGLE -->
+      <div class="tabs">
+        <button id="loginTab" class="active-tab" onclick="showLogin()">Login</button>
+        <button id="signupTab" onclick="showSignup()">Signup</button>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div id="loginForm">
+        <h2>Login</h2>
+
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginPassword" placeholder="Password">
+
+        <button class="main-btn" onclick="loginUser()">Login</button>
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signupForm" class="hidden">
+        <h2>Signup</h2>
+
+        <input type="text" id="signupName" placeholder="Full Name">
+        <input type="email" id="signupEmail" placeholder="Email">
+        <input type="password" id="signupPassword" placeholder="Password">
+
+        <button class="main-btn" onclick="signupUser()">Create Account</button>
+
+        <p class="note">After signup, wait for admin approval.</p>
+      </div>
+
     </div>
-
-    <!-- LOGIN FORM -->
-    <div id="loginForm" class="form-box">
-      <h2>Login</h2>
-
-      <input type="email" id="loginEmail" placeholder="Email" />
-      <input type="password" id="loginPassword" placeholder="Password" />
-
-      <button onclick="loginUser()">Login</button>
-    </div>
-
-    <!-- SIGNUP FORM -->
-    <div id="signupForm" class="form-box hidden">
-      <h2>Signup</h2>
-
-      <input type="text" id="signupName" placeholder="Full Name" />
-      <input type="email" id="signupEmail" placeholder="Email" />
-      <input type="password" id="signupPassword" placeholder="Password" />
-
-      <button onclick="signupUser()">Create Account</button>
-
-      <p class="note">After signup, wait for admin approval.</p>
-    </div>
-
   </div>
 
   <!-- JS -->
