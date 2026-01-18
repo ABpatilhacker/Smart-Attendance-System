@@ -1,183 +1,128 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+/* RESET */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
-/* =====================
-   BACKGROUND
-===================== */
+/* BACKGROUND */
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top, #1e293b, #020617),
-    linear-gradient(135deg, #020617, #0f172a);
+  background: radial-gradient(circle at top, #1e293b, #020617);
   display: flex;
-  align-items: center;
   justify-content: center;
-  color: #f8fafc;
+  align-items: center;
 }
 
-/* =====================
-   GLASS CARD
-===================== */
-.login-container {
-  width: 420px;
-  padding: 38px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.6),
-    inset 0 0 0 1px rgba(255,255,255,0.04);
-  animation: scaleIn 0.6s ease;
-}
-
-/* =====================
-   ANIMATION
-===================== */
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.94) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* =====================
-   TITLE
-===================== */
-.login-container h2 {
-  font-size: 26px;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 6px;
-}
-
-.login-container p {
-  font-size: 14px;
-  color: #94a3b8;
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-/* =====================
-   INPUTS
-===================== */
-.input-group {
-  margin-bottom: 20px;
-}
-
-.input-group label {
-  font-size: 13px;
-  color: #cbd5f5;
-  margin-bottom: 6px;
-  display: block;
-}
-
-.input-group input {
+/* MAIN CARD */
+.auth-container {
   width: 100%;
-  padding: 13px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(2, 6, 23, 0.7);
-  color: #f8fafc;
-  font-size: 14px;
-  transition: 0.3s ease;
+  max-width: 420px;
+  background: linear-gradient(180deg, #0f172a, #020617);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
 }
 
-.input-group input::placeholder {
+/* TABS */
+.tabs {
+  display: flex;
+  background: #020617;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.active-tab {
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* FORMS */
+.form-box {
+  animation: fadeUp 0.35s ease;
+}
+
+.form-box h2 {
+  text-align: center;
+  margin-bottom: 18px;
+  color: #e5e7eb;
+}
+
+/* INPUTS */
+.form-box input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  color: #e5e7eb;
+  font-size: 14px;
+}
+
+.form-box input::placeholder {
   color: #64748b;
 }
 
-.input-group input:focus {
+.form-box input:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79,70,229,0.35);
+  border-color: #38bdf8;
 }
 
-/* =====================
-   BUTTON
-===================== */
-button {
+/* BUTTONS */
+.form-box button {
   width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  padding: 12px;
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   color: #ffffff;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  letter-spacing: 0.4px;
-  transition: all 0.35s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-button:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 20px 40px rgba(79,70,229,0.45),
-    0 0 0 1px rgba(255,255,255,0.12);
+.form-box button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.5);
 }
 
-/* =====================
-   LINKS
-===================== */
-.links {
+/* NOTE */
+.note {
+  margin-top: 10px;
   text-align: center;
-  margin-top: 22px;
+  font-size: 12px;
+  color: #94a3b8;
 }
 
-.links a {
-  color: #93c5fd;
-  text-decoration: none;
-  font-size: 14px;
+/* HIDDEN */
+.hidden {
+  display: none;
 }
 
-.links a:hover {
-  text-decoration: underline;
-}
-
-/* =====================
-   ALERTS
-===================== */
-.error {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fecaca;
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 13px;
-  margin-bottom: 14px;
-  text-align: center;
-}
-
-.success {
-  background: rgba(34, 197, 94, 0.15);
-  border: 1px solid rgba(34, 197, 94, 0.4);
-  color: #bbf7d0;
-  padding: 10px;
-  border-radius: 10px;
-  font-size: 13px;
-  margin-bottom: 14px;
-  text-align: center;
-}
-
-/* =====================
-   MOBILE
-===================== */
-@media (max-width: 480px) {
-  .login-container {
-    width: 92%;
-    padding: 30px 22px;
+/* ANIMATION */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
