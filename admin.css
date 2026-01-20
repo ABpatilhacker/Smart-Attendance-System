@@ -1,107 +1,354 @@
+/* ==========================
+   GLOBAL RESET & FONT
+========================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  transition: all 0.3s ease;
 }
 
 body {
-  background: #f4f7fb;
-  color: #1f2937;
-}
-
-.topbar {
-  height: 60px;
-  background: #1e3a8a;
-  color: #fff;
+  min-height: 100vh;
+  background: #f0f2f5;
+  color: #1f2533;
   display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+
+/* ==========================
+   TOPBAR
+========================== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 0 16px;
-  gap: 16px;
-  position: fixed;
-  width: 100%;
-  z-index: 100;
+  background: linear-gradient(90deg, #4b6cb7, #182848);
+  color: #fff;
+  padding: 12px 24px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.menu-btn, .logout-btn {
-  background: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
+.topbar h3 {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.menu-btn {
+  font-size: 28px;
   cursor: pointer;
+  background: rgba(255,255,255,0.15);
+  padding: 6px 12px;
+  border-radius: 6px;
 }
 
+.menu-btn:hover {
+  background: rgba(255,255,255,0.25);
+  transform: scale(1.05);
+}
+
+.logout-btn {
+  background: #ff6b6b;
+  border-radius: 8px;
+  padding: 6px 14px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.logout-btn:hover {
+  background: #ff4c4c;
+}
+
+/* ==========================
+   SIDEBAR
+========================== */
 #sidebar {
+  width: 240px;
+  background: #1f2533;
+  color: #fff;
   position: fixed;
   top: 60px;
   left: -240px;
-  width: 240px;
   height: calc(100% - 60px);
-  background: #1e293b;
   padding: 20px;
-  transition: 0.3s;
-  z-index: 99;
-}
-
-#sidebar a {
-  display: block;
-  color: #fff;
-  padding: 12px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-#sidebar a:hover {
-  background: #334155;
+  transition: 0.4s;
+  overflow-y: auto;
+  border-right: 1px solid #2c3249;
+  z-index: 999;
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 #sidebar.open {
   left: 0;
 }
 
-#overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.3);
-  display: none;
-  z-index: 98;
+#sidebar h3 {
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 18px;
 }
 
-#overlay.show {
-  display: block;
+#sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-decoration: none;
+  padding: 12px 10px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: 0.3s;
 }
 
+#sidebar a:hover {
+  background: #3a3f58;
+  color: #ffd93d;
+  transform: translateX(5px);
+}
+
+/* ==========================
+   MAIN SECTION
+========================== */
 main {
-  padding: 80px 20px;
+  flex: 1;
+  margin-left: 0;
+  padding: 20px 30px;
+  transition: margin-left 0.4s;
 }
 
+#sidebar.open ~ main {
+  margin-left: 240px;
+}
+
+/* ==========================
+   SECTIONS
+========================== */
 .section {
   display: none;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 .section.active {
   display: block;
 }
 
-.cards, .grid {
+.section h2 {
+  font-weight: 700;
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #1f2533;
+}
+
+.muted {
+  color: #5e6272;
+  margin-bottom: 20px;
+}
+
+/* ==========================
+   CARDS
+========================== */
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.card {
+  flex: 1 1 200px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+}
+
+.card h2 {
+  font-size: 32px;
+  margin-bottom: 5px;
+  color: #1f2533;
+}
+
+.card p {
+  color: #5e6272;
+}
+
+.card-icon {
+  font-size: 30px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  opacity: 0.15;
+}
+
+/* ==========================
+   INPUTS & BUTTONS
+========================== */
+input, select {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  outline: none;
+  width: 100%;
+  font-size: 15px;
+  margin-bottom: 12px;
+}
+
+input:focus, select:focus {
+  border-color: #4b6cb7;
+  box-shadow: 0 0 6px rgba(75,108,183,0.3);
+}
+
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+button.primary {
+  background: linear-gradient(90deg, #4b6cb7, #182848);
+  color: #fff;
+}
+
+/* ==========================
+   LISTS & GRID-LISTS
+========================== */
+.grid-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
   gap: 16px;
 }
 
-.card, .panel {
-  background: #fff;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+.grid-list .card {
   cursor: pointer;
 }
 
-.panel {
-  margin-top: 20px;
+/* Info message under grid */
+.info-msg {
+  margin-top: 12px;
+  color: #4b6cb7;
+  font-style: italic;
 }
 
-.hidden {
-  display: none;
+/* ==========================
+   APPROVAL CARDS
+========================== */
+.approval-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
+  gap: 16px;
+}
+
+.approval-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.approval-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+}
+
+.approval-card .approve-btn,
+.approval-card .reject-btn {
+  margin-top: 8px;
+  width: 48%;
+  border-radius: 8px;
+}
+
+.approve-btn {
+  background: #4caf50;
+  color: #fff;
+}
+
+.reject-btn {
+  background: #f44336;
+  color: #fff;
+}
+
+/* ==========================
+   TEACHER/STUDENT PANEL
+========================== */
+.panel {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 100%;
+  max-width: 500px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+  border-left: 2px solid #4b6cb7;
+  z-index: 9999;
+  overflow-y: auto;
+  transition: right 0.4s ease;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel:not(.hidden) {
+  right: 0;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  font-size: 22px;
+  cursor: pointer;
+  color: #f44336;
+}
+
+/* ==========================
+   ANIMATIONS
+========================== */
+@keyframes fadeIn {
+  0% {opacity: 0; transform: translateY(10px);}
+  100% {opacity: 1; transform: translateY(0);}
+}
+
+/* ==========================
+   RESPONSIVE
+========================== */
+@media (max-width: 768px) {
+  #sidebar {
+    left: -240px;
+    width: 200px;
+  }
+  #sidebar.open ~ main {
+    margin-left: 0;
+  }
+  .cards, .grid-list, .approval-container {
+    grid-template-columns: 1fr;
+  }
 }
