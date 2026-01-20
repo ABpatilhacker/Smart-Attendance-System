@@ -5,8 +5,9 @@
   <title>Admin Dashboard | Smart Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&display=swap" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="admin.css">
@@ -16,6 +17,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
+
 <body>
 
   <!-- TOPBAR -->
@@ -23,7 +25,7 @@
     <div class="menu-btn" onclick="toggleSidebar()">☰</div>
     <h3>Smart Attendance – Admin Panel</h3>
     <div>👤 Admin</div>
-    <button class="logout-btn primary" onclick="logout()">Logout</button>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 
   <!-- SIDEBAR -->
@@ -43,7 +45,7 @@
     <!-- DASHBOARD -->
     <section id="dashboard" class="section active">
       <h2>Dashboard Overview</h2>
-      <p class="muted">Manage teachers, students, classes, and attendance settings from one control panel.</p>
+      <p class="muted">Manage teachers, students, classes, and attendance from one panel.</p>
       <div class="cards">
         <div class="card" onclick="openSection('classes')">
           <h2 id="classCount">0</h2>
@@ -59,7 +61,7 @@
         </div>
         <div class="card" onclick="openSection('settings')">
           <h2>⚙️</h2>
-          <p>System Settings</p>
+          <p>Settings</p>
         </div>
       </div>
     </section>
@@ -79,7 +81,7 @@
       <input type="email" id="teacherEmail" placeholder="Teacher Email">
       <button onclick="addTeacher()" class="primary">➕ Add Teacher</button>
       <ul id="teacherList"></ul>
-      <div id="teacherProfile" class="panel"></div>
+      <div id="teacherProfile"></div>
     </section>
 
     <!-- STUDENTS -->
@@ -91,7 +93,7 @@
       <select id="studentClass"></select>
       <button onclick="addStudent()" class="primary">➕ Add Student</button>
       <ul id="studentList"></ul>
-      <div id="studentProfile" class="panel"></div>
+      <div id="studentProfile"></div>
     </section>
 
     <!-- APPROVALS -->
@@ -108,9 +110,6 @@
       <button onclick="saveSettings()" class="primary">💾 Save Settings</button>
     </section>
 
-    <!-- CLASS DETAILS PANEL -->
-    <div id="classPanel" class="panel"></div>
-
   </main>
 
   <!-- JS -->
@@ -126,5 +125,6 @@
       closeSidebar();
     }
   </script>
+
 </body>
-</html>
+        </html>
