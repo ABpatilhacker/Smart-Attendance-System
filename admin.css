@@ -6,16 +6,16 @@
   padding: 0;
   box-sizing: border-box;
   font-family: 'Inter', 'Segoe UI', sans-serif;
-  transition: all 0.3s ease;
 }
 
 body {
   min-height: 100vh;
-  background: #f0f2f5;
-  color: #1f2533;
+  background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+  color: #1A1F36;
   display: flex;
   flex-direction: column;
   font-size: 16px;
+  overflow-x: hidden;
 }
 
 /* ==========================
@@ -25,65 +25,61 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(90deg, #4b6cb7, #182848);
-  color: #fff;
+  background: #1A1F36;
+  color: #FFF;
   padding: 12px 24px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 100;
 }
 
 .topbar h3 {
+  font-family: 'Merriweather', serif;
   font-weight: 700;
   font-size: 20px;
 }
 
 .menu-btn {
-  font-size: 28px;
+  font-size: 24px;
   cursor: pointer;
-  background: rgba(255,255,255,0.15);
-  padding: 6px 12px;
-  border-radius: 6px;
+  transition: 0.3s;
 }
 
 .menu-btn:hover {
-  background: rgba(255,255,255,0.25);
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .logout-btn {
-  background: #ff6b6b;
-  border-radius: 8px;
-  padding: 6px 14px;
-  color: #fff;
+  background: linear-gradient(90deg, #FF6B6B, #FFD93D);
+  color: #1A1F36;
+  border-radius: 10px;
   font-weight: 600;
-  cursor: pointer;
-  border: none;
+  padding: 8px 16px;
+  transition: 0.3s;
 }
 
 .logout-btn:hover {
-  background: #ff4c4c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
 }
 
 /* ==========================
    SIDEBAR
 ========================== */
 #sidebar {
-  width: 240px;
-  background: #1f2533;
-  color: #fff;
+  width: 220px;
+  background: #1F2432;
+  color: #FFF;
   position: fixed;
   top: 60px;
-  left: -240px;
+  left: -220px;
   height: calc(100% - 60px);
   padding: 20px;
   transition: 0.4s;
   overflow-y: auto;
-  border-right: 1px solid #2c3249;
-  z-index: 999;
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-right: 1px solid #2D3348;
+  z-index: 99;
 }
 
 #sidebar.open {
@@ -92,15 +88,12 @@ body {
 
 #sidebar h3 {
   margin-bottom: 20px;
-  font-weight: 600;
-  font-size: 18px;
+  font-family: 'Merriweather', serif;
 }
 
 #sidebar a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #fff;
+  display: block;
+  color: #FFF;
   text-decoration: none;
   padding: 12px 10px;
   border-radius: 8px;
@@ -109,9 +102,8 @@ body {
 }
 
 #sidebar a:hover {
-  background: #3a3f58;
-  color: #ffd93d;
-  transform: translateX(5px);
+  background: #2D3348;
+  color: #FFD93D;
 }
 
 /* ==========================
@@ -121,11 +113,11 @@ main {
   flex: 1;
   margin-left: 0;
   padding: 20px 30px;
-  transition: margin-left 0.4s;
+  transition: 0.4s;
 }
 
 #sidebar.open ~ main {
-  margin-left: 240px;
+  margin-left: 220px;
 }
 
 /* ==========================
@@ -133,7 +125,7 @@ main {
 ========================== */
 .section {
   display: none;
-  animation: fadeIn 0.4s ease-in-out;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 .section.active {
@@ -141,19 +133,19 @@ main {
 }
 
 .section h2 {
-  font-weight: 700;
+  font-family: 'Merriweather', serif;
   font-size: 28px;
-  margin-bottom: 20px;
-  color: #1f2533;
+  margin-bottom: 12px;
+  color: #1A1F36;
 }
 
 .muted {
-  color: #5e6272;
+  color: #5E6272;
   margin-bottom: 20px;
 }
 
 /* ==========================
-   CARDS
+   CARDS (DASHBOARD)
 ========================== */
 .cards {
   display: flex;
@@ -163,55 +155,46 @@ main {
 
 .card {
   flex: 1 1 200px;
-  background: #fff;
-  border-radius: 16px;
+  background: #FFF;
+  border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
-  position: relative;
-  overflow: hidden;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
 }
 
 .card h2 {
   font-size: 32px;
   margin-bottom: 5px;
-  color: #1f2533;
+  color: #1A1F36;
 }
 
 .card p {
-  color: #5e6272;
-}
-
-.card-icon {
-  font-size: 30px;
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  opacity: 0.15;
+  color: #5E6272;
 }
 
 /* ==========================
    INPUTS & BUTTONS
 ========================== */
 input, select {
-  padding: 12px 14px;
+  padding: 12px;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
+  border: 1px solid #E2E5ED;
   outline: none;
   width: 100%;
   font-size: 15px;
   margin-bottom: 12px;
+  transition: 0.3s;
 }
 
 input:focus, select:focus {
-  border-color: #4b6cb7;
-  box-shadow: 0 0 6px rgba(75,108,183,0.3);
+  border-color: #FF6B6B;
+  box-shadow: 0 0 5px rgba(255,107,107,0.5);
 }
 
 button {
@@ -220,113 +203,106 @@ button {
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.3s;
+  transition: 0.3s;
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
 }
 
 button.primary {
-  background: linear-gradient(90deg, #4b6cb7, #182848);
-  color: #fff;
+  background: linear-gradient(90deg, #FF6B6B, #FFD93D);
+  color: #1A1F36;
 }
 
 /* ==========================
-   LISTS & GRID-LISTS
+   LISTS
 ========================== */
-.grid-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
-  gap: 16px;
-}
-
-.grid-list .card {
-  cursor: pointer;
-}
-
-/* Info message under grid */
-.info-msg {
+ul {
+  list-style: none;
+  padding: 0;
   margin-top: 12px;
-  color: #4b6cb7;
-  font-style: italic;
 }
 
-/* ==========================
-   APPROVAL CARDS
-========================== */
-.approval-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
-  gap: 16px;
-}
-
-.approval-card {
-  background: #fff;
+ul li {
+  padding: 12px;
+  background: #FFF;
   border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.approval-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.2);
-}
-
-.approval-card .approve-btn,
-.approval-card .reject-btn {
-  margin-top: 8px;
-  width: 48%;
-  border-radius: 8px;
-}
-
-.approve-btn {
-  background: #4caf50;
-  color: #fff;
-}
-
-.reject-btn {
-  background: #f44336;
-  color: #fff;
-}
-
-/* ==========================
-   TEACHER/STUDENT PANEL
-========================== */
-.panel {
-  position: fixed;
-  top: 0;
-  right: -100%;
-  width: 100%;
-  max-width: 500px;
-  height: 100%;
-  background: #fff;
-  box-shadow: -4px 0 20px rgba(0,0,0,0.2);
-  border-left: 2px solid #4b6cb7;
-  z-index: 9999;
-  overflow-y: auto;
-  transition: right 0.4s ease;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-}
-
-.panel:not(.hidden) {
-  right: 0;
-}
-
-.panel-header {
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.close-btn {
-  font-size: 22px;
-  cursor: pointer;
-  color: #f44336;
+ul li:hover {
+  background: #FFD93D;
+  color: #1A1F36;
+}
+
+ul li button {
+  background: #FF6B6B;
+  color: #FFF;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* ==========================
+   TEACHER PROFILE & CLASS PANEL
+========================== */
+#teacherProfile, #classPanel {
+  position: fixed;
+  top: 60px;
+  right: -500px;
+  width: 400px;
+  max-width: 90%;
+  height: calc(100% - 60px);
+  background: #FFF;
+  padding: 20px;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+  border-left: 1px solid #DDD;
+  overflow-y: auto;
+  transition: 0.5s;
+  z-index: 1000;
+  border-radius: 12px 0 0 12px;
+}
+
+#teacherProfile.active-panel, #classPanel.active-panel {
+  right: 0;
+}
+
+#teacherProfile h3, #classPanel h3 {
+  margin-bottom: 12px;
+}
+
+#teacherProfile button, #classPanel button {
+  margin-top: 12px;
+  background: #FF6B6B;
+  color: #FFF;
+}
+
+/* ==========================
+   TOAST
+========================== */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: -300px;
+  background: #FF6B6B;
+  color: #FFF;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  transition: 0.5s;
+  z-index: 2000;
+}
+
+.toast.show {
+  right: 20px;
 }
 
 /* ==========================
@@ -342,13 +318,23 @@ button.primary {
 ========================== */
 @media (max-width: 768px) {
   #sidebar {
-    left: -240px;
-    width: 200px;
+    left: -220px;
   }
   #sidebar.open ~ main {
     margin-left: 0;
   }
-  .cards, .grid-list, .approval-container {
-    grid-template-columns: 1fr;
+  .cards {
+    flex-direction: column;
+  }
+  #teacherProfile, #classPanel {
+    width: 100%;
+    height: 50%;
+    top: auto;
+    bottom: -50%;
+    border-radius: 12px 12px 0 0;
+  }
+  #teacherProfile.active-panel, #classPanel.active-panel {
+    bottom: 0;
+    right: 0;
   }
 }
