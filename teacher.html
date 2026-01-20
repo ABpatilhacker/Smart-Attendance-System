@@ -1,94 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
   <title>Teacher Dashboard | Smart Attendance</title>
-
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="teacher.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="teacher.css">
 </head>
 <body>
 
-<!-- Overlay -->
-<div class="overlay" onclick="closeSidebar()"></div>
-
-<!-- Sidebar -->
-<aside class="sidebar" id="sidebar">
-  <div class="brand">
-    <h2>👩‍🏫 Teacher</h2>
-    <p id="teacherName">Loading...</p>
-  </div>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <h2 class="logo">🎓 ERP</h2>
   <nav>
-    <button onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
-    <button onclick="showSection('classes')"><i class="fas fa-school"></i> Classes</button>
-    <button onclick="showSection('attendance')"><i class="fas fa-check-square"></i> Attendance</button>
-    <button onclick="showSection('analytics')"><i class="fas fa-chart-bar"></i> Analytics</button>
-    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <a onclick="showSection('dashboard')" class="active">Dashboard</a>
+    <a onclick="showSection('classes')">My Classes</a>
+    <a onclick="showSection('subjects')">My Subjects</a>
+    <a onclick="showSection('students')">Students</a>
+    <a onclick="showSection('profile')">Profile</a>
+    <a onclick="logout()">Logout</a>
   </nav>
 </aside>
 
-<!-- Topbar -->
-<header class="topbar">
-  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h1 id="pageTitle">Dashboard</h1>
-</header>
-
-<!-- Main content -->
+<!-- MAIN -->
 <main class="main">
+  <header class="topbar">
+    <h1 id="pageTitle">Dashboard</h1>
+    <span id="teacherName"></span>
+  </header>
 
-  <!-- Dashboard -->
+  <!-- DASHBOARD -->
   <section id="dashboard" class="section active">
-    <h2>Welcome, <span id="teacherGreeting"></span>!</h2>
-    <p>Manage your classes, attendance, and students efficiently.</p>
-    <div class="card-grid">
-      <div class="card" onclick="showSection('classes')">🏫 Classes<br><span id="classCount">0</span></div>
-      <div class="card" onclick="showSection('attendance')">🎓 Students<br><span id="studentCount">0</span></div>
-      <div class="card" onclick="showSection('analytics')">📊 Subjects<br><span id="subjectCount">0</span></div>
+    <div class="cards">
+      <div class="card">
+        <h3 id="classCount">0</h3>
+        <p>Classes</p>
+      </div>
+      <div class="card">
+        <h3 id="subjectCount">0</h3>
+        <p>Subjects</p>
+      </div>
+      <div class="card">
+        <h3 id="studentCount">0</h3>
+        <p>Students</p>
+      </div>
     </div>
   </section>
 
-  <!-- Classes -->
+  <!-- CLASSES -->
   <section id="classes" class="section">
-    <h2>Your Classes</h2>
-    <div id="classList" class="card-grid"></div>
+    <div id="classCards" class="grid"></div>
   </section>
 
-  <!-- Attendance -->
-  <section id="attendance" class="section">
-    <h2>Attendance</h2>
-    <label>Date: <input type="date" id="attendanceDate" onchange="loadAttendance()"></label>
-    <div id="attendanceTableWrapper"></div>
-    <button id="submitAttendanceBtn" onclick="submitAttendance()">Submit Attendance</button>
+  <!-- SUBJECTS -->
+  <section id="subjects" class="section">
+    <div id="subjectCards" class="grid"></div>
   </section>
 
-  <!-- Analytics -->
-  <section id="analytics" class="section">
-    <h2>Analytics</h2>
-    <canvas id="attendanceChart" style="margin-top:20px;"></canvas>
-    <h3>Defaulter List (<span id="minAttendanceAnalytics"></span>%)</h3>
-    <ul id="defaulterList"></ul>
+  <!-- STUDENTS -->
+  <section id="students" class="section">
+    <select id="classSelect"></select>
+    <table>
+      <thead>
+        <tr>
+          <th>Roll</th>
+          <th>Name</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody id="studentTable"></tbody>
+    </table>
   </section>
 
+  <!-- PROFILE -->
+  <section id="profile" class="section profile-card">
+    <h2 id="pName"></h2>
+    <p><strong>Email:</strong> <span id="pEmail"></span></p>
+    <p><strong>Classes:</strong> <span id="pClasses"></span></p>
+    <p><strong>Subjects:</strong> <span id="pSubjects"></span></p>
+  </section>
 </main>
 
-<!-- Firebase Config -->
-<script src="firebase.js"></script>
+<!-- STUDENT SLIDE PANEL -->
+<div id="studentPanel" class="slide-panel">
+  <button onclick="closeStudent()">✖</button>
+  <h3 id="sName"></h3>
+  <p><strong>Roll:</strong> <span id="sRoll"></span></p>
+  <p><strong>Class:</strong> <span id="sClass"></span></p>
+  <p><strong>Email:</strong> <span id="sEmail"></span></p>
+</div>
 
-<!-- Teacher JS -->
 <script src="teacher.js"></script>
-
 </body>
 </html>
