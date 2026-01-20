@@ -2,16 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Dashboard | Smart Attendance</title>
+  <title>Admin | Smart Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
   <link rel="stylesheet" href="admin.css">
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -19,22 +15,25 @@
 
 <body>
 
-<!-- TOP BAR -->
+<!-- TOPBAR -->
 <header class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h2>Smart Attendance – Admin Panel</h2>
+  <h1>Smart Attendance – Admin</h1>
   <button class="logout-btn" onclick="logout()">Logout</button>
 </header>
 
 <!-- SIDEBAR -->
 <aside id="sidebar">
   <a onclick="openSection('dashboard')">📊 Dashboard</a>
-  <a onclick="openSection('approvals')">✅ Approvals</a>
   <a onclick="openSection('classes')">🏫 Classes</a>
   <a onclick="openSection('teachers')">👨‍🏫 Teachers</a>
   <a onclick="openSection('students')">🎓 Students</a>
+  <a onclick="openSection('approvals')">✅ Approvals</a>
   <a onclick="openSection('settings')">⚙️ Settings</a>
 </aside>
+
+<!-- OVERLAY -->
+<div id="overlay" onclick="closeSidebar()"></div>
 
 <!-- MAIN -->
 <main>
@@ -43,60 +42,54 @@
 <section id="dashboard" class="section active">
   <h2>Overview</h2>
   <div class="cards">
-    <div class="card"><h1 id="classCount">0</h1><p>Classes</p></div>
-    <div class="card"><h1 id="teacherCount">0</h1><p>Teachers</p></div>
-    <div class="card"><h1 id="studentCount">0</h1><p>Students</p></div>
-    <div class="card"><h1 id="pendingCount">0</h1><p>Pending Approvals</p></div>
+    <div class="card" onclick="openSection('classes')">
+      <h3 id="classCount">0</h3><p>Classes</p>
+    </div>
+    <div class="card" onclick="openSection('teachers')">
+      <h3 id="teacherCount">0</h3><p>Teachers</p>
+    </div>
+    <div class="card" onclick="openSection('students')">
+      <h3 id="studentCount">0</h3><p>Students</p>
+    </div>
   </div>
-</section>
-
-<!-- APPROVALS -->
-<section id="approvals" class="section">
-  <h2>User Approvals</h2>
-  <ul id="approvalList"></ul>
 </section>
 
 <!-- CLASSES -->
 <section id="classes" class="section">
   <h2>Classes</h2>
-  <input id="className" placeholder="Class Name">
-  <button onclick="addClass()">Add Class</button>
-  <ul id="classList"></ul>
+  <div id="classList" class="grid"></div>
+  <div id="classDetails" class="panel hidden"></div>
 </section>
 
 <!-- TEACHERS -->
 <section id="teachers" class="section">
   <h2>Teachers</h2>
-  <ul id="teacherList"></ul>
+  <div id="teacherList" class="grid"></div>
+  <div id="teacherProfile" class="panel hidden"></div>
 </section>
 
 <!-- STUDENTS -->
 <section id="students" class="section">
   <h2>Students</h2>
-  <ul id="studentList"></ul>
+  <div id="studentList" class="grid"></div>
+  <div id="studentProfile" class="panel hidden"></div>
+</section>
+
+<!-- APPROVALS -->
+<section id="approvals" class="section">
+  <h2>Pending Approvals</h2>
+  <div id="pendingList" class="grid"></div>
 </section>
 
 <!-- SETTINGS -->
 <section id="settings" class="section">
   <h2>Settings</h2>
-  <input type="number" id="minAttendance">
+  <input id="minAttendance" type="number" placeholder="Minimum Attendance %">
   <button onclick="saveSettings()">Save</button>
 </section>
 
 </main>
 
 <script src="admin.js"></script>
-
-<script>
-function toggleSidebar(){
-  document.getElementById("sidebar").classList.toggle("open");
-}
-function openSection(id){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.getElementById("sidebar").classList.remove("open");
-}
-</script>
-
 </body>
 </html>
