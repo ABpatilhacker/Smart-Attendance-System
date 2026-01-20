@@ -3,97 +3,107 @@
 <head>
   <meta charset="UTF-8" />
   <title>Teacher Dashboard | Smart Attendance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="teacher.css">
 
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-  <link rel="stylesheet" href="teacher.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
+
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <h2 class="logo">🎓 ERP</h2>
-  <nav>
-    <a onclick="showSection('dashboard')" class="active">Dashboard</a>
-    <a onclick="showSection('classes')">My Classes</a>
-    <a onclick="showSection('subjects')">My Subjects</a>
-    <a onclick="showSection('students')">Students</a>
-    <a onclick="showSection('profile')">Profile</a>
-    <a onclick="logout()">Logout</a>
-  </nav>
+<div class="topbar">
+  <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+  <h3>Smart Attendance – Teacher Panel</h3>
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<aside id="sidebar">
+  <a onclick="openSection('dashboard')">📊 Dashboard</a>
+  <a onclick="openSection('attendance')">📝 Attendance</a>
+  <a onclick="openSection('defaulters')">🚨 Defaulters</a>
+  <a onclick="openSection('profile')">👤 Profile</a>
 </aside>
 
-<!-- MAIN -->
-<main class="main">
-  <header class="topbar">
-    <h1 id="pageTitle">Dashboard</h1>
-    <span id="teacherName"></span>
-  </header>
+<main>
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="section active">
     <div class="cards">
       <div class="card">
-        <h3 id="classCount">0</h3>
+        <h2 id="totalClasses">0</h2>
         <p>Classes</p>
       </div>
       <div class="card">
-        <h3 id="subjectCount">0</h3>
-        <p>Subjects</p>
-      </div>
-      <div class="card">
-        <h3 id="studentCount">0</h3>
+        <h2 id="totalStudents">0</h2>
         <p>Students</p>
       </div>
+      <div class="card">
+        <h2 id="avgAttendance">0%</h2>
+        <p>Average Attendance</p>
+      </div>
+    </div>
+
+    <div class="charts">
+      <canvas id="attendanceChart"></canvas>
     </div>
   </section>
 
-  <!-- CLASSES -->
-  <section id="classes" class="section">
-    <div id="classCards" class="grid"></div>
-  </section>
+  <!-- ATTENDANCE -->
+  <section id="attendance" class="section">
+    <h2>Take Attendance</h2>
 
-  <!-- SUBJECTS -->
-  <section id="subjects" class="section">
-    <div id="subjectCards" class="grid"></div>
-  </section>
-
-  <!-- STUDENTS -->
-  <section id="students" class="section">
     <select id="classSelect"></select>
+    <select id="subjectSelect"></select>
+
     <table>
       <thead>
         <tr>
           <th>Roll</th>
           <th>Name</th>
-          <th>Email</th>
+          <th>Status</th>
         </tr>
       </thead>
-      <tbody id="studentTable"></tbody>
+      <tbody id="attendanceTable"></tbody>
+    </table>
+
+    <button class="primary" onclick="saveAttendance()">Save Attendance</button>
+  </section>
+
+  <!-- DEFAULTERS -->
+  <section id="defaulters" class="section">
+    <h2>Defaulter List</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Roll</th>
+          <th>Name</th>
+          <th>%</th>
+        </tr>
+      </thead>
+      <tbody id="defaulterTable"></tbody>
     </table>
   </section>
 
   <!-- PROFILE -->
-  <section id="profile" class="section profile-card">
-    <h2 id="pName"></h2>
-    <p><strong>Email:</strong> <span id="pEmail"></span></p>
-    <p><strong>Classes:</strong> <span id="pClasses"></span></p>
-    <p><strong>Subjects:</strong> <span id="pSubjects"></span></p>
+  <section id="profile" class="section">
+    <h2>My Profile</h2>
+    <div class="profile-card" id="profileCard"></div>
   </section>
-</main>
 
-<!-- STUDENT SLIDE PANEL -->
-<div id="studentPanel" class="slide-panel">
-  <button onclick="closeStudent()">✖</button>
-  <h3 id="sName"></h3>
-  <p><strong>Roll:</strong> <span id="sRoll"></span></p>
-  <p><strong>Class:</strong> <span id="sClass"></span></p>
-  <p><strong>Email:</strong> <span id="sEmail"></span></p>
-</div>
+</main>
 
 <script src="teacher.js"></script>
 </body>
