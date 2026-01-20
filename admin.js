@@ -1,151 +1,167 @@
-/* ==========================
-   FIREBASE INITIALIZATION
-========================== */
+// ==========================
+// FIREBASE INIT (same config)
+// ==========================
 const auth = firebase.auth();
 const db = firebase.database();
 
-/* ==========================
-   AUTH CHECK (ADMIN ONLY)
-========================== */
-firebase.auth().onAuthStateChanged(user => {
+// ==========================
+// AUTH CHECK
+// ==========================
+auth.onAuthStateChanged(user => {
   if (!user) {
     window.location.href = "login.html";
     return;
   }
 
-  db.ref("users/" + user.uid).once("value")
-    .then(snap => {
-      if (!snap.exists()) {
-        alert("User record not found");
-        auth.signOut();
-        window.location.href = "login.html";
-        return;
-      }
+  db.ref("users/" + user.uid).once("value").then(snap => {
+    if (!snap.exists() || snap.val().role !== "admin") {
+      alert("Access denied!");
+      auth.signOut();
+      window.location.href = "login.html";
+      return;
+    }
 
-      const data = snap.val();
-      if (data.role !== "admin" || !data.approved) {
-        alert("Access Denied");
-        auth.signOut();
-        window.location.href = "login.html";
-        return;
-      }
-
-      // ✅ LOAD EVERYTHING
-      loadDashboard();
-      loadClasses();
-      loadTeachers();
-      loadStudents();
-      loadSettings();
-    });
+    loadDashboardData();
+  });
 });
 
-/* ==========================
-   DASHBOARD
-========================== */
-function loadDashboard() {
-  let teacherCount = 0;
-  let studentCount = 0;
-
-  db.ref("users").once("value").then(snap => {
-    snap.forEach(u => {
-      const user = u.val();
-      if (user.role === "teacher" && user.approved) teacherCount++;
-      if (user.role === "student" && user.approved) studentCount++;
-    });
-
-    document.getElementById("teacherCount").innerText = teacherCount;
-    document.getElementById("studentCount").innerText = studentCount;
-  });
-
-  db.ref("classes").once("value").then(snap => {
-    document.getElementById("classCount").innerText = snap.numChildren();
-  });
+// ==========================
+// LOAD ALL DASHBOARD DATA
+// ==========================
+function loadDashboardData() {
+  loadTeachers();
+  loadStudents();
+  loadClasses();
 }
 
-/* ==========================
-   CLASSES (FIXED FOR YOUR JSON)
-========================== */
-function loadClasses() {
-  const classList = document.getElementById("classList");
-  if (!classList) return;
-
-  db.ref("classes").once("value").then(snap => {
-    classList.innerHTML = "";
-
-    const classes = snap.val();
-    if (!classes) return;
-
-    Object.keys(classes).forEach(classId => {
-      const cls = classes[classId];
-      classList.innerHTML += `<li>🏫 ${cls.name}</li>`;
-    });
-  });
-}
-
-/* ==========================
-   TEACHERS
-========================== */
+// ==========================
+// LOAD TEACHERS
+// ==========================
 function loadTeachers() {
   const list = document.getElementById("teacherList");
   if (!list) return;
 
   list.innerHTML = "";
 
-  db.ref("users").once("value").then(snap => {
-    snap.forEach(u => {
-      const user = u.val();
-      if (user.role === "teacher" && user.approved) {
-        list.innerHTML += `<li>👨‍🏫 ${user.name}</li>`;
+  db.ref("users").once("value").then(snapshot => {
+    snapshot.forEach(child => {
+      const u = child.val();
+      if (u.role === "teacher") {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${u.name}</strong><br>
+          <small>${u.email}</small>
+        `;
+        list.appendChild(li);
       }
     });
   });
 }
 
-/* ==========================
-   STUDENTS
-========================== */
+// ==========================
+// LOAD STUDENTS
+// ==========================
 function loadStudents() {
   const list = document.getElementById("studentList");
   if (!list) return;
 
   list.innerHTML = "";
 
-  db.ref("users").once("value").then(snap => {
-    snap.forEach(u => {
-      const user = u.val();
-      if (user.role === "student" && user.approved) {
-        list.innerHTML += `<li>🎓 ${user.name} (Roll ${user.roll})</li>`;
+  db.ref("users").once("value").then(snapshot => {
+    snapshot.forEach(child => {
+      const u = child.val();
+      if (u.role === "student") {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${u.name}</strong>
+          <small> (${u.classId || "N/A"})</small>
+        `;
+        list.appendChild(li);
       }
     });
   });
 }
 
-/* ==========================
-   SETTINGS
-========================== */
-function loadSettings() {
-  const input = document.getElementById("minAttendance");
-  if (!input) return;
+// ==========================
+// LOAD CLASSES
+// ==========================
+function loadClasses() {
+  const list = document.getElementById("classList");
+  if (!list) return;
 
-  db.ref("settings/minAttendance").once("value").then(snap => {
-    input.value = snap.val() || 75;
+  list.innerHTML = "";
+
+  db.ref("classes").once("value").then(snapshot => {
+    snapshot.forEach(child => {
+      const c = child.val();
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <strong>${c.name}</strong><br>
+        <small>${Object.keys(c.subjects || {}).length} subjects</small>
+      `;
+      list.appendChild(li);
+    });
   });
 }
 
-function saveSettings() {
-  const val = Number(document.getElementById("minAttendance").value);
-  if (!val || val < 1 || val > 100) {
-    alert("Enter valid attendance percentage");
+// ==========================
+// ADD TEACHER
+// ==========================
+function addTeacher() {
+  const name = document.getElementById("tName").value.trim();
+  const email = document.getElementById("tEmail").value.trim();
+  const password = document.getElementById("tPassword").value.trim();
+  const dept = document.getElementById("tDept").value.trim();
+
+  if (!name || !email || !password || !dept) {
+    alert("Fill all teacher fields");
     return;
   }
 
-  db.ref("settings/minAttendance").set(val)
-    .then(() => alert("Settings saved successfully"));
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(res => {
+      const uid = res.user.uid;
+      return db.ref("users/" + uid).set({
+        name,
+        email,
+        role: "teacher",
+        department: dept,
+        approved: true
+      });
+    })
+    .then(() => {
+      alert("Teacher added successfully");
+      loadTeachers();
+    })
+    .catch(err => alert(err.message));
 }
 
-/* ==========================
-   LOGOUT
-========================== */
+// ==========================
+// ADD CLASS
+// ==========================
+function addClass() {
+  const id = document.getElementById("classId").value.trim();
+  const name = document.getElementById("className").value.trim();
+
+  if (!id || !name) {
+    alert("Enter class id & name");
+    return;
+  }
+
+  db.ref("classes/" + id).set({
+    name: name,
+    subjects: {}
+  })
+  .then(() => {
+    alert("Class added");
+    loadClasses();
+  })
+  .catch(err => alert(err.message));
+}
+
+// ==========================
+// LOGOUT
+// ==========================
 function logout() {
   auth.signOut().then(() => {
     window.location.href = "login.html";
