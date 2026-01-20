@@ -1,125 +1,85 @@
-/**************** FIREBASE *****************/
-firebase.initializeApp({
-  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-  projectId: "smart-attendance-system-17e89"
-});
+const firebaseConfig = { /* SAME CONFIG */ };
+firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.database();
-let currentUser;
-let attendanceData = {};
 
-/**************** AUTH *****************/
-auth.onAuthStateChanged(u => {
-  if (!u) location.href = "login.html";
-  currentUser = u;
-  loadDashboard();
+let attendanceData = {};
+let today = new Date().toISOString().split("T")[0];
+
+auth.onAuthStateChanged(user=>{
+  if(!user) location.href="login.html";
+  loadStudents();
   loadProfile();
 });
 
-/**************** UI *****************/
-function toggleSidebar() {
-  sidebar.classList.toggle("open");
-  overlay.classList.toggle("show");
-}
-function closeSidebar() {
-  sidebar.classList.remove("open");
-  overlay.classList.remove("show");
-}
-function openSection(id) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  closeSidebar();
-}
-
-/**************** DASHBOARD *****************/
-function loadDashboard() {
-  db.ref("users").once("value", snap => {
-    let students = 0;
-    snap.forEach(u => u.val().role === "student" && students++);
-    document.getElementById("totalStudents").innerText = students;
-  });
-
-  db.ref("classes").once("value", snap => {
-    document.getElementById("totalClasses").innerText = snap.numChildren();
-  });
-
-  renderChart();
-}
-
-function renderChart() {
-  new Chart(document.getElementById("attendanceChart"), {
-    type: "doughnut",
-    data: {
-      labels: ["Present", "Absent"],
-      datasets: [{
-        data: [80, 20],
-        backgroundColor: ["#22c55e", "#ef4444"]
-      }]
-    }
-  });
-}
-
-/**************** ATTENDANCE *****************/
-db.ref("classes").on("value", snap => {
-  classSelect.innerHTML = "<option>Select Class</option>";
-  snap.forEach(c => {
-    classSelect.innerHTML += `<option value="${c.key}">${c.val().name}</option>`;
-  });
-});
-
-classSelect.onchange = () => {
-  attendanceTable.innerHTML = "";
-  db.ref("users").once("value", snap => {
-    snap.forEach(u => {
-      const s = u.val();
-      if (s.role === "student") {
-        attendanceData[u.key] = "P";
-        attendanceTable.innerHTML += `
-          <tr>
-            <td>${s.roll}</td>
-            <td>${s.name}</td>
-            <td>
-              <button class="status-btn present" onclick="toggleStatus(this,'${u.key}')">P</button>
-            </td>
-          </tr>`;
+function loadStudents(){
+  db.ref("users").once("value",snap=>{
+    let students=[];
+    snap.forEach(u=>{
+      if(u.val().role==="student"){
+        students.push(u.val());
       }
     });
-  });
-};
+    students.sort((a,b)=>a.roll-b.roll);
 
-function toggleStatus(btn, uid) {
-  if (attendanceData[uid] === "P") {
-    attendanceData[uid] = "A";
-    btn.className = "status-btn absent";
-    btn.innerText = "A";
-  } else {
-    attendanceData[uid] = "P";
-    btn.className = "status-btn present";
-    btn.innerText = "P";
-  }
-}
+    const table=document.getElementById("attendanceTable");
+    table.innerHTML="";
+    students.forEach(s=>{
+      table.innerHTML+=`
+      <tr>
+        <td>${s.roll}</td>
+        <td>${s.name}</td>
+        <td><button onclick="mark('${s.roll}','P')" class="present">P</button></td>
+        <td><button onclick="mark('${s.roll}','A')" class="absent">A</button></td>
+      </tr>`;
+    });
 
-function saveAttendance() {
-  const date = new Date().toISOString().split("T")[0];
-  db.ref("attendance/" + date).set(attendanceData)
-    .then(() => alert("Attendance Saved"));
-}
-
-/**************** PROFILE *****************/
-function loadProfile() {
-  db.ref("users/" + currentUser.uid).once("value", snap => {
-    const u = snap.val();
-    profileCard.innerHTML = `
-      <h3>${u.name}</h3>
-      <p><strong>Email:</strong> ${u.email}</p>
-      <p><strong>Role:</strong> Teacher</p>
-    `;
+    document.getElementById("totalStudents").innerText=students.length;
   });
 }
 
-function logout() {
+function mark(roll,status){
+  attendanceData[roll]=status;
+}
+
+function saveAttendance(){
+  db.ref("attendance/"+today).set(attendanceData);
+  alert("Attendance Saved");
+}
+
+function loadAttendanceByDate(){
+  const d=document.getElementById("recordDate").value;
+  db.ref("attendance/"+d).once("value",snap=>{
+    document.getElementById("recordView").innerText=JSON.stringify(snap.val(),null,2);
+  });
+}
+
+function loadProfile(){
+  const u=auth.currentUser;
+  db.ref("users/"+u.uid).once("value",s=>{
+    teacherName.value=s.val().name;
+    teacherEmail.value=s.val().email;
+  });
+}
+
+function saveProfile(){
+  db.ref("users/"+auth.currentUser.uid).update({
+    name: teacherName.value
+  });
+  alert("Profile Updated");
+}
+
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("open");
+}
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("open");
+}
+function openSection(id){
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+function logout(){
   auth.signOut();
 }
