@@ -10,11 +10,12 @@
 
 body {
   min-height: 100vh;
-  background: #F5F7FA;
+  background: #F0F2F5;
   color: #1A1F36;
   display: flex;
   flex-direction: column;
   font-size: 16px;
+  overflow-x: hidden;
 }
 
 /* ==========================
@@ -24,19 +25,19 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(90deg, #1A1F36, #2D3348);
+  background: #1F2937;
   color: #FFF;
   padding: 12px 24px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   position: sticky;
   top: 0;
   z-index: 100;
-  transition: all 0.3s ease;
 }
 
 .topbar h3 {
   font-family: 'Merriweather', serif;
   font-weight: 700;
+  font-size: 1.4rem;
 }
 
 .menu-btn {
@@ -49,12 +50,20 @@ body {
   transform: scale(1.1);
 }
 
+.logout-btn {
+  background: linear-gradient(90deg, #FF6B6B, #FFD93D);
+  color: #1A1F36;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+
 /* ==========================
    SIDEBAR
 ========================== */
 #sidebar {
   width: 240px;
-  background: #1F2432;
+  background: #111827;
   color: #FFF;
   position: fixed;
   top: 60px;
@@ -65,7 +74,7 @@ body {
   overflow-y: auto;
   border-right: 1px solid #2D3348;
   z-index: 99;
-  border-top-right-radius: 12px;
+  border-radius: 0 12px 12px 0;
 }
 
 #sidebar.open {
@@ -83,13 +92,14 @@ body {
   text-decoration: none;
   padding: 12px 10px;
   border-radius: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   transition: 0.3s;
+  font-weight: 500;
 }
 
 #sidebar a:hover {
-  background: #2D3348;
-  color: #FFD93D;
+  background: #2563EB;
+  color: #FFF;
 }
 
 /* ==========================
@@ -126,7 +136,7 @@ main {
 }
 
 .muted {
-  color: #5E6272;
+  color: #6B7280;
   margin-bottom: 20px;
 }
 
@@ -142,16 +152,16 @@ main {
 .card {
   flex: 1 1 200px;
   background: #FFF;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.2);
 }
 
 .card h2 {
@@ -161,7 +171,8 @@ main {
 }
 
 .card p {
-  color: #5E6272;
+  color: #6B7280;
+  font-weight: 500;
 }
 
 /* ==========================
@@ -169,8 +180,8 @@ main {
 ========================== */
 input, select {
   padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #E2E5ED;
+  border-radius: 12px;
+  border: 1px solid #D1D5DB;
   outline: none;
   width: 100%;
   font-size: 15px;
@@ -179,14 +190,14 @@ input, select {
 }
 
 input:focus, select:focus {
-  border-color: #FF6B6B;
-  box-shadow: 0 0 5px rgba(255,107,107,0.5);
+  border-color: #3B82F6;
+  box-shadow: 0 0 6px rgba(59,130,246,0.4);
 }
 
 button {
   padding: 12px 20px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
   transition: 0.3s;
@@ -198,8 +209,8 @@ button:hover {
 }
 
 button.primary {
-  background: linear-gradient(90deg, #FF6B6B, #FFD93D);
-  color: #1A1F36;
+  background: linear-gradient(90deg, #2563EB, #3B82F6);
+  color: #FFF;
 }
 
 /* ==========================
@@ -212,10 +223,10 @@ ul {
 }
 
 ul li {
-  padding: 12px;
+  padding: 14px 16px;
   background: #FFF;
-  border-radius: 10px;
-  margin-bottom: 8px;
+  border-radius: 12px;
+  margin-bottom: 10px;
   cursor: pointer;
   transition: 0.3s;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -225,66 +236,57 @@ ul li {
 }
 
 ul li:hover {
-  background: #FFD93D;
-  color: #1A1F36;
-}
-
-li button {
-  padding: 6px 12px;
-  background: #1A1F36;
-  color: #FFD93D;
-  border-radius: 6px;
-  border: none;
-  font-size: 14px;
-}
-
-/* ==========================
-   TEACHER / STUDENT / CLASS CARDS
-========================== */
-.teacher-card, .student-card, .class-card, .approval-card {
-  padding: 15px;
-  background: #FFF;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  transition: 0.3s;
-}
-
-.teacher-card:hover, .student-card:hover, .class-card:hover, .approval-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-}
-
-/* ==========================
-   PROFILE PANELS
-========================== */
-.panel {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 90%;
-  max-width: 500px;
-  background: #FFF;
-  border-radius: 12px;
-  padding: 20px 30px;
-  transform: translate(-50%, -50%) scale(0);
-  transition: 0.3s;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.panel.active-panel {
-  transform: translate(-50%, -50%) scale(1);
-}
-
-.panel button.close-btn {
-  align-self: flex-end;
-  background: #FF6B6B;
+  background: #2563EB;
   color: #FFF;
-  font-weight: 600;
+}
+
+/* Class & Student Cards */
+.class-card button,
+.teacher-card button,
+.student-card button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #10B981;
+  color: #FFF;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.class-card button:hover,
+.teacher-card button:hover,
+.student-card button:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+/* ==========================
+   DETAILS PANELS
+========================== */
+.active-panel {
+  position: fixed;
+  top: 80px;
+  right: 0;
+  width: 350px;
+  max-width: 95%;
+  height: calc(100% - 100px);
+  background: #FFF;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 200;
+  animation: slideIn 0.4s ease-out;
+  border-radius: 12px 0 0 12px;
+}
+
+.active-panel h3 {
+  margin-bottom: 12px;
+}
+
+.active-panel button {
+  margin-top: 16px;
+  background: #EF4444;
 }
 
 /* ==========================
@@ -292,19 +294,22 @@ li button {
 ========================== */
 .toast {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #1A1F36;
-  color: #FFD93D;
+  bottom: 30px;
+  right: 30px;
+  background: #2563EB;
+  color: #FFF;
   padding: 12px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   opacity: 0;
-  transition: all 0.3s ease;
-  z-index: 9999;
+  transform: translateY(20px);
+  transition: all 0.5s;
+  z-index: 500;
+  font-weight: 500;
 }
 
 .toast.show {
   opacity: 1;
+  transform: translateY(0);
 }
 
 /* ==========================
@@ -315,12 +320,29 @@ li button {
   100% {opacity: 1; transform: translateY(0);}
 }
 
+@keyframes slideIn {
+  0% {transform: translateX(100%);}
+  100% {transform: translateX(0);}
+}
+
 /* ==========================
    RESPONSIVE
 ========================== */
 @media (max-width: 768px) {
-  #sidebar { left: -240px; }
-  #sidebar.open ~ main { margin-left: 0; }
-  .cards { flex-direction: column; }
-  .panel { width: 95%; }
+  #sidebar {
+    left: -240px;
+  }
+  #sidebar.open ~ main {
+    margin-left: 0;
+  }
+  .cards {
+    flex-direction: column;
+  }
+  .active-panel {
+    width: 100%;
+    height: 80%;
+    top: auto;
+    bottom: 0;
+    border-radius: 12px 12px 0 0;
+  }
 }
