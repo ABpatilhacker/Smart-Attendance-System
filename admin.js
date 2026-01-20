@@ -1,3 +1,6 @@
+/***********************
+ 🔥 FIREBASE CONFIG
+************************/
 const firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
@@ -9,150 +12,304 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const auth = firebase.auth();
 
-/* AUTH */
-auth.onAuthStateChanged(u => {
-  if (!u) location.href = "login.html";
-  loadDashboard();
-  loadClasses();
-  loadTeachers();
-  loadStudents();
-  loadApprovals();
+const auth = firebase.auth();
+const db = firebase.database();
+
+/***********************
+ 🔐 AUTH CHECK
+************************/
+auth.onAuthStateChanged(user => {
+  if (!user) window.location.href = "login.html";
+  else {
+    loadDashboard();
+    loadApprovals();
+    loadClasses();
+    loadTeachers();
+    loadStudents();
+    loadSettings();
+  }
 });
 
-/* UI */
-function toggleSidebar() {
-  sidebar.classList.toggle("open");
-  overlay.classList.toggle("show");
-}
-function closeSidebar() {
-  sidebar.classList.remove("open");
-  overlay.classList.remove("show");
-}
-function openSection(id) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  closeSidebar();
+/***********************
+ 🚪 LOGOUT
+************************/
+function logout() {
+  auth.signOut().then(() => window.location.href = "login.html");
 }
 
-/* DASHBOARD */
+/***********************
+ 📊 DASHBOARD COUNTS
+************************/
 function loadDashboard() {
-  db.ref("classes").on("value", s => classCount.innerText = s.numChildren());
-  db.ref("users").on("value", s => {
-    let t=0, st=0;
-    s.forEach(u=>{
-      if(u.val().approved){
-        if(u.val().role==="teacher") t++;
-        if(u.val().role==="student") st++;
+  db.ref("classes").on("value", snap => {
+    document.getElementById("classCount").innerText = snap.numChildren();
+  });
+
+  db.ref("users").on("value", snap => {
+    let teachers = 0, students = 0;
+    snap.forEach(u => {
+      if (u.val().approved === true) {
+        if (u.val().role === "teacher") teachers++;
+        if (u.val().role === "student") students++;
       }
     });
-    teacherCount.innerText=t;
-    studentCount.innerText=st;
+    document.getElementById("teacherCount").innerText = teachers;
+    document.getElementById("studentCount").innerText = students;
   });
 }
 
-/* CLASSES */
-function loadClasses(){
-  db.ref("classes").on("value", snap=>{
-    classList.innerHTML="";
-    snap.forEach(c=>{
-      const card=document.createElement("div");
-      card.className="card";
-      card.innerHTML=`<h3>${c.val().name}</h3>`;
-      card.onclick=()=>openClass(c.key,c.val());
-      classList.appendChild(card);
-    });
-  });
-}
+/***********************
+ 🟡 APPROVAL DASHBOARD
+************************/
+function loadApprovals() {
+  const list = document.getElementById("pendingList");
+  if (!list) return;
 
-function openClass(id,data){
-  const panel=document.getElementById("classDetails");
-  panel.classList.remove("hidden");
-  panel.innerHTML=`<h3>${data.name}</h3>
-  <p>Subjects:</p>
-  <ul>${Object.values(data.subjects||{}).map(s=>`<li>${s.name}</li>`).join("")}</ul>
-  <p onclick="openStudents('${id}')"><b>Students: ${Object.keys(data.students||{}).length}</b></p>`;
-}
+  db.ref("users").on("value", snap => {
+    list.innerHTML = "";
+    let hasPending = false;
 
-/* TEACHERS */
-function loadTeachers(){
-  db.ref("users").on("value",snap=>{
-    teacherList.innerHTML="";
-    snap.forEach(u=>{
-      if(u.val().role==="teacher" && u.val().approved){
-        const card=document.createElement("div");
-        card.className="card";
-        card.innerHTML=`<h3>${u.val().name}</h3>`;
-        card.onclick=()=>openTeacher(u.key,u.val());
-        teacherList.appendChild(card);
+    snap.forEach(child => {
+      const u = child.val();
+      const uid = child.key;
+
+      if (u.approved === false) {
+        hasPending = true;
+        const li = document.createElement("li");
+        li.className = "approval-card";
+
+        li.innerHTML = `
+          <strong>${u.name}</strong><br>
+          <small>${u.email}</small><br>
+          <span class="badge">${u.role.toUpperCase()}</span><br><br>
+          <button class="approve-btn" onclick="approveUser('${uid}')">✅ Approve</button>
+          <button class="reject-btn" onclick="rejectUser('${uid}')">❌ Reject</button>
+        `;
+        list.appendChild(li);
       }
     });
+
+    if (!hasPending) list.innerHTML = "<p class='muted'>No pending approvals 🎉</p>";
   });
 }
 
-function openTeacher(id,data){
-  teacherProfile.classList.remove("hidden");
-  teacherProfile.innerHTML=`
-    <h3>${data.name}</h3>
-    <p>${data.email}</p>
-    <p>Department: ${data.department||"-"}</p>`;
+function approveUser(uid) {
+  db.ref("users/" + uid).update({ approved: true })
+    .then(() => toast("User approved ✅"));
 }
 
-/* STUDENTS */
-function loadStudents(){
-  db.ref("users").on("value",snap=>{
-    studentList.innerHTML="";
-    snap.forEach(u=>{
-      if(u.val().role==="student" && u.val().approved){
-        const card=document.createElement("div");
-        card.className="card";
-        card.innerHTML=`<h3>${u.val().name}</h3>`;
-        card.onclick=()=>openStudent(u.val());
-        studentList.appendChild(card);
-      }
-    });
-  });
+function rejectUser(uid) {
+  if (!confirm("Are you sure you want to reject this user?")) return;
+
+  db.ref("users/" + uid).remove()
+    .then(() => toast("User rejected ❌"));
 }
 
-function openStudents(classId){
-  openSection("students");
-}
+/***********************
+ 🏫 CLASSES
+************************/
+function loadClasses() {
+  const list = document.getElementById("classList");
+  const select = document.getElementById("studentClass");
+  if (select) select.innerHTML = "";
 
-function openStudent(data){
-  studentProfile.classList.remove("hidden");
-  studentProfile.innerHTML=`
-    <h3>${data.name}</h3>
-    <p>Email: ${data.email}</p>
-    <p>Roll: ${data.roll}</p>
-    <p>Class: ${data.classId}</p>`;
-}
+  db.ref("classes").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(c => {
+      const li = document.createElement("li");
+      li.className = "class-card";
+      li.innerHTML = `
+        <strong>${c.val().name}</strong>
+        <button onclick="openClassDetails('${c.key}')">View Details</button>
+      `;
+      list.appendChild(li);
 
-/* APPROVALS */
-function loadApprovals(){
-  db.ref("users").on("value",snap=>{
-    pendingList.innerHTML="";
-    snap.forEach(u=>{
-      if(!u.val().approved){
-        const card=document.createElement("div");
-        card.className="card";
-        card.innerHTML=`
-          <h3>${u.val().name}</h3>
-          <button onclick="approveUser('${u.key}')">Approve</button>`;
-        pendingList.appendChild(card);
+      if (select) {
+        const opt = document.createElement("option");
+        opt.value = c.key;
+        opt.textContent = c.val().name;
+        select.appendChild(opt);
       }
     });
   });
 }
 
-function approveUser(id){
-  db.ref("users/"+id).update({approved:true});
+function addClass() {
+  const name = document.getElementById("className").value.trim();
+  if (!name) return toast("Enter class name ⚠️");
+
+  const id = name.toLowerCase().replace(/\s+/g, "");
+  db.ref("classes/" + id).set({ name })
+    .then(() => {
+      document.getElementById("className").value = "";
+      toast("Class added successfully ✅");
+    });
 }
 
-/* SETTINGS */
-function saveSettings(){
-  db.ref("settings").update({
-    minAttendance: Number(minAttendance.value)
+/***********************
+ 👨‍🏫 TEACHERS
+************************/
+function loadTeachers() {
+  const list = document.getElementById("teacherList");
+  if (!list) return;
+
+  db.ref("users").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(u => {
+      const data = u.val();
+      if (data.role === "teacher" && data.approved === true) {
+        const li = document.createElement("li");
+        li.className = "teacher-card";
+        li.innerHTML = `
+          <strong>${data.name}</strong> – ${data.email}
+          <button onclick="openTeacherProfile('${u.key}')">View Profile</button>
+        `;
+        list.appendChild(li);
+      }
+    });
   });
 }
+
+function addTeacher() {
+  const name = document.getElementById("teacherName").value.trim();
+  const email = document.getElementById("teacherEmail").value.trim();
+  if (!name || !email) return toast("Fill all fields ⚠️");
+
+  const uid = db.ref("users").push().key;
+  db.ref("users/" + uid).set({
+    name, email, role: "teacher", approved: true, assignments: {}
+  }).then(() => {
+    document.getElementById("teacherName").value = "";
+    document.getElementById("teacherEmail").value = "";
+    toast("Teacher added ✅");
+  });
+}
+
+/***********************
+ 🎓 STUDENTS
+************************/
+function loadStudents() {
+  const list = document.getElementById("studentList");
+  if (!list) return;
+
+  db.ref("users").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(u => {
+      const data = u.val();
+      if (data.role === "student" && data.approved === true) {
+        const li = document.createElement("li");
+        li.className = "student-card";
+        li.innerHTML = `
+          <strong>${data.name}</strong>
+          (Roll ${data.roll}) – ${data.email}
+        `;
+        list.appendChild(li);
+      }
+    });
+  });
+}
+
+function addStudent() {
+  const name = document.getElementById("studentName").value.trim();
+  const roll = document.getElementById("studentRoll").value.trim();
+  const email = document.getElementById("studentEmail").value.trim();
+  const classId = document.getElementById("studentClass").value;
+
+  if (!name || !roll || !email || !classId) return toast("Fill all fields ⚠️");
+
+  const uid = db.ref("users").push().key;
+  db.ref("users/" + uid).set({
+    name, roll: Number(roll), email, role: "student", classId, approved: true
+  }).then(() => {
+    document.getElementById("studentName").value = "";
+    document.getElementById("studentRoll").value = "";
+    document.getElementById("studentEmail").value = "";
+    toast("Student added ✅");
+  });
+}
+
+/***********************
+ ⚙️ SETTINGS
+************************/
+function loadSettings() {
+  db.ref("settings/minAttendance").once("value", snap => {
+    if (snap.exists()) document.getElementById("minAttendance").value = snap.val();
+  });
+}
+
+function saveSettings() {
+  const val = document.getElementById("minAttendance").value;
+  if (!val) return toast("Enter minimum attendance ⚠️");
+
+  db.ref("settings").update({ minAttendance: Number(val) })
+    .then(() => toast("Settings saved ✅"));
+}
+
+/***********************
+ 🌟 DETAILS PANELS
+************************/
+function openTeacherProfile(uid) {
+  db.ref("users/" + uid).once("value").then(snap => {
+    const t = snap.val();
+    const panel = document.getElementById("teacherProfile");
+    const subjects = [];
+
+    // find assigned subjects
+    db.ref("classes").once("value").then(csnap => {
+      csnap.forEach(c => {
+        const classData = c.val();
+        for (let sub in classData.subjects) {
+          if (classData.subjects[sub].teacherId === uid)
+            subjects.push(`${classData.subjects[sub].name} (${classData.name})`);
+        }
+      });
+
+      panel.innerHTML = `
+        <h3>${t.name} – Teacher Profile</h3>
+        <p><strong>Email:</strong> ${t.email}</p>
+        <p><strong>Subjects Assigned:</strong> ${subjects.join(", ") || "None"}</p>
+        <button onclick="closePanel('teacherProfile')">Close</button>
+      `;
+      panel.classList.add("active-panel");
+    });
+  });
+}
+
+function openClassDetails(classId) {
+  db.ref("classes/" + classId).once("value").then(snap => {
+    const c = snap.val();
+    const panel = document.getElementById("classPanel");
+
+    let subjectList = "";
+    for (let sub in c.subjects) {
+      subjectList += `<li>${c.subjects[sub].name} – Teacher ID: ${c.subjects[sub].teacherId}</li>`;
+    }
+
+    panel.innerHTML = `
+      <h3>${c.name} – Class Details</h3>
+      <div><strong>Total Students:</strong> ${Object.keys(c.students || {}).length}</div>
+      <h4>Subjects</h4>
+      <ul>${subjectList || "<li>No subjects assigned</li>"}</ul>
+      <button onclick="closePanel('classPanel')">Close</button>
+    `;
+    panel.classList.add("active-panel");
+  });
+}
+
+function closePanel(id) {
+  document.getElementById(id).classList.remove("active-panel");
+}
+
+/***********************
+ 🌟 TOAST MESSAGE
+************************/
+function toast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.innerText = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("show"), 100);
+  setTimeout(() => t.classList.remove("show"), 3000);
+  setTimeout(() => t.remove(), 3500);
+                                          }
