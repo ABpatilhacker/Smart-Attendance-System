@@ -12,7 +12,6 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.database();
 
@@ -39,6 +38,20 @@ function logout() {
 }
 
 /***********************
+ 🌟 SIDEBAR & TOPBAR
+************************/
+document.querySelector(".menu-btn").addEventListener("click", () => {
+  document.getElementById("sidebar").classList.toggle("open");
+});
+
+document.addEventListener("click", e => {
+  const sidebar = document.getElementById("sidebar");
+  if (!sidebar.contains(e.target) && !e.target.classList.contains("menu-btn")) {
+    sidebar.classList.remove("open");
+  }
+});
+
+/***********************
  📊 DASHBOARD COUNTS
 ************************/
 function loadDashboard() {
@@ -57,6 +70,11 @@ function loadDashboard() {
     document.getElementById("teacherCount").innerText = teachers;
     document.getElementById("studentCount").innerText = students;
   });
+
+  // Make dashboard cards clickable
+  document.getElementById("classCount").parentElement.onclick = () => openSection('classes');
+  document.getElementById("teacherCount").parentElement.onclick = () => openSection('teachers');
+  document.getElementById("studentCount").parentElement.onclick = () => openSection('students');
 }
 
 /***********************
@@ -101,7 +119,6 @@ function approveUser(uid) {
 
 function rejectUser(uid) {
   if (!confirm("Are you sure you want to reject this user?")) return;
-
   db.ref("users/" + uid).remove()
     .then(() => toast("User rejected ❌"));
 }
@@ -200,10 +217,7 @@ function loadStudents() {
       if (data.role === "student" && data.approved === true) {
         const li = document.createElement("li");
         li.className = "student-card";
-        li.innerHTML = `
-          <strong>${data.name}</strong>
-          (Roll ${data.roll}) – ${data.email}
-        `;
+        li.innerHTML = `<strong>${data.name}</strong> (Roll ${data.roll}) – ${data.email}`;
         list.appendChild(li);
       }
     });
@@ -255,11 +269,10 @@ function openTeacherProfile(uid) {
     const panel = document.getElementById("teacherProfile");
     const subjects = [];
 
-    // find assigned subjects
     db.ref("classes").once("value").then(csnap => {
       csnap.forEach(c => {
         const classData = c.val();
-        for (let sub in classData.subjects) {
+        for (let sub in classData.subjects || {}) {
           if (classData.subjects[sub].teacherId === uid)
             subjects.push(`${classData.subjects[sub].name} (${classData.name})`);
         }
@@ -269,7 +282,7 @@ function openTeacherProfile(uid) {
         <h3>${t.name} – Teacher Profile</h3>
         <p><strong>Email:</strong> ${t.email}</p>
         <p><strong>Subjects Assigned:</strong> ${subjects.join(", ") || "None"}</p>
-        <button onclick="closePanel('teacherProfile')">Close</button>
+        <button class="close-btn" onclick="closePanel('teacherProfile')">Close</button>
       `;
       panel.classList.add("active-panel");
     });
@@ -280,20 +293,46 @@ function openClassDetails(classId) {
   db.ref("classes/" + classId).once("value").then(snap => {
     const c = snap.val();
     const panel = document.getElementById("classPanel");
+    let studentCards = "";
+    for (let studentId in c.students || {}) {
+      const s = c.students[studentId];
+      studentCards += `<li class="student-card" onclick="openStudentProfile('${studentId}')">${s.name} (Roll ${s.roll})</li>`;
+    }
 
     let subjectList = "";
-    for (let sub in c.subjects) {
-      subjectList += `<li>${c.subjects[sub].name} – Teacher ID: ${c.subjects[sub].teacherId}</li>`;
+    for (let sub in c.subjects || {}) {
+      subjectList += `<li>${c.subjects[sub].name} – Teacher: ${c.subjects[sub].teacherId}</li>`;
     }
 
     panel.innerHTML = `
       <h3>${c.name} – Class Details</h3>
-      <div><strong>Total Students:</strong> ${Object.keys(c.students || {}).length}</div>
+      <div class="card"><strong>Total Students:</strong> ${Object.keys(c.students || {}).length}</div>
       <h4>Subjects</h4>
       <ul>${subjectList || "<li>No subjects assigned</li>"}</ul>
-      <button onclick="closePanel('classPanel')">Close</button>
+      <h4>Students</h4>
+      <ul>${studentCards || "<li>No students assigned</li>"}</ul>
+      <button class="close-btn" onclick="closePanel('classPanel')">Close</button>
     `;
     panel.classList.add("active-panel");
+  });
+}
+
+function openStudentProfile(uid) {
+  db.ref("users/" + uid).once("value").then(snap => {
+    const s = snap.val();
+    const panel = document.getElementById("studentPanel");
+
+    db.ref("classes/" + s.classId).once("value").then(csnap => {
+      const className = csnap.exists() ? csnap.val().name : "Unknown";
+      panel.innerHTML = `
+        <h3>${s.name} – Student Profile</h3>
+        <p><strong>Roll No:</strong> ${s.roll}</p>
+        <p><strong>Email:</strong> ${s.email}</p>
+        <p><strong>Class:</strong> ${className}</p>
+        <button class="close-btn" onclick="closePanel('studentPanel')">Close</button>
+      `;
+      panel.classList.add("active-panel");
+    });
   });
 }
 
@@ -312,4 +351,4 @@ function toast(msg) {
   setTimeout(() => t.classList.add("show"), 100);
   setTimeout(() => t.classList.remove("show"), 3000);
   setTimeout(() => t.remove(), 3500);
-                                          }
+                                                                                                               }
