@@ -10,12 +10,11 @@
 
 body {
   min-height: 100vh;
-  background: linear-gradient(to right, #f0f4f8, #d9e2ec);
+  background: #F5F7FA;
   color: #1A1F36;
   display: flex;
   flex-direction: column;
   font-size: 16px;
-  overflow-x: hidden;
 }
 
 /* ==========================
@@ -25,19 +24,19 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #1A1F36;
+  background: linear-gradient(90deg, #1A1F36, #2D3348);
   color: #FFF;
   padding: 12px 24px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: all 0.3s ease;
 }
 
 .topbar h3 {
   font-family: 'Merriweather', serif;
   font-weight: 700;
-  font-size: 20px;
 }
 
 .menu-btn {
@@ -50,36 +49,23 @@ body {
   transform: scale(1.1);
 }
 
-.logout-btn {
-  background: linear-gradient(90deg, #FF6B6B, #FFD93D);
-  color: #1A1F36;
-  border-radius: 10px;
-  font-weight: 600;
-  padding: 8px 16px;
-  transition: 0.3s;
-}
-
-.logout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-}
-
 /* ==========================
    SIDEBAR
 ========================== */
 #sidebar {
-  width: 220px;
+  width: 240px;
   background: #1F2432;
   color: #FFF;
   position: fixed;
   top: 60px;
-  left: -220px;
+  left: -240px;
   height: calc(100% - 60px);
   padding: 20px;
   transition: 0.4s;
   overflow-y: auto;
   border-right: 1px solid #2D3348;
   z-index: 99;
+  border-top-right-radius: 12px;
 }
 
 #sidebar.open {
@@ -117,7 +103,7 @@ main {
 }
 
 #sidebar.open ~ main {
-  margin-left: 220px;
+  margin-left: 240px;
 }
 
 /* ==========================
@@ -228,11 +214,11 @@ ul {
 ul li {
   padding: 12px;
   background: #FFF;
-  border-radius: 12px;
-  margin-bottom: 12px;
+  border-radius: 10px;
+  margin-bottom: 8px;
   cursor: pointer;
   transition: 0.3s;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -243,66 +229,82 @@ ul li:hover {
   color: #1A1F36;
 }
 
-ul li button {
-  background: #FF6B6B;
-  color: #FFF;
+li button {
   padding: 6px 12px;
-  border-radius: 8px;
+  background: #1A1F36;
+  color: #FFD93D;
+  border-radius: 6px;
+  border: none;
   font-size: 14px;
 }
 
 /* ==========================
-   TEACHER PROFILE & CLASS PANEL
+   TEACHER / STUDENT / CLASS CARDS
 ========================== */
-#teacherProfile, #classPanel {
-  position: fixed;
-  top: 60px;
-  right: -500px;
-  width: 400px;
-  max-width: 90%;
-  height: calc(100% - 60px);
+.teacher-card, .student-card, .class-card, .approval-card {
+  padding: 15px;
   background: #FFF;
-  padding: 20px;
-  box-shadow: -4px 0 20px rgba(0,0,0,0.2);
-  border-left: 1px solid #DDD;
-  overflow-y: auto;
-  transition: 0.5s;
-  z-index: 1000;
-  border-radius: 12px 0 0 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: 0.3s;
 }
 
-#teacherProfile.active-panel, #classPanel.active-panel {
-  right: 0;
-}
-
-#teacherProfile h3, #classPanel h3 {
-  margin-bottom: 12px;
-}
-
-#teacherProfile button, #classPanel button {
-  margin-top: 12px;
-  background: #FF6B6B;
-  color: #FFF;
+.teacher-card:hover, .student-card:hover, .class-card:hover, .approval-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
 }
 
 /* ==========================
-   TOAST
+   PROFILE PANELS
+========================== */
+.panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  max-width: 500px;
+  background: #FFF;
+  border-radius: 12px;
+  padding: 20px 30px;
+  transform: translate(-50%, -50%) scale(0);
+  transition: 0.3s;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel.active-panel {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.panel button.close-btn {
+  align-self: flex-end;
+  background: #FF6B6B;
+  color: #FFF;
+  font-weight: 600;
+}
+
+/* ==========================
+   TOAST MESSAGE
 ========================== */
 .toast {
   position: fixed;
   bottom: 20px;
-  right: -300px;
-  background: #FF6B6B;
-  color: #FFF;
+  right: 20px;
+  background: #1A1F36;
+  color: #FFD93D;
   padding: 12px 20px;
-  border-radius: 10px;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-  transition: 0.5s;
-  z-index: 2000;
+  border-radius: 8px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 9999;
 }
 
 .toast.show {
-  right: 20px;
+  opacity: 1;
 }
 
 /* ==========================
@@ -317,24 +319,8 @@ ul li button {
    RESPONSIVE
 ========================== */
 @media (max-width: 768px) {
-  #sidebar {
-    left: -220px;
-  }
-  #sidebar.open ~ main {
-    margin-left: 0;
-  }
-  .cards {
-    flex-direction: column;
-  }
-  #teacherProfile, #classPanel {
-    width: 100%;
-    height: 50%;
-    top: auto;
-    bottom: -50%;
-    border-radius: 12px 12px 0 0;
-  }
-  #teacherProfile.active-panel, #classPanel.active-panel {
-    bottom: 0;
-    right: 0;
-  }
+  #sidebar { left: -240px; }
+  #sidebar.open ~ main { margin-left: 0; }
+  .cards { flex-direction: column; }
+  .panel { width: 95%; }
 }
