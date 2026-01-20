@@ -1,6 +1,3 @@
-/***********************
- 🔥 FIREBASE CONFIG
-************************/
 const firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
@@ -12,206 +9,150 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.database();
+const auth = firebase.auth();
 
-/***********************
- 🔐 AUTH CHECK
-************************/
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "login.html";
-  } else {
-    loadDashboard();
-    loadApprovals();
-    loadClasses();
-    loadTeachers();
-    loadStudents();
-    loadSettings();
-  }
+/* AUTH */
+auth.onAuthStateChanged(u => {
+  if (!u) location.href = "login.html";
+  loadDashboard();
+  loadClasses();
+  loadTeachers();
+  loadStudents();
+  loadApprovals();
 });
 
-/***********************
- 🚪 LOGOUT
-************************/
-function logout() {
-  auth.signOut().then(() => {
-    window.location.href = "login.html";
-  });
+/* UI */
+function toggleSidebar() {
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
+}
+function closeSidebar() {
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+}
+function openSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  closeSidebar();
 }
 
-/***********************
- 📊 DASHBOARD COUNTS
-************************/
+/* DASHBOARD */
 function loadDashboard() {
-  db.ref("classes").on("value", snap => {
-    document.getElementById("classCount").innerText = snap.numChildren();
-  });
-
-  db.ref("users").on("value", snap => {
-    let teachers = 0, students = 0;
-    snap.forEach(u => {
-      if (u.val().approved) {
-        if (u.val().role === "teacher") teachers++;
-        if (u.val().role === "student") students++;
+  db.ref("classes").on("value", s => classCount.innerText = s.numChildren());
+  db.ref("users").on("value", s => {
+    let t=0, st=0;
+    s.forEach(u=>{
+      if(u.val().approved){
+        if(u.val().role==="teacher") t++;
+        if(u.val().role==="student") st++;
       }
     });
-    document.getElementById("teacherCount").innerText = teachers;
-    document.getElementById("studentCount").innerText = students;
+    teacherCount.innerText=t;
+    studentCount.innerText=st;
   });
 }
 
-/***********************
- 🟡 APPROVALS
-************************/
-function loadApprovals() {
-  const list = document.getElementById("pendingList");
-  if (!list) return;
-
-  db.ref("users").on("value", snap => {
-    list.innerHTML = "";
-    snap.forEach(child => {
-      const u = child.val();
-      if (u.approved === false) {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>${u.name}</strong><br>
-          <small>${u.email}</small><br>
-          <button onclick="approveUser('${child.key}')">✅ Approve</button>
-          <button onclick="rejectUser('${child.key}')">❌ Reject</button>
-        `;
-        list.appendChild(li);
-      }
+/* CLASSES */
+function loadClasses(){
+  db.ref("classes").on("value", snap=>{
+    classList.innerHTML="";
+    snap.forEach(c=>{
+      const card=document.createElement("div");
+      card.className="card";
+      card.innerHTML=`<h3>${c.val().name}</h3>`;
+      card.onclick=()=>openClass(c.key,c.val());
+      classList.appendChild(card);
     });
-
-    if (list.innerHTML === "") {
-      list.innerHTML = "<p class='muted'>No pending approvals 🎉</p>";
-    }
   });
 }
 
-function approveUser(uid) {
-  db.ref("users/" + uid).update({ approved: true }).then(() => {
-    alert("User approved ✅");
-  });
+function openClass(id,data){
+  const panel=document.getElementById("classDetails");
+  panel.classList.remove("hidden");
+  panel.innerHTML=`<h3>${data.name}</h3>
+  <p>Subjects:</p>
+  <ul>${Object.values(data.subjects||{}).map(s=>`<li>${s.name}</li>`).join("")}</ul>
+  <p onclick="openStudents('${id}')"><b>Students: ${Object.keys(data.students||{}).length}</b></p>`;
 }
 
-function rejectUser(uid) {
-  if (!confirm("Reject this user?")) return;
-  db.ref("users/" + uid).remove().then(() => {
-    alert("User rejected ❌");
-  });
-}
-
-/***********************
- 🏫 CLASSES
-************************/
-function loadClasses() {
-  const list = document.getElementById("classList");
-  const select = document.getElementById("studentClass");
-
-  db.ref("classes").on("value", snap => {
-    if (list) list.innerHTML = "";
-    if (select) select.innerHTML = "";
-
-    snap.forEach(c => {
-      if (list) {
-        const li = document.createElement("li");
-        li.textContent = c.val().name;
-        list.appendChild(li);
-      }
-
-      if (select) {
-        const opt = document.createElement("option");
-        opt.value = c.key;
-        opt.textContent = c.val().name;
-        select.appendChild(opt);
+/* TEACHERS */
+function loadTeachers(){
+  db.ref("users").on("value",snap=>{
+    teacherList.innerHTML="";
+    snap.forEach(u=>{
+      if(u.val().role==="teacher" && u.val().approved){
+        const card=document.createElement("div");
+        card.className="card";
+        card.innerHTML=`<h3>${u.val().name}</h3>`;
+        card.onclick=()=>openTeacher(u.key,u.val());
+        teacherList.appendChild(card);
       }
     });
   });
 }
 
-function addClass() {
-  const name = document.getElementById("className").value.trim();
-  if (!name) return alert("Enter class name");
-
-  const id = name.toLowerCase().replace(/\s+/g, "");
-  db.ref("classes/" + id).set({ name }).then(() => {
-    alert("Class added successfully 🎉");
-    document.getElementById("className").value = "";
-  });
+function openTeacher(id,data){
+  teacherProfile.classList.remove("hidden");
+  teacherProfile.innerHTML=`
+    <h3>${data.name}</h3>
+    <p>${data.email}</p>
+    <p>Department: ${data.department||"-"}</p>`;
 }
 
-/***********************
- 👨‍🏫 TEACHERS
-************************/
-function loadTeachers() {
-  const list = document.getElementById("teacherList");
-  if (!list) return;
-
-  db.ref("users").on("value", snap => {
-    list.innerHTML = "";
-    snap.forEach(u => {
-      if (u.val().role === "teacher" && u.val().approved) {
-        const li = document.createElement("li");
-        li.innerHTML = `<strong>${u.val().name}</strong><br>${u.val().email}`;
-        list.appendChild(li);
+/* STUDENTS */
+function loadStudents(){
+  db.ref("users").on("value",snap=>{
+    studentList.innerHTML="";
+    snap.forEach(u=>{
+      if(u.val().role==="student" && u.val().approved){
+        const card=document.createElement("div");
+        card.className="card";
+        card.innerHTML=`<h3>${u.val().name}</h3>`;
+        card.onclick=()=>openStudent(u.val());
+        studentList.appendChild(card);
       }
     });
   });
 }
 
-/***********************
- 🎓 STUDENTS
-************************/
-function loadStudents() {
-  const list = document.getElementById("studentList");
-  if (!list) return;
+function openStudents(classId){
+  openSection("students");
+}
 
-  db.ref("users").on("value", snap => {
-    list.innerHTML = "";
-    snap.forEach(u => {
-      if (u.val().role === "student" && u.val().approved) {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>${u.val().name}</strong>
-          (Roll ${u.val().roll}) – ${u.val().email}
-        `;
-        list.appendChild(li);
+function openStudent(data){
+  studentProfile.classList.remove("hidden");
+  studentProfile.innerHTML=`
+    <h3>${data.name}</h3>
+    <p>Email: ${data.email}</p>
+    <p>Roll: ${data.roll}</p>
+    <p>Class: ${data.classId}</p>`;
+}
+
+/* APPROVALS */
+function loadApprovals(){
+  db.ref("users").on("value",snap=>{
+    pendingList.innerHTML="";
+    snap.forEach(u=>{
+      if(!u.val().approved){
+        const card=document.createElement("div");
+        card.className="card";
+        card.innerHTML=`
+          <h3>${u.val().name}</h3>
+          <button onclick="approveUser('${u.key}')">Approve</button>`;
+        pendingList.appendChild(card);
       }
     });
   });
 }
 
-/***********************
- ⚙️ SETTINGS
-************************/
-function loadSettings() {
-  const input = document.getElementById("minAttendance");
-  if (!input) return;
-
-  db.ref("settings/minAttendance").once("value", snap => {
-    if (snap.exists()) input.value = snap.val();
-  });
+function approveUser(id){
+  db.ref("users/"+id).update({approved:true});
 }
 
-function saveSettings() {
-  const val = document.getElementById("minAttendance").value;
-  if (!val) return alert("Enter minimum attendance");
-
-  db.ref("settings").update({ minAttendance: Number(val) }).then(() => {
-    alert("Settings saved ✅");
+/* SETTINGS */
+function saveSettings(){
+  db.ref("settings").update({
+    minAttendance: Number(minAttendance.value)
   });
 }
-
-/***********************
- 📱 SIDEBAR UX FIX
-************************/
-document.addEventListener("click", e => {
-  const sidebar = document.getElementById("sidebar");
-  const menuBtn = document.querySelector(".menu-btn");
-
-  if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-    sidebar.classList.remove("open");
-  }
-});
