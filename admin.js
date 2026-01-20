@@ -12,7 +12,6 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.database();
 
@@ -52,7 +51,7 @@ function loadDashboard() {
   db.ref("users").on("value", snap => {
     let teachers = 0, students = 0;
     snap.forEach(u => {
-      if (u.val().approved === true) {
+      if (u.val().approved) {
         if (u.val().role === "teacher") teachers++;
         if (u.val().role === "student") students++;
       }
@@ -63,30 +62,24 @@ function loadDashboard() {
 }
 
 /***********************
- 🟡 APPROVAL DASHBOARD
+ 🟡 APPROVALS
 ************************/
 function loadApprovals() {
   const list = document.getElementById("pendingList");
-  list.innerHTML = "";
+  if (!list) return;
 
   db.ref("users").on("value", snap => {
     list.innerHTML = "";
     snap.forEach(child => {
       const u = child.val();
-      const uid = child.key;
-
       if (u.approved === false) {
         const li = document.createElement("li");
-        li.className = "approval-card";
-
         li.innerHTML = `
           <strong>${u.name}</strong><br>
           <small>${u.email}</small><br>
-          <span class="badge">${u.role.toUpperCase()}</span><br><br>
-          <button class="approve-btn" onclick="approveUser('${uid}')">✅ Approve</button>
-          <button class="reject-btn" onclick="rejectUser('${uid}')">❌ Reject</button>
+          <button onclick="approveUser('${child.key}')">✅ Approve</button>
+          <button onclick="rejectUser('${child.key}')">❌ Reject</button>
         `;
-
         list.appendChild(li);
       }
     });
@@ -98,18 +91,15 @@ function loadApprovals() {
 }
 
 function approveUser(uid) {
-  db.ref("users/" + uid).update({
-    approved: true
-  }).then(() => {
-    alert("User approved successfully ✅");
+  db.ref("users/" + uid).update({ approved: true }).then(() => {
+    alert("User approved ✅");
   });
 }
 
 function rejectUser(uid) {
-  if (!confirm("Are you sure you want to reject this user?")) return;
-
+  if (!confirm("Reject this user?")) return;
   db.ref("users/" + uid).remove().then(() => {
-    alert("User rejected and removed ❌");
+    alert("User rejected ❌");
   });
 }
 
@@ -119,14 +109,17 @@ function rejectUser(uid) {
 function loadClasses() {
   const list = document.getElementById("classList");
   const select = document.getElementById("studentClass");
-  if (select) select.innerHTML = "";
 
   db.ref("classes").on("value", snap => {
-    list.innerHTML = "";
+    if (list) list.innerHTML = "";
+    if (select) select.innerHTML = "";
+
     snap.forEach(c => {
-      const li = document.createElement("li");
-      li.textContent = c.val().name;
-      list.appendChild(li);
+      if (list) {
+        const li = document.createElement("li");
+        li.textContent = c.val().name;
+        list.appendChild(li);
+      }
 
       if (select) {
         const opt = document.createElement("option");
@@ -143,9 +136,10 @@ function addClass() {
   if (!name) return alert("Enter class name");
 
   const id = name.toLowerCase().replace(/\s+/g, "");
-  db.ref("classes/" + id).set({ name });
-
-  document.getElementById("className").value = "";
+  db.ref("classes/" + id).set({ name }).then(() => {
+    alert("Class added successfully 🎉");
+    document.getElementById("className").value = "";
+  });
 }
 
 /***********************
@@ -153,14 +147,14 @@ function addClass() {
 ************************/
 function loadTeachers() {
   const list = document.getElementById("teacherList");
-  list.innerHTML = "";
+  if (!list) return;
 
   db.ref("users").on("value", snap => {
     list.innerHTML = "";
     snap.forEach(u => {
-      if (u.val().role === "teacher" && u.val().approved === true) {
+      if (u.val().role === "teacher" && u.val().approved) {
         const li = document.createElement("li");
-        li.innerHTML = `<strong>${u.val().name}</strong> – ${u.val().email}`;
+        li.innerHTML = `<strong>${u.val().name}</strong><br>${u.val().email}`;
         list.appendChild(li);
       }
     });
@@ -172,12 +166,12 @@ function loadTeachers() {
 ************************/
 function loadStudents() {
   const list = document.getElementById("studentList");
-  list.innerHTML = "";
+  if (!list) return;
 
   db.ref("users").on("value", snap => {
     list.innerHTML = "";
     snap.forEach(u => {
-      if (u.val().role === "student" && u.val().approved === true) {
+      if (u.val().role === "student" && u.val().approved) {
         const li = document.createElement("li");
         li.innerHTML = `
           <strong>${u.val().name}</strong>
@@ -193,10 +187,11 @@ function loadStudents() {
  ⚙️ SETTINGS
 ************************/
 function loadSettings() {
+  const input = document.getElementById("minAttendance");
+  if (!input) return;
+
   db.ref("settings/minAttendance").once("value", snap => {
-    if (snap.exists()) {
-      document.getElementById("minAttendance").value = snap.val();
-    }
+    if (snap.exists()) input.value = snap.val();
   });
 }
 
@@ -204,9 +199,19 @@ function saveSettings() {
   const val = document.getElementById("minAttendance").value;
   if (!val) return alert("Enter minimum attendance");
 
-  db.ref("settings").update({
-    minAttendance: Number(val)
-  }).then(() => {
+  db.ref("settings").update({ minAttendance: Number(val) }).then(() => {
     alert("Settings saved ✅");
   });
 }
+
+/***********************
+ 📱 SIDEBAR UX FIX
+************************/
+document.addEventListener("click", e => {
+  const sidebar = document.getElementById("sidebar");
+  const menuBtn = document.querySelector(".menu-btn");
+
+  if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+    sidebar.classList.remove("open");
+  }
+});
