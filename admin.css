@@ -10,12 +10,12 @@
 
 body {
   min-height: 100vh;
-  background: #F0F2F5;
+  background: #F0F2F7;
   color: #1A1F36;
   display: flex;
   flex-direction: column;
   font-size: 16px;
-  overflow-x: hidden;
+  transition: background 0.3s;
 }
 
 /* ==========================
@@ -25,56 +25,48 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #1F2937;
+  background: linear-gradient(90deg,#1A1F36,#2C3E50);
   color: #FFF;
-  padding: 12px 24px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  padding: 14px 30px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
   position: sticky;
   top: 0;
   z-index: 100;
+  border-bottom: 1px solid #FFD93D;
 }
 
 .topbar h3 {
   font-family: 'Merriweather', serif;
   font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 24px;
 }
 
 .menu-btn {
-  font-size: 24px;
+  font-size: 26px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: transform 0.3s;
 }
 
 .menu-btn:hover {
   transform: scale(1.1);
 }
 
-.logout-btn {
-  background: linear-gradient(90deg, #FF6B6B, #FFD93D);
-  color: #1A1F36;
-  font-weight: 600;
-  border-radius: 8px;
-  padding: 8px 16px;
-}
-
 /* ==========================
    SIDEBAR
 ========================== */
 #sidebar {
-  width: 240px;
-  background: #111827;
+  width: 250px;
+  background: #1F2432;
   color: #FFF;
   position: fixed;
   top: 60px;
-  left: -240px;
+  left: -250px;
   height: calc(100% - 60px);
-  padding: 20px;
-  transition: 0.4s;
+  padding: 25px 20px;
+  transition: left 0.4s;
   overflow-y: auto;
-  border-right: 1px solid #2D3348;
+  border-right: 2px solid #FFD93D;
   z-index: 99;
-  border-radius: 0 12px 12px 0;
 }
 
 #sidebar.open {
@@ -82,7 +74,7 @@ body {
 }
 
 #sidebar h3 {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   font-family: 'Merriweather', serif;
 }
 
@@ -90,16 +82,17 @@ body {
   display: block;
   color: #FFF;
   text-decoration: none;
-  padding: 12px 10px;
-  border-radius: 8px;
+  padding: 14px 12px;
+  border-radius: 10px;
   margin-bottom: 10px;
-  transition: 0.3s;
+  transition: all 0.3s;
   font-weight: 500;
 }
 
 #sidebar a:hover {
-  background: #2563EB;
-  color: #FFF;
+  background: #2C3E50;
+  color: #FFD93D;
+  transform: translateX(5px);
 }
 
 /* ==========================
@@ -108,12 +101,12 @@ body {
 main {
   flex: 1;
   margin-left: 0;
-  padding: 20px 30px;
-  transition: 0.4s;
+  padding: 25px 35px;
+  transition: margin-left 0.4s;
 }
 
 #sidebar.open ~ main {
-  margin-left: 240px;
+  margin-left: 250px;
 }
 
 /* ==========================
@@ -131,12 +124,12 @@ main {
 .section h2 {
   font-family: 'Merriweather', serif;
   font-size: 28px;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
   color: #1A1F36;
 }
 
 .muted {
-  color: #6B7280;
+  color: #6C7080;
   margin-bottom: 20px;
 }
 
@@ -146,75 +139,75 @@ main {
 .cards {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 25px;
 }
 
 .card {
-  flex: 1 1 200px;
+  flex: 1 1 220px;
   background: #FFF;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  border-radius: 15px;
+  padding: 22px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
   cursor: pointer;
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 36px rgba(0,0,0,0.2);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
 
 .card h2 {
-  font-size: 32px;
-  margin-bottom: 5px;
+  font-size: 36px;
+  margin-bottom: 8px;
   color: #1A1F36;
 }
 
 .card p {
-  color: #6B7280;
-  font-weight: 500;
+  color: #6C7080;
+  font-size: 14px;
 }
 
 /* ==========================
    INPUTS & BUTTONS
 ========================== */
 input, select {
-  padding: 12px;
+  padding: 14px;
   border-radius: 12px;
-  border: 1px solid #D1D5DB;
+  border: 1px solid #E2E5ED;
   outline: none;
   width: 100%;
   font-size: 15px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   transition: 0.3s;
 }
 
 input:focus, select:focus {
-  border-color: #3B82F6;
-  box-shadow: 0 0 6px rgba(59,130,246,0.4);
+  border-color: #FFD93D;
+  box-shadow: 0 0 6px rgba(255,217,61,0.5);
 }
 
 button {
-  padding: 12px 20px;
+  padding: 14px 22px;
   border: none;
   border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  transition: 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
 button.primary {
-  background: linear-gradient(90deg, #2563EB, #3B82F6);
-  color: #FFF;
+  background: linear-gradient(90deg, #FFD93D, #FF6B6B);
+  color: #1A1F36;
 }
 
 /* ==========================
-   LISTS
+   LISTS & CARDS
 ========================== */
 ul {
   list-style: none;
@@ -223,126 +216,97 @@ ul {
 }
 
 ul li {
-  padding: 14px 16px;
+  padding: 12px;
   background: #FFF;
   border-radius: 12px;
   margin-bottom: 10px;
   cursor: pointer;
   transition: 0.3s;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 5px 18px rgba(0,0,0,0.08);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 ul li:hover {
-  background: #2563EB;
-  color: #FFF;
-}
-
-/* Class & Student Cards */
-.class-card button,
-.teacher-card button,
-.student-card button {
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: #10B981;
-  color: #FFF;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.class-card button:hover,
-.teacher-card button:hover,
-.student-card button:hover {
-  background: #059669;
+  background: #FFD93D;
+  color: #1A1F36;
   transform: translateY(-2px);
 }
 
+li button {
+  background: #1A1F36;
+  color: #FFD93D;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
 /* ==========================
-   DETAILS PANELS
+   DETAIL PANELS
 ========================== */
-.active-panel {
+.detail-panel {
   position: fixed;
-  top: 80px;
-  right: 0;
-  width: 350px;
-  max-width: 95%;
-  height: calc(100% - 100px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
   background: #FFF;
-  box-shadow: -4px 0 24px rgba(0,0,0,0.15);
-  padding: 20px;
-  overflow-y: auto;
-  z-index: 200;
-  animation: slideIn 0.4s ease-out;
-  border-radius: 12px 0 0 12px;
+  padding: 25px 30px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+  z-index: 500;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
 }
 
-.active-panel h3 {
-  margin-bottom: 12px;
-}
-
-.active-panel button {
-  margin-top: 16px;
-  background: #EF4444;
+.active-panel .detail-panel {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
 }
 
 /* ==========================
-   TOAST MESSAGE
+   TOAST
 ========================== */
 .toast {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: #2563EB;
-  color: #FFF;
-  padding: 12px 20px;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: #1A1F36;
+  color: #FFD93D;
+  padding: 14px 20px;
   border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.5s;
-  z-index: 500;
-  font-weight: 500;
+  z-index: 1000;
+  transition: all 0.5s ease;
 }
 
 .toast.show {
+  transform: translateX(-50%) translateY(0);
   opacity: 1;
-  transform: translateY(0);
 }
 
 /* ==========================
    ANIMATIONS
 ========================== */
 @keyframes fadeIn {
-  0% {opacity: 0; transform: translateY(10px);}
+  0% {opacity: 0; transform: translateY(15px);}
   100% {opacity: 1; transform: translateY(0);}
-}
-
-@keyframes slideIn {
-  0% {transform: translateX(100%);}
-  100% {transform: translateX(0);}
 }
 
 /* ==========================
    RESPONSIVE
 ========================== */
-@media (max-width: 768px) {
-  #sidebar {
-    left: -240px;
-  }
-  #sidebar.open ~ main {
-    margin-left: 0;
-  }
-  .cards {
-    flex-direction: column;
-  }
-  .active-panel {
-    width: 100%;
-    height: 80%;
-    top: auto;
-    bottom: 0;
-    border-radius: 12px 12px 0 0;
-  }
+@media (max-width: 1024px) {
+  #sidebar { width: 200px; left: -200px; }
+  #sidebar.open ~ main { margin-left: 200px; }
 }
+
+@media (max-width: 768px) {
+  #sidebar { width: 180px; left: -180px; }
+  #sidebar.open ~ main { margin-left: 0; }
+  .cards { flex-direction: column; }
+   }
