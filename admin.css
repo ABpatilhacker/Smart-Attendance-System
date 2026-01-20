@@ -1,273 +1,107 @@
-/* ==========================
-   GLOBAL RESET & FONT
-========================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #F4F7FB, #EAF0F8);
-  color: #1A1F36;
-  display: flex;
-  flex-direction: column;
-  font-size: 16px;
+  background: #f4f7fb;
+  color: #1f2937;
 }
 
-/* ==========================
-   TOPBAR
-========================== */
 .topbar {
+  height: 60px;
+  background: #1e3a8a;
+  color: #fff;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: linear-gradient(90deg, #1A3D7C, #244C9A);
-  color: #FFF;
-  padding: 14px 26px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
-  position: sticky;
-  top: 0;
+  padding: 0 16px;
+  gap: 16px;
+  position: fixed;
+  width: 100%;
   z-index: 100;
 }
 
-.topbar h3 {
-  font-family: 'Merriweather', serif;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.menu-btn {
-  font-size: 24px;
+.menu-btn, .logout-btn {
+  background: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: 0.3s;
 }
 
-.menu-btn:hover {
-  transform: scale(1.15);
-}
-
-/* ==========================
-   SIDEBAR
-========================== */
 #sidebar {
-  width: 220px;
-  background: linear-gradient(180deg, #1F2F5C, #1A2445);
-  color: #FFF;
   position: fixed;
-  top: 62px;
-  left: -220px;
-  height: calc(100% - 62px);
-  padding: 22px 18px;
-  transition: 0.4s;
-  overflow-y: auto;
-  border-right: 1px solid #2F3B66;
+  top: 60px;
+  left: -240px;
+  width: 240px;
+  height: calc(100% - 60px);
+  background: #1e293b;
+  padding: 20px;
+  transition: 0.3s;
   z-index: 99;
+}
+
+#sidebar a {
+  display: block;
+  color: #fff;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#sidebar a:hover {
+  background: #334155;
 }
 
 #sidebar.open {
   left: 0;
 }
 
-#sidebar h3 {
-  margin-bottom: 22px;
-  font-family: 'Merriweather', serif;
-  font-size: 20px;
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  display: none;
+  z-index: 98;
 }
 
-#sidebar a {
+#overlay.show {
   display: block;
-  color: #EAF0FF;
-  text-decoration: none;
-  padding: 12px 14px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  transition: 0.3s;
-  font-weight: 500;
 }
 
-#sidebar a:hover {
-  background: rgba(255,255,255,0.12);
-  color: #FFD93D;
-}
-
-/* ==========================
-   MAIN SECTION
-========================== */
 main {
-  flex: 1;
-  margin-left: 0;
-  padding: 26px 32px;
-  transition: 0.4s;
+  padding: 80px 20px;
 }
 
-#sidebar.open ~ main {
-  margin-left: 220px;
-}
-
-/* ==========================
-   SECTIONS
-========================== */
 .section {
   display: none;
-  animation: fadeIn 0.5s ease-in-out;
 }
 
 .section.active {
   display: block;
 }
 
-.section h2 {
-  font-family: 'Merriweather', serif;
-  font-size: 30px;
-  margin-bottom: 10px;
-  color: #1A3D7C;
+.cards, .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
 
-.muted {
-  color: #5E6B8A;
-  margin-bottom: 22px;
-}
-
-/* ==========================
-   CARDS (DASHBOARD)
-========================== */
-.cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 22px;
-}
-
-.card {
-  flex: 1 1 220px;
-  background: linear-gradient(145deg, #FFFFFF, #F3F6FB);
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.12);
+.card, .panel {
+  background: #fff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
   cursor: pointer;
-  transition: transform 0.3s, box-shadow 0.3s;
-  border-left: 6px solid #1A3D7C;
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 36px rgba(0,0,0,0.2);
+.panel {
+  margin-top: 20px;
 }
 
-.card h2 {
-  font-size: 34px;
-  margin-bottom: 6px;
-  color: #1A3D7C;
+.hidden {
+  display: none;
 }
-
-.card p {
-  color: #5E6B8A;
-  font-weight: 500;
-}
-
-/* ==========================
-   INPUTS & BUTTONS
-========================== */
-input, select {
-  padding: 13px 14px;
-  border-radius: 12px;
-  border: 1px solid #D6DEEC;
-  outline: none;
-  width: 100%;
-  font-size: 15px;
-  margin-bottom: 14px;
-  transition: 0.3s;
-  background: #FFF;
-}
-
-input:focus, select:focus {
-  border-color: #1A3D7C;
-  box-shadow: 0 0 6px rgba(26,61,124,0.4);
-}
-
-button {
-  padding: 12px 22px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s;
-}
-
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.2);
-}
-
-button.primary {
-  background: linear-gradient(90deg, #1A3D7C, #3F6FD1);
-  color: #FFF;
-}
-
-/* ==========================
-   LISTS
-========================== */
-ul {
-  list-style: none;
-  padding: 0;
-  margin-top: 14px;
-}
-
-ul li {
-  padding: 12px 14px;
-  background: linear-gradient(145deg, #FFFFFF, #F1F5FB);
-  border-radius: 12px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-  border-left: 4px solid #3F6FD1;
-}
-
-ul li:hover {
-  background: #EAF0FF;
-  color: #1A3D7C;
-}
-
-/* ==========================
-   TEACHER PROFILE BOX
-========================== */
-#teacherProfile {
-  background: linear-gradient(145deg, #FFFFFF, #F4F7FC);
-  padding: 18px 22px;
-  border-radius: 16px;
-  margin-top: 18px;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.14);
-  border-left: 6px solid #FFD93D;
-}
-
-/* ==========================
-   ANIMATIONS
-========================== */
-@keyframes fadeIn {
-  0% {opacity: 0; transform: translateY(12px);}
-  100% {opacity: 1; transform: translateY(0);}
-}
-
-/* ==========================
-   RESPONSIVE
-========================== */
-@media (max-width: 768px) {
-  #sidebar {
-    left: -220px;
-  }
-
-  #sidebar.open ~ main {
-    margin-left: 0;
-  }
-
-  main {
-    padding: 20px 18px;
-  }
-
-  .cards {
-    flex-direction: column;
-  }
-                               }
