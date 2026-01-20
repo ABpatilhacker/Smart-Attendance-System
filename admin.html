@@ -1,104 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard</title>
-<link rel="stylesheet" href="admin.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Admin Dashboard | Smart Attendance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- CSS -->
+  <link rel="stylesheet" href="admin.css">
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <h3>Admin Dashboard</h3>
-  <div class="topbar-right">
-    <span class="menu-btn" onclick="toggleSidebar()">☰</span>
-    <button class="primary" onclick="logout()">Logout</button>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+    <h3>Smart Attendance – Admin Panel</h3>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
-</div>
 
-<!-- SIDEBAR -->
-<div id="sidebar">
-  <h3>Navigation</h3>
-  <a href="#" onclick="showSection('dashboard')">Dashboard</a>
-  <a href="#" onclick="showSection('approvals')">Approvals</a>
-  <a href="#" onclick="showSection('classes')">Classes</a>
-  <a href="#" onclick="showSection('teachers')">Teachers</a>
-  <a href="#" onclick="showSection('students')">Add Student</a>
-  <a href="#" onclick="showSection('settings')">Settings</a>
-</div>
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <h3>Navigation</h3>
+    <a href="#" onclick="openSection('dashboard')">📊 Dashboard</a>
+    <a href="#" onclick="openSection('classes')">🏫 Classes</a>
+    <a href="#" onclick="openSection('teachers')">👨‍🏫 Teachers</a>
+    <a href="#" onclick="openSection('students')">🎓 Students</a>
+    <a href="#" onclick="openSection('settings')">⚙️ Settings</a>
+    <a href="#" onclick="openSection('approvals')">🟡 Approvals</a>
+  </div>
 
-<!-- MAIN SECTION -->
-<main onclick="closeSidebarOnClickOutside(event)">
-  <!-- DASHBOARD -->
-  <div id="dashboard" class="section active">
-    <h2>Dashboard Overview</h2>
-    <div class="cards">
-      <div class="card">
-        <h2 id="classCount">0</h2>
-        <p>Classes</p>
+  <!-- MAIN CONTENT -->
+  <main onclick="closeSidebar()">
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="section active">
+      <h2>Dashboard Overview</h2>
+      <div class="cards">
+        <div class="card" onclick="openSection('classes')">
+          <h2 id="classCount">0</h2>
+          <p>Total Classes</p>
+        </div>
+        <div class="card" onclick="openSection('teachers')">
+          <h2 id="teacherCount">0</h2>
+          <p>Total Teachers</p>
+        </div>
+        <div class="card" onclick="openSection('students')">
+          <h2 id="studentCount">0</h2>
+          <p>Total Students</p>
+        </div>
+        <div class="card" onclick="openSection('settings')">
+          <h2>⚙️</h2>
+          <p>Settings</p>
+        </div>
       </div>
-      <div class="card">
-        <h2 id="teacherCount">0</h2>
-        <p>Teachers</p>
-      </div>
-      <div class="card">
-        <h2 id="studentCount">0</h2>
-        <p>Students</p>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <!-- APPROVALS -->
-  <div id="approvals" class="section">
-    <h2>Pending Approvals</h2>
-    <ul id="pendingList"></ul>
-  </div>
+    <!-- CLASSES -->
+    <section id="classes" class="section">
+      <h2>Classes</h2>
+      <input type="text" id="className" placeholder="Class Name">
+      <button class="primary" onclick="addClass()">Add Class</button>
+      <ul id="classList"></ul>
+    </section>
 
-  <!-- CLASSES -->
-  <div id="classes" class="section">
-    <h2>Classes</h2>
-    <input type="text" id="className" placeholder="New Class Name">
-    <button class="primary" onclick="addClass()">Add Class</button>
-    <ul id="classList"></ul>
-  </div>
+    <!-- TEACHERS -->
+    <section id="teachers" class="section">
+      <h2>Teachers</h2>
+      <input type="text" id="teacherName" placeholder="Teacher Name">
+      <input type="email" id="teacherEmail" placeholder="Teacher Email">
+      <button class="primary" onclick="addTeacher()">Add Teacher</button>
+      <ul id="teacherList"></ul>
+      <div id="teacherProfile" class="panel"></div>
+    </section>
 
-  <!-- TEACHERS -->
-  <div id="teachers" class="section">
-    <h2>Teachers</h2>
-    <input type="text" id="teacherName" placeholder="Teacher Name">
-    <input type="email" id="teacherEmail" placeholder="Teacher Email">
-    <button class="primary" onclick="addTeacher()">Add Teacher</button>
-    <ul id="teacherList"></ul>
-  </div>
+    <!-- STUDENTS -->
+    <section id="students" class="section">
+      <h2>Students</h2>
+      <input type="text" id="studentName" placeholder="Student Name">
+      <input type="number" id="studentRoll" placeholder="Roll Number">
+      <input type="email" id="studentEmail" placeholder="Student Email">
+      <select id="studentClass"></select>
+      <button class="primary" onclick="addStudent()">Add Student</button>
+    </section>
 
-  <!-- STUDENTS -->
-  <div id="students" class="section">
-    <h2>Add Student</h2>
-    <input type="text" id="studentName" placeholder="Student Name">
-    <input type="text" id="studentRoll" placeholder="Roll Number">
-    <input type="email" id="studentEmail" placeholder="Student Email">
-    <select id="studentClass"></select>
-    <button class="primary" onclick="addStudent()">Add Student</button>
-  </div>
+    <!-- SETTINGS -->
+    <section id="settings" class="section">
+      <h2>Settings</h2>
+      <label>Minimum Attendance (%)</label>
+      <input type="number" id="minAttendance" placeholder="e.g. 75">
+      <button class="primary" onclick="saveSettings()">Save Settings</button>
+    </section>
 
-  <!-- SETTINGS -->
-  <div id="settings" class="section">
-    <h2>Settings</h2>
-    <input type="number" id="minAttendance" placeholder="Minimum Attendance (%)">
-    <button class="primary" onclick="saveSettings()">Save Settings</button>
-  </div>
-</main>
+    <!-- APPROVALS -->
+    <section id="approvals" class="section">
+      <h2>Pending Approvals</h2>
+      <ul id="pendingList"></ul>
+    </section>
 
-<!-- DETAILS PANELS -->
-<div id="teacherProfile" class="details-panel"></div>
-<div id="classPanel" class="details-panel"></div>
-<div id="studentPanel" class="details-panel"></div>
+    <!-- DETAILS PANELS -->
+    <div id="teacherProfile" class="panel"></div>
+    <div id="classPanel" class="panel"></div>
+    <div id="studentProfilePanel" class="panel"></div>
+  </main>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
-<script src="admin.js"></script>
+  <script src="admin.js"></script>
+  <script>
+    function toggleSidebar(){document.getElementById("sidebar").classList.toggle("open")}
+    function closeSidebar(){document.getElementById("sidebar").classList.remove("open")}
+    function openSection(id){
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      closeSidebar();
+    }
+  </script>
 </body>
-</html>
+    </html>
