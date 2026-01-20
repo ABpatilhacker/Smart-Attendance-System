@@ -5,7 +5,7 @@
   <title>Admin Dashboard | Smart Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Google Font -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- CSS -->
@@ -16,7 +16,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
-
 <body>
 
   <!-- TOPBAR -->
@@ -34,8 +33,8 @@
     <a href="#" onclick="openSection('classes')">🏫 Classes</a>
     <a href="#" onclick="openSection('teachers')">👨‍🏫 Teachers</a>
     <a href="#" onclick="openSection('students')">🎓 Students</a>
-    <a href="#" onclick="openSection('approvals')">🟡 Approvals</a>
     <a href="#" onclick="openSection('settings')">⚙️ Settings</a>
+    <a href="#" onclick="openSection('approvals')">🟡 Approvals</a>
   </div>
 
   <!-- MAIN CONTENT -->
@@ -44,7 +43,7 @@
     <!-- DASHBOARD -->
     <section id="dashboard" class="section active">
       <h2>Dashboard Overview</h2>
-      <p class="muted">Manage teachers, students, classes and attendance from one central dashboard.</p>
+      <p class="muted">Manage teachers, students, classes, and attendance settings from one control panel.</p>
       <div class="cards">
         <div class="card" onclick="openSection('classes')">
           <h2 id="classCount">0</h2>
@@ -58,11 +57,13 @@
           <h2 id="studentCount">0</h2>
           <p>Total Students</p>
         </div>
-        <div class="card" onclick="openSection('approvals')">
-          <h2>🟡</h2>
-          <p>Pending Approvals</p>
-        </div>
       </div>
+    </section>
+
+    <!-- APPROVALS -->
+    <section id="approvals" class="section">
+      <h2>Pending Approvals</h2>
+      <ul id="pendingList"></ul>
     </section>
 
     <!-- CLASSES -->
@@ -73,6 +74,9 @@
       <ul id="classList"></ul>
     </section>
 
+    <!-- CLASS PANEL -->
+    <section id="classPanel" class="panel"></section>
+
     <!-- TEACHERS -->
     <section id="teachers" class="section">
       <h2>Teachers</h2>
@@ -80,26 +84,23 @@
       <input type="email" id="teacherEmail" placeholder="Teacher Email">
       <button class="primary" onclick="addTeacher()">➕ Add Teacher</button>
       <ul id="teacherList"></ul>
-      <div id="teacherProfile" class="detail-panel"></div>
     </section>
+
+    <!-- TEACHER PROFILE PANEL -->
+    <section id="teacherProfile" class="panel"></section>
 
     <!-- STUDENTS -->
     <section id="students" class="section">
-      <h2>Students</h2>
+      <h2>Add Student</h2>
       <input type="text" id="studentName" placeholder="Student Name">
       <input type="number" id="studentRoll" placeholder="Roll Number">
       <input type="email" id="studentEmail" placeholder="Student Email">
       <select id="studentClass"></select>
       <button class="primary" onclick="addStudent()">➕ Add Student</button>
-      <ul id="studentList"></ul>
-      <div id="studentProfile" class="detail-panel"></div>
     </section>
 
-    <!-- APPROVALS -->
-    <section id="approvals" class="section">
-      <h2>Pending Approvals</h2>
-      <ul id="pendingList"></ul>
-    </section>
+    <!-- STUDENT DETAIL PANEL -->
+    <section id="studentProfile" class="panel"></section>
 
     <!-- SETTINGS -->
     <section id="settings" class="section">
@@ -121,8 +122,13 @@
     function openSection(id) {
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
-      if(id!=='dashboard') closeSidebar();
+      closeSidebar();
     }
+    document.addEventListener("click", (e) => {
+      if (!document.getElementById("sidebar").contains(e.target) && !document.querySelector(".menu-btn").contains(e.target)) {
+        closeSidebar();
+      }
+    });
   </script>
 </body>
 </html>
