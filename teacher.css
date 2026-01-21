@@ -67,3 +67,195 @@ main{padding:22px}
   display:none
 }
 #toast.show{display:block}
+/* ===== PREMIUM BUTTONS ===== */
+.att-btn{
+  padding:10px 18px;
+  border-radius:12px;
+  border:none;
+  font-weight:600;
+  cursor:pointer;
+  margin:0 6px;
+  transition:.25s ease;
+  min-width:64px;
+}
+
+.att-present{background:#dcfce7;color:#166534}
+.att-absent{background:#fee2e2;color:#991b1b}
+
+.att-btn.active{
+  transform:scale(1.08);
+  box-shadow:0 8px 20px rgba(0,0,0,.15);
+}
+
+/* ===== ATTENDANCE CELL ===== */
+.att-cell{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+
+/* ===== CHART LAYOUT ===== */
+.chart-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:20px;
+  margin-top:30px;
+}
+
+.chart-card{
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(10px);
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 15px 35px rgba(0,0,0,.12);
+  transition:.3s;
+}
+
+.chart-card:hover{
+  transform:translateY(-6px);
+}
+
+/* ===== TABLE POLISH ===== */
+.table td{
+  vertical-align:middle;
+}
+
+/* ===== SAVE BUTTON ===== */
+.primary-btn{
+  display:block;
+  margin:30px auto 0;
+  font-size:17px;
+  padding:14px 34px;
+  border-radius:16px;
+}
+/* ===============================
+   🌈 THEME COLOR SYSTEM
+   =============================== */
+
+/* ----- DEFAULT VARIABLES ----- */
+:root{
+  --bg-main:#f4f7fb;
+  --bg-card:#ffffff;
+  --primary:#2563eb;
+  --primary-soft:#e0e7ff;
+  --accent:#22c55e;
+  --danger:#ef4444;
+  --text-main:#0f172a;
+  --text-muted:#64748b;
+  --border-soft:rgba(0,0,0,.08);
+}
+
+/* ===============================
+   🔵 PREMIUM BLUE (DEFAULT)
+   =============================== */
+.theme-blue{
+  --primary:#2563eb;
+  --primary-soft:#e0e7ff;
+  --accent:#22c55e;
+}
+
+/* ===============================
+   🟣 ROYAL PURPLE
+   =============================== */
+.theme-purple{
+  --primary:#7c3aed;
+  --primary-soft:#ede9fe;
+  --accent:#06b6d4;
+}
+
+/* ===============================
+   🟢 EMERALD PRO
+   =============================== */
+.theme-emerald{
+  --primary:#059669;
+  --primary-soft:#d1fae5;
+  --accent:#22c55e;
+}
+
+/* ===============================
+   ⚫ DARK PRO ERP
+   =============================== */
+.theme-dark{
+  --bg-main:#0f172a;
+  --bg-card:#020617;
+  --primary:#38bdf8;
+  --primary-soft:#0c4a6e;
+  --accent:#22c55e;
+  --danger:#f87171;
+  --text-main:#e5e7eb;
+  --text-muted:#94a3b8;
+  --border-soft:rgba(255,255,255,.1);
+}
+
+/* ===============================
+   🎨 APPLY VARIABLES
+   =============================== */
+
+body{
+  background:var(--bg-main);
+  color:var(--text-main);
+}
+
+.card,
+.chart-card,
+.panel{
+  background:var(--bg-card);
+  border:1px solid var(--border-soft);
+}
+
+h1,h2,h3,h4{
+  color:var(--text-main);
+}
+
+.text-muted{
+  color:var(--text-muted);
+}
+
+/* ----- BUTTONS ----- */
+.primary-btn{
+  background:var(--primary);
+  color:#fff;
+}
+
+.primary-btn:hover{
+  filter:brightness(1.1);
+}
+
+.att-present{
+  background:var(--accent);
+  color:#fff;
+}
+
+.att-absent{
+  background:var(--danger);
+  color:#fff;
+}
+
+/* ----- SIDEBAR ----- */
+.sidebar{
+  background:linear-gradient(180deg,
+    var(--primary),
+    #020617
+  );
+}
+
+/* ----- ACTIVE MENU ----- */
+.sidebar a.active{
+  background:var(--primary-soft);
+  color:var(--primary);
+}
+
+/* ----- TABLE ----- */
+.table th{
+  background:var(--primary-soft);
+  color:var(--primary);
+}
+
+.table tr:hover{
+  background:rgba(0,0,0,.03);
+}
+
+/* ----- CHART CARDS ----- */
+.chart-card h3{
+  color:var(--primary);
+}
