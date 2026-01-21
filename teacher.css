@@ -259,3 +259,76 @@ h1,h2,h3,h4{
 .chart-card h3{
   color:var(--primary);
 }
+/* ===============================
+   🌈 ANIMATED GRADIENT HEADERS
+   =============================== */
+
+.gradient-title{
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    var(--accent),
+    var(--primary)
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientMove 6s ease infinite;
+  font-weight: 800;
+}
+
+@keyframes gradientMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+/* ===============================
+   🧊 GLASSMORPHISM MODE
+   =============================== */
+
+.glass-mode .card,
+.glass-mode .panel,
+.glass-mode .chart-card,
+.glass-mode .table-container{
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.25);
+  box-shadow: 0 20px 40px rgba(0,0,0,.15);
+}
+
+/* DARK MODE GLASS FIX */
+.theme-dark.glass-mode .card,
+.theme-dark.glass-mode .panel{
+  background: rgba(15,23,42,0.55);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+/* ===============================
+   ✨ PREMIUM INTERACTIONS
+   =============================== */
+
+.card,
+.chart-card,
+.sidebar a,
+button{
+  transition: 
+    transform .25s ease,
+    box-shadow .25s ease,
+    background .25s ease;
+}
+
+.card:hover,
+.chart-card:hover{
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 25px 50px rgba(0,0,0,.25);
+}
+
+/* BUTTON PRESS FEEDBACK */
+button:active{
+  transform: scale(.95);
+}
+
+/* SIDEBAR HOVER GLOW */
+.sidebar a:hover{
+  box-shadow: inset 0 0 0 999px rgba(255,255,255,.08);
+}
