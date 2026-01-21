@@ -367,3 +367,36 @@ body {
 .card:active {
   transform: scale(0.97);
 }
+/* =========================
+   MOBILE VISIBILITY FIX
+========================= */
+
+/* Card text visible on gradient */
+.card h3,
+.card p {
+  color: #ffffff !important;
+  z-index: 2;
+  position: relative;
+}
+
+/* Card overlay for contrast */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* Fix welcome card text */
+.welcome-card {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* Ensure cards are positioned correctly */
+.card {
+  position: relative;
+  overflow: hidden;
+}
