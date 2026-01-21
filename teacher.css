@@ -1,87 +1,309 @@
+/* ===============================
+   ROOT & GLOBAL
+================================ */
+:root {
+  --primary: #2563eb;
+  --secondary: #1e40af;
+  --accent: #38bdf8;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e5e7eb;
+  --radius: 14px;
+  --shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
 * {
-  font-family: Inter, sans-serif;
   box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
-  background: #f4f7fb;
   margin: 0;
+  background: linear-gradient(135deg,#f8fafc,#eef2ff);
+  color: var(--text);
 }
 
+/* ===============================
+   TOPBAR
+================================ */
 .topbar {
-  background: linear-gradient(90deg,#1e3c72,#2a5298);
+  height: 64px;
+  background: linear-gradient(90deg,var(--secondary),var(--primary));
   color: #fff;
-  padding: 15px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: var(--shadow);
 }
 
+.topbar h2 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.topbar button {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.topbar button:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* ===============================
+   SIDEBAR
+================================ */
 aside {
   position: fixed;
-  top: 60px;
-  left: -240px;
-  width: 220px;
-  height: 100%;
-  background: #fff;
-  box-shadow: 2px 0 15px rgba(0,0,0,0.1);
-  transition: .3s;
+  top: 64px;
+  left: -260px;
+  width: 240px;
+  height: calc(100% - 64px);
+  background: var(--card);
   padding: 20px;
+  box-shadow: var(--shadow);
+  transition: 0.35s ease;
+  z-index: 999;
 }
 
-aside.open { left: 0; }
+aside.open {
+  left: 0;
+}
 
 aside a {
-  display: block;
-  margin: 15px 0;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  color: var(--text);
   font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
+aside a:hover {
+  background: linear-gradient(90deg,#e0e7ff,#dbeafe);
+  color: var(--primary);
+}
+
+/* ===============================
+   MAIN
+================================ */
 main {
-  padding: 20px;
-  margin-top: 60px;
+  padding: 90px 28px 30px;
+  transition: 0.3s;
 }
 
+/* ===============================
+   SECTIONS
+================================ */
+section {
+  display: none;
+  animation: fadeUp 0.4s ease;
+}
+
+section.active {
+  display: block;
+}
+
+section h2 {
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+/* ===============================
+   DASHBOARD CARDS
+================================ */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
+  gap: 22px;
 }
 
 .card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 8px 20px rgba(0,0,0,.08);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 10px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  position: relative;
   overflow: hidden;
 }
 
-th,td {
-  padding: 12px;
-  text-align: center;
+.card::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg,var(--accent),transparent);
+  opacity: 0.25;
+  border-radius: 50%;
+}
+
+.card h3 {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.card span {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* ===============================
+   ATTENDANCE TABLE
+================================ */
+table {
+  width: 100%;
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  border-collapse: collapse;
+}
+
+thead {
+  background: linear-gradient(90deg,#eef2ff,#e0e7ff);
 }
 
 th {
-  background: #e9eef6;
+  padding: 14px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
 }
 
-.present { background:#4caf50;color:#fff; }
-.absent { background:#f44336;color:#fff; }
+td {
+  padding: 14px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
 
+tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* ===============================
+   ATTENDANCE BUTTONS
+================================ */
+.present,
+.absent {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.present {
+  background: #dcfce7;
+  color: var(--success);
+}
+
+.present:hover {
+  background: var(--success);
+  color: #fff;
+}
+
+.absent {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+.absent:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* ===============================
+   SAVE BUTTON
+================================ */
 .save-btn {
-  margin-top: 15px;
-  padding: 12px 25px;
-  background: linear-gradient(90deg,#36d1dc,#5b86e5);
-  color:#fff;
-  border:none;
-  border-radius:10px;
-  font-weight:600;
+  margin-top: 18px;
+  padding: 14px 30px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(90deg,var(--primary),var(--accent));
+  color: #fff;
+  box-shadow: var(--shadow);
+  transition: 0.3s;
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ===============================
+   PROFILE
+================================ */
+#profile {
+  max-width: 420px;
+}
+
+#profile img {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+#profile input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+/* ===============================
+   ANIMATIONS
+================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===============================
+   MOBILE
+================================ */
+@media (max-width: 768px) {
+  aside {
+    width: 220px;
+  }
+
+  main {
+    padding: 90px 16px;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  table {
+    font-size: 13px;
+  }
 }
