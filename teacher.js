@@ -1,149 +1,102 @@
-/******** FIREBASE ********/
-const firebaseConfig = {
-  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-  projectId: "smart-attendance-system-17e89"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-
-let teacherId = "";
-let attendanceData = {};
-const classId = "defaultClass";
-
-/******** AUTH ********/
-auth.onAuthStateChanged(user => {
-  if (!user) return location.href = "login.html";
-  teacherId = user.uid;
-  loadTeacher();
-  loadStudents();
-  loadDefaulters();
+firebase.initializeApp({
+  apiKey:"AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
+  authDomain:"smart-attendance-system-17e89.firebaseapp.com",
+  databaseURL:"https://smart-attendance-system-17e89-default-rtdb.firebaseio.com"
 });
 
-/******** UI ********/
-function openSection(id) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  closeSidebar();
-}
+const auth=firebase.auth();
+const db=firebase.database();
 
-/******** SIDEBAR ********/
-const sidebar = document.getElementById("sidebar");
-const overlay = document.getElementById("overlay");
+let teacherId="",attendance={},currentClass="",currentSubject="";
 
-document.getElementById("menuBtn").onclick = () => {
+auth.onAuthStateChanged(u=>{
+  if(!u)location.href="login.html";
+  teacherId=u.uid;
+  loadAssignments();
+});
+
+const sidebar=document.getElementById("sidebar");
+const overlay=document.getElementById("overlay");
+
+menuBtn.onclick=()=>{
   sidebar.classList.add("open");
   overlay.classList.add("show");
 };
+overlay.onclick=()=>{sidebar.classList.remove("open");overlay.classList.remove("show")};
 
-overlay.onclick = closeSidebar;
-
-function closeSidebar() {
-  sidebar.classList.remove("open");
-  overlay.classList.remove("show");
+function openSection(id){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  sidebar.classList.remove("open");overlay.classList.remove("show");
 }
 
-/******** TEACHER INFO ********/
-function loadTeacher() {
-  db.ref("users/" + teacherId).once("value").then(snap => {
-    document.getElementById("welcomeText").innerText =
-      "Welcome, " + snap.val().name;
-  });
+function loadAssignments(){
+  db.ref("classes").once("value").then(snap=>{
+    const box=document.getElementById("assignedData");
+    const classSel=document.getElementById("classSelect");
+    box.innerHTML="";classSel.innerHTML="<option>Select Class</option>";
 
-  // Assigned classes & subjects
-  db.ref("classes").once("value").then(snap => {
-    const box = document.createElement("div");
-    box.className = "info-box";
-    box.innerHTML = "<h3>Assigned Classes & Subjects</h3>";
-
-    snap.forEach(c => {
-      const subjects = c.val().subjects || {};
-      Object.values(subjects).forEach(s => {
-        if (s.teacherId === teacherId) {
-          box.innerHTML += `<p><strong>${c.val().name}</strong> – ${s.name}</p>`;
+    snap.forEach(c=>{
+      const subs=c.val().subjects||{};
+      Object.values(subs).forEach(s=>{
+        if(s.teacherId===teacherId){
+          box.innerHTML+=`<p><b>${c.val().name}</b> – ${s.name}</p>`;
+          classSel.innerHTML+=`<option value="${c.key}">${c.val().name}</option>`;
         }
       });
     });
-
-    document.getElementById("dashboard").prepend(box);
   });
 }
 
-/******** STUDENTS ********/
-function loadStudents() {
-  db.ref("users").once("value").then(snap => {
-    const students = [];
-    snap.forEach(s => {
-      if (s.val().role === "student") students.push(s.val());
+classSelect.onchange=()=>{
+  currentClass=classSelect.value;
+  subjectSelect.innerHTML="<option>Select Subject</option>";
+  db.ref(`classes/${currentClass}/subjects`).once("value").then(snap=>{
+    snap.forEach(s=>{
+      if(s.val().teacherId===teacherId)
+        subjectSelect.innerHTML+=`<option value="${s.key}">${s.val().name}</option>`;
     });
+  });
+};
 
-    students.sort((a,b) => a.roll - b.roll);
+subjectSelect.onchange=()=>{
+  currentSubject=subjectSelect.value;
+  loadStudents();
+};
 
-    const body = document.getElementById("attendanceBody");
-    body.innerHTML = "";
-
-    students.forEach(s => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${s.roll}</td>
-        <td>${s.name}</td>
-        <td>
-          <button class="att-btn present-btn" onclick="mark(${s.roll},'P',this)">Present</button>
-          <button class="att-btn absent-btn" onclick="mark(${s.roll},'A',this)">Absent</button>
-        </td>`;
-      body.appendChild(tr);
+function loadStudents(){
+  attendance={};
+  attendanceBody.innerHTML="";
+  db.ref("users").once("value").then(snap=>{
+    const students=[];
+    snap.forEach(u=>{
+      if(u.val().role==="student"&&u.val().classId===currentClass)
+        students.push(u.val());
+    });
+    students.sort((a,b)=>a.roll-b.roll);
+    students.forEach(s=>{
+      attendanceBody.innerHTML+=`
+        <tr>
+          <td>${s.roll}</td>
+          <td>${s.name}</td>
+          <td>
+            <button class="att-btn present" onclick="mark(${s.roll},'P',this)">Present</button>
+            <button class="att-btn absent" onclick="mark(${s.roll},'A',this)">Absent</button>
+          </td>
+        </tr>`;
     });
   });
 }
 
-function mark(roll,status,btn){
-  attendanceData[roll]=status;
-  btn.parentElement.querySelectorAll("button").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");
+function mark(r,s,b){
+  attendance[r]=s;
+  b.parentElement.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
 }
 
-/******** SAVE ********/
 function saveAttendance(){
-  const date = new Date().toISOString().split("T")[0];
-  db.ref(`attendance/${classId}/${date}`).set(attendanceData).then(()=>{
-    document.querySelectorAll(".att-btn").forEach(b=>b.style.opacity=.6);
-    attendanceData={};
-    alert("Attendance saved successfully");
-    loadDefaulters();
-  });
-}
-
-/******** DEFAULTERS ********/
-function loadDefaulters(){
-  const body = document.getElementById("defaulterBody");
-  body.innerHTML="";
-
-  db.ref(`attendance/${classId}`).once("value").then(snap=>{
-    const count={};
-
-    snap.forEach(d=>{
-      Object.entries(d.val()).forEach(([roll,status])=>{
-        if(!count[roll]) count[roll]={p:0,t:0};
-        count[roll].t++;
-        if(status==="P") count[roll].p++;
-      });
-    });
-
-    Object.entries(count).forEach(([roll,v])=>{
-      const perc = Math.round((v.p/v.t)*100);
-      if(perc<75){
-        const tr=document.createElement("tr");
-        tr.innerHTML=`<td>${roll}</td><td>-</td><td>${perc}%</td>`;
-        body.appendChild(tr);
-      }
-    });
-  });
-}
-
-/******** LOGOUT ********/
-function logout(){
-  auth.signOut().then(()=>location.href="login.html");
+  const date=new Date().toISOString().split("T")[0];
+  db.ref(`attendance/${currentClass}/${currentSubject}/${date}`)
+    .set(attendance)
+    .then(()=>alert("Attendance saved successfully"));
 }
