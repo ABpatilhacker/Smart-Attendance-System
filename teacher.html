@@ -11,31 +11,28 @@
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <button onclick="toggleSidebar()">☰</button>
-  <h2>Smart Attendance System</h2>
+  <button id="menuBtn">☰</button>
+  <h2 id="welcomeText">Welcome</h2>
   <button onclick="logout()">Logout</button>
 </div>
 
 <!-- SIDEBAR -->
 <aside id="sidebar">
-  <a onclick="openSection('dashboard')">Dashboard</a>
-  <a onclick="openSection('attendance')">Take Attendance</a>
-  <a onclick="openSection('records')">Attendance Records</a>
-  <a onclick="openSection('defaulters')">Defaulter List</a>
-  <a onclick="openSection('profile')">My Profile</a>
+  <a onclick="navigate('dashboard')">Dashboard</a>
+  <a onclick="navigate('attendance')">Take Attendance</a>
+  <a onclick="navigate('records')">Attendance Records</a>
+  <a onclick="navigate('defaulters')">Defaulter List</a>
+  <a onclick="navigate('profile')">My Profile</a>
 </aside>
 
 <!-- MAIN -->
-<main>
+<main id="main">
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="active">
-    <h2>Overview</h2>
+    <h2>Dashboard Overview</h2>
+
     <div class="cards">
-      <div class="card">
-        <h3>Total Classes</h3>
-        <span id="totalClasses">0</span>
-      </div>
       <div class="card">
         <h3>Total Students</h3>
         <span id="totalStudents">0</span>
@@ -46,7 +43,7 @@
       </div>
     </div>
 
-    <div class="card" style="margin-top:25px">
+    <div class="card" style="margin-top:20px">
       <h3>Attendance Summary</h3>
       <canvas id="attendanceChart"></canvas>
     </div>
@@ -55,25 +52,8 @@
   <!-- ATTENDANCE -->
   <section id="attendance">
     <h2>Take Attendance</h2>
-    <table id="attendanceTable">
-      <thead>
-        <tr>
-          <th>Roll No</th>
-          <th>Name</th>
-          <th>Present</th>
-          <th>Absent</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <button class="save-btn" onclick="saveAttendance()">Save Attendance</button>
-  </section>
 
-  <!-- RECORDS -->
-  <section id="records">
-    <h2>Attendance Records</h2>
-    <input type="date" id="recordDate" onchange="loadRecord()" />
-    <table>
+    <table id="attendanceTable" class="fancy-table">
       <thead>
         <tr>
           <th>Roll No</th>
@@ -81,22 +61,39 @@
           <th>Status</th>
         </tr>
       </thead>
-      <tbody id="recordBody"></tbody>
+      <tbody></tbody>
     </table>
-    <p style="margin-top:10px;color:var(--muted)">
-      Attendance can be edited only within 24 hours.
-    </p>
+
+    <button class="save-btn" onclick="saveAttendance()">Save Attendance</button>
   </section>
 
-  <!-- DEFAULTERS -->
-  <section id="defaulters">
-    <h2>Defaulter List</h2>
-    <table>
+  <!-- RECORDS -->
+  <section id="records">
+    <h2>Attendance Records</h2>
+    <input type="date" id="recordDate" onchange="loadRecord()">
+
+    <table class="fancy-table">
       <thead>
         <tr>
           <th>Roll No</th>
           <th>Name</th>
-          <th>Attendance %</th>
+          <th>Attendance</th>
+        </tr>
+      </thead>
+      <tbody id="recordBody"></tbody>
+    </table>
+  </section>
+
+  <!-- DEFAULTERS -->
+  <section id="defaulters">
+    <h2>Defaulter List (Below 75%)</h2>
+
+    <table class="fancy-table">
+      <thead>
+        <tr>
+          <th>Roll No</th>
+          <th>Name</th>
+          <th>%</th>
         </tr>
       </thead>
       <tbody id="defaulterBody"></tbody>
@@ -106,9 +103,7 @@
   <!-- PROFILE -->
   <section id="profile">
     <h2>My Profile</h2>
-    <img id="profilePic" src="https://i.imgur.com/4Z7QZ0T.png">
-    <input type="file" onchange="changePhoto(event)">
-    <input type="text" id="teacherName" placeholder="Name">
+    <input type="text" id="teacherName">
     <input type="email" id="teacherEmail" disabled>
     <button class="save-btn" onclick="saveProfile()">Save Profile</button>
   </section>
