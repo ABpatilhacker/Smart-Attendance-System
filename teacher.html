@@ -107,6 +107,23 @@
       });
     });
   </script>
+<script>
+  // Auto-apply ripple to buttons, cards & links
+  document.querySelectorAll(
+    "button, .card, .glow-card, nav a"
+  ).forEach(el => {
+    el.classList.add("ripple");
 
+    el.addEventListener("click", function (e) {
+      const ripple = document.createElement("span");
+      ripple.style.left = `${e.offsetX}px`;
+      ripple.style.top = `${e.offsetY}px`;
+      ripple.className = "ripple-effect";
+      this.appendChild(ripple);
+
+      setTimeout(() => ripple.remove(), 600);
+    });
+  });
+</script>
 </body>
 </html>
