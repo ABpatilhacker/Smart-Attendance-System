@@ -1,309 +1,124 @@
-/* ===============================
-   ROOT & GLOBAL
-================================ */
-:root {
-  --primary: #2563eb;
-  --secondary: #1e40af;
-  --accent: #38bdf8;
-  --success: #16a34a;
-  --danger: #dc2626;
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --border: #e5e7eb;
-  --radius: 14px;
-  --shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
-* {
-  box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
-}
+* { box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
 body {
   margin: 0;
-  background: linear-gradient(135deg,#f8fafc,#eef2ff);
-  color: var(--text);
+  background: #f4f6fb;
+  color: #1f2937;
 }
 
-/* ===============================
-   TOPBAR
-================================ */
 .topbar {
-  height: 64px;
-  background: linear-gradient(90deg,var(--secondary),var(--primary));
+  background: #111827;
   color: #fff;
+  padding: 14px 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  box-shadow: var(--shadow);
+  gap: 16px;
 }
 
-.topbar h2 {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.topbar button {
-  background: rgba(255,255,255,0.15);
+.menu-btn { cursor: pointer; font-size: 22px; }
+.logout-btn {
+  margin-left: auto;
+  background: #ef4444;
   border: none;
-  color: #fff;
+  color: white;
   padding: 8px 14px;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: 0.3s;
 }
 
-.topbar button:hover {
-  background: rgba(255,255,255,0.25);
-}
-
-/* ===============================
-   SIDEBAR
-================================ */
-aside {
+#sidebar {
   position: fixed;
-  top: 64px;
-  left: -260px;
-  width: 240px;
-  height: calc(100% - 64px);
-  background: var(--card);
+  top: 56px;
+  left: -220px;
+  width: 220px;
+  height: 100%;
+  background: #1f2937;
   padding: 20px;
-  box-shadow: var(--shadow);
-  transition: 0.35s ease;
-  z-index: 999;
-}
-
-aside.open {
-  left: 0;
-}
-
-aside a {
-  display: flex;
-  align-items: center;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-  color: var(--text);
-  font-weight: 600;
-  cursor: pointer;
   transition: 0.3s;
+  z-index: 100;
 }
 
-aside a:hover {
-  background: linear-gradient(90deg,#e0e7ff,#dbeafe);
-  color: var(--primary);
-}
+#sidebar.open { left: 0; }
 
-/* ===============================
-   MAIN
-================================ */
-main {
-  padding: 90px 28px 30px;
-  transition: 0.3s;
-}
-
-/* ===============================
-   SECTIONS
-================================ */
-section {
-  display: none;
-  animation: fadeUp 0.4s ease;
-}
-
-section.active {
+#sidebar a {
   display: block;
+  color: #fff;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-section h2 {
-  margin-bottom: 16px;
-  font-size: 24px;
+#sidebar a:hover {
+  background: #374151;
 }
 
-/* ===============================
-   DASHBOARD CARDS
-================================ */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: none;
+}
+
+#overlay.show { display: block; }
+
+main { padding: 20px; }
+
+.page { display: none; }
+.page.active { display: block; }
+
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(260px,1fr));
-  gap: 22px;
+  grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+  gap: 20px;
 }
 
 .card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 22px;
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
-
-.card::after {
-  content: "";
-  position: absolute;
-  right: -40px;
-  top: -40px;
-  width: 120px;
-  height: 120px;
-  background: linear-gradient(135deg,var(--accent),transparent);
-  opacity: 0.25;
-  border-radius: 50%;
-}
-
-.card h3 {
-  color: var(--muted);
-  font-size: 14px;
-}
-
-.card span {
-  font-size: 36px;
-  font-weight: 800;
-  color: var(--primary);
-}
-
-/* ===============================
-   ATTENDANCE TABLE
-================================ */
-table {
-  width: 100%;
-  background: var(--card);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  border-collapse: collapse;
-}
-
-thead {
-  background: linear-gradient(90deg,#eef2ff,#e0e7ff);
-}
-
-th {
-  padding: 14px;
-  text-align: center;
-  font-size: 14px;
-  color: var(--muted);
-}
-
-td {
-  padding: 14px;
-  text-align: center;
-  border-top: 1px solid var(--border);
-}
-
-tbody tr:hover {
-  background: #f8fafc;
-}
-
-/* ===============================
-   ATTENDANCE BUTTONS
-================================ */
-.present,
-.absent {
-  border: none;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-.present {
-  background: #dcfce7;
-  color: var(--success);
-}
-
-.present:hover {
-  background: var(--success);
-  color: #fff;
-}
-
-.absent {
-  background: #fee2e2;
-  color: var(--danger);
-}
-
-.absent:hover {
-  background: var(--danger);
-  color: #fff;
-}
-
-/* ===============================
-   SAVE BUTTON
-================================ */
-.save-btn {
-  margin-top: 18px;
-  padding: 14px 30px;
-  font-size: 15px;
-  font-weight: 700;
+  background: white;
+  padding: 20px;
   border-radius: 14px;
-  border: none;
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
   cursor: pointer;
-  background: linear-gradient(90deg,var(--primary),var(--accent));
-  color: #fff;
-  box-shadow: var(--shadow);
-  transition: 0.3s;
+  transition: .3s;
 }
 
-.save-btn:hover {
-  transform: translateY(-2px);
-}
+.card:hover { transform: translateY(-6px); }
 
-/* ===============================
-   PROFILE
-================================ */
-#profile {
-  max-width: 420px;
-}
-
-#profile img {
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow);
-}
-
-#profile input {
+.attendance-table {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
+  background: white;
   border-radius: 12px;
-  border: 1px solid var(--border);
-  font-size: 14px;
+  overflow: hidden;
+  margin-top: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
 }
 
-/* ===============================
-   ANIMATIONS
-================================ */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+.attendance-table th {
+  background: #f3f4f6;
+  padding: 12px;
 }
 
-/* ===============================
-   MOBILE
-================================ */
-@media (max-width: 768px) {
-  aside {
-    width: 220px;
-  }
+.attendance-table td {
+  padding: 12px;
+  text-align: center;
+}
 
-  main {
-    padding: 90px 16px;
-  }
+.present-btn, .absent-btn {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-  .cards {
-    grid-template-columns: 1fr;
-  }
+.present-btn.active { background: #22c55e; color: white; }
+.absent-btn.active { background: #ef4444; color: white; }
 
-  table {
-    font-size: 13px;
-  }
+.primary-btn {
+  margin-top: 14px;
+  padding: 12px 18px;
+  border: none;
+  background: linear-gradient(135deg,#2563eb,#3b82f6);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
 }
