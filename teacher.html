@@ -1,129 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Smart Attendance System</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="dashboard.css" />
-
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Attendance System - Teacher Dashboard</title>
+  <link rel="stylesheet" href="teacher-dashboard.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
+<body>
+  <div id="sidebar" class="sidebar">
+    <div class="menu-header">Dashboard</div>
+    <ul>
+      <li onclick="redirectPage('classes')">Classes</li>
+      <li onclick="redirectPage('attendance')">Take Attendance</li>
+      <li onclick="redirectPage('records')">Attendance Records</li>
+      <li onclick="redirectPage('defaulters')">Defaulters</li>
+      <li onclick="redirectPage('profile')">My Profile</li>
+      <li onclick="logout()">Logout</li>
+    </ul>
+  </div>
 
-<body class="glass-mode page-fade">
-
-  <!-- OVERLAY (for sidebar auto close) -->
-  <div id="overlay"></div>
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar animated-sidebar" id="sidebar">
-    <div class="logo">
-      <h2>Smart<span>Attendance</span></h2>
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <h1>Smart Attendance System</h1>
     </div>
 
-    <nav>
-      <a href="#" class="active" data-route="dashboard">Dashboard</a>
-      <a href="#" data-route="attendance">Take Attendance</a>
-      <a href="#" data-route="records">Attendance Records</a>
-      <a href="#" data-route="defaulters">Defaulters</a>
-      <a href="#" data-route="classes">Classes</a>
-      <a href="#" data-route="profile">My Profile</a>
-      <a href="#" onclick="logout()">Logout</a>
-    </nav>
-  </aside>
+    <div class="content">
+      <div id="welcomeCard"></div>
 
-  <!-- MAIN -->
-  <main class="main-content">
-
-    <!-- HEADER -->
-    <header class="top-header gradient-header">
-      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-      <div>
-        <h1 class="gradient-title">
-          Welcome, <span id="teacherName">Teacher</span> 👋
-        </h1>
-        <p class="muted">Smart Attendance Management System</p>
-      </div>
-    </header>
-
-    <!-- DASHBOARD STATS -->
-    <section class="cards route-active" id="dashboard">
-      <div class="card glow-card">
-        <h3>Classes</h3>
-        <p id="classCount">0</p>
+      <div id="dashboardCards" class="dashboard-cards">
+        <div class="card">
+          <h3>Total Classes</h3>
+          <span id="classCount">0</span>
+        </div>
+        <div class="card">
+          <h3>Total Students</h3>
+          <span id="studentCount">0</span>
+        </div>
       </div>
 
-      <div class="card glow-card">
-        <h3>Subjects</h3>
-        <p id="subjectCount">0</p>
+      <div id="classListContainer">
+        <h2>My Classes</h2>
+        <ul id="classList"></ul>
       </div>
 
-      <div class="card glow-card">
-        <h3>Total Students</h3>
-        <p id="studentCount">0</p>
+      <div id="classSubjectsContainer"></div>
+
+      <div id="subjectAttendanceContainer">
+        <h2>Take Attendance</h2>
+        <select id="subjectSelect">
+          <option value="">Select Subject</option>
+        </select>
+        <div id="attendanceStudentsContainer"></div>
       </div>
-    </section>
 
-    <!-- CHART -->
-    <section class="chart-section">
-      <div class="chart-card floating-glow">
-        <h3 class="gradient-title">Attendance Overview</h3>
-        <canvas id="attendanceChart"></canvas>
-      </div>
-    </section>
+      <div id="defaultersContainer"></div>
+    </div>
+  </div>
 
-    <!-- ROUTE CONTENT -->
-    <section id="pageContent" class="page-section route-animated">
-      <!-- JS injects route content -->
-    </section>
-
-  </main>
-
-  <!-- Minimal UI JS (ONLY UI – does not touch logic) -->
-  <script>
-    const sidebar = document.getElementById("sidebar");
-    const overlay = document.getElementById("overlay");
-
-    function toggleSidebar() {
-      sidebar.classList.toggle("open");
-      overlay.classList.toggle("show");
-    }
-
-    overlay.addEventListener("click", () => {
-      sidebar.classList.remove("open");
-      overlay.classList.remove("show");
-    });
-
-    // Animated route switching (UI only)
-    document.querySelectorAll("[data-route]").forEach(link => {
-      link.addEventListener("click", e => {
-        e.preventDefault();
-        document.querySelectorAll(".route-active").forEach(r => r.classList.remove("route-active"));
-        document.getElementById("pageContent").classList.add("route-active");
-        sidebar.classList.remove("open");
-        overlay.classList.remove("show");
-      });
-    });
-  </script>
-<script>
-  // Auto-apply ripple to buttons, cards & links
-  document.querySelectorAll(
-    "button, .card, .glow-card, nav a"
-  ).forEach(el => {
-    el.classList.add("ripple");
-
-    el.addEventListener("click", function (e) {
-      const ripple = document.createElement("span");
-      ripple.style.left = `${e.offsetX}px`;
-      ripple.style.top = `${e.offsetY}px`;
-      ripple.className = "ripple-effect";
-      this.appendChild(ripple);
-
-      setTimeout(() => ripple.remove(), 600);
-    });
-  });
-</script>
+  <script src="teacher-dashboard.js"></script>
 </body>
 </html>
