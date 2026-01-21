@@ -12,128 +12,112 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.database();
 
-let currentTeacher = null;
-let selectedClass = null;
-let selectedSubject = null;
+let teacherId;
 let attendanceData = {};
 
 /***********************
  🔐 AUTH CHECK
 ************************/
 auth.onAuthStateChanged(user => {
-  if (!user) window.location.href = "login.html";
+  if (!user) location.href = "login.html";
   else {
-    currentTeacher = user;
-    loadDashboard();
-    loadSidebar();
-    showWelcome();
+    teacherId = user.uid;
+    loadWelcome();
+    loadClasses();
+    loadProfile();
+    loadChart();
   }
 });
 
 /***********************
- 🔥 SIDEBAR TOGGLE
+ SIDEBAR TOGGLE
 ************************/
-const sidebar = document.querySelector('.sidebar');
-const menuBtn = document.querySelector('.menu-btn');
-menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
-
-document.addEventListener('click', (e) => {
-  if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-    sidebar.classList.remove('open');
-  }
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  sb.style.transform = sb.style.transform === 'translateX(0px)' ? 'translateX(-100%)' : 'translateX(0px)';
+}
+document.addEventListener('click', e => {
+  const sb = document.getElementById('sidebar');
+  if (!sb.contains(e.target) && window.innerWidth < 992) sb.style.transform = 'translateX(-100%)';
 });
 
 /***********************
- 🎉 WELCOME CARD
+ SECTIONS
 ************************/
-function showWelcome() {
-  const nameEl = document.getElementById('welcomeName');
-  db.ref('users/' + currentTeacher.uid).once('value').then(snap => {
-    const data = snap.val();
-    if (nameEl) nameEl.textContent = `Welcome, ${data.name}!`;
+function openSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/***********************
+ WELCOME CARD
+************************/
+function loadWelcome() {
+  db.ref('users/' + teacherId).once('value').then(snap => {
+    const t = snap.val();
+    document.getElementById('welcomeCard').innerText = `Welcome, ${t.name}`;
   });
 }
 
 /***********************
- 📊 DASHBOARD CARDS
+ CLASSES & SUBJECTS
 ************************/
-function loadDashboard() {
-  const classCard = document.getElementById('cardClasses');
-  const attendanceCard = document.getElementById('cardAttendance');
-  const recordCard = document.getElementById('cardAttendanceRecord');
-  const defaulterCard = document.getElementById('cardDefaulters');
+function loadClasses() {
+  const container = document.getElementById('classListContainer');
+  container.innerHTML = '';
+  const subjectSelect = document.getElementById('subjectSelect');
+  if (subjectSelect) subjectSelect.innerHTML = '';
 
-  if (classCard) classCard.addEventListener('click', () => openSection('classesSection'));
-  if (attendanceCard) attendanceCard.addEventListener('click', () => openSection('attendanceSection'));
-  if (recordCard) recordCard.addEventListener('click', () => openSection('attendanceRecordSection'));
-  if (defaulterCard) defaulterCard.addEventListener('click', () => openSection('defaulterSection'));
-}
-
-/***********************
- 🔄 OPEN / CLOSE SECTIONS
-************************/
-function openSection(sectionId) {
-  document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-  document.getElementById(sectionId).classList.add('active');
-}
-
-/***********************
- 🏫 LOAD CLASSES
-************************/
-function loadSidebar() {
-  const classList = document.getElementById('sidebarClasses');
-  classList.innerHTML = '';
   db.ref('classes').once('value').then(snap => {
-    snap.forEach(c => {
-      const li = document.createElement('li');
-      li.textContent = c.val().name;
-      li.addEventListener('click', () => {
-        selectedClass = { id: c.key, data: c.val() };
-        loadSubjects(c.key);
-        sidebar.classList.remove('open');
-      });
-      classList.appendChild(li);
-    });
-  });
-}
+    snap.forEach(cSnap => {
+      const c = cSnap.val();
+      const classId = cSnap.key;
+      if (c.subjects) {
+        Object.keys(c.subjects).forEach(subId => {
+          const sub = c.subjects[subId];
+          if (sub.teacherId === teacherId) {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerText = `${c.name} - ${sub.name}`;
+            div.onclick = () => {
+              openSection('attendance');
+              loadAttendanceTable(classId, subId);
+            };
+            container.appendChild(div);
 
-/***********************
- 🔹 LOAD SUBJECTS
-************************/
-function loadSubjects(classId) {
-  const subjectList = document.getElementById('subjectSelect');
-  subjectList.innerHTML = '<option value="">Select Subject</option>';
-  db.ref('classes/' + classId + '/subjects').once('value').then(snap => {
-    snap.forEach(sub => {
-      // Only show subjects assigned to current teacher
-      if (sub.val().teacherId === currentTeacher.uid) {
-        const opt = document.createElement('option');
-        opt.value = sub.key;
-        opt.textContent = sub.val().name;
-        subjectList.appendChild(opt);
+            // populate subject dropdown
+            const opt = document.createElement('option');
+            opt.value = `${classId}|${subId}`;
+            opt.textContent = `${c.name} - ${sub.name}`;
+            subjectSelect.appendChild(opt);
+          }
+        });
       }
     });
   });
 }
 
 /***********************
- 📅 ATTENDANCE LOGIC
+ ATTENDANCE TABLE
 ************************/
-function loadAttendance() {
-  if (!selectedClass || !selectedSubject) return toast('Select class & subject ⚠️');
+function loadAttendanceTable(classId, subjectId) {
+  const val = document.getElementById('subjectSelect').value;
+  if (!val && (!classId || !subjectId)) return;
+  if (!classId || !subjectId) [classId, subjectId] = val.split('|');
 
-  const tableBody = document.getElementById('attendanceTableBody');
-  tableBody.innerHTML = '';
+  const tbody = document.getElementById('attendanceBody');
+  tbody.innerHTML = '';
   attendanceData = {};
 
-  db.ref('classes/' + selectedClass.id + '/students').once('value').then(snap => {
-    const students = [];
-    snap.forEach(stu => students.push({ id: stu.key, ...stu.val() }));
-    students.sort((a,b) => a.roll - b.roll); // ascending roll
+  db.ref(`classes/${classId}/students`).once('value').then(snap => {
+    let students = [];
+    snap.forEach(s => {
+      students.push({ roll: s.val().roll, name: s.val().name, id: s.key });
+    });
+    students.sort((a,b) => a.roll - b.roll);
 
     students.forEach(s => {
       attendanceData[s.id] = '';
@@ -141,77 +125,62 @@ function loadAttendance() {
       tr.innerHTML = `
         <td>${s.roll}</td>
         <td>${s.name}</td>
-        <td>
-          <button class="attendance-btn present" onclick="markAttendance('${s.id}','Present',this)">P</button>
-          <button class="attendance-btn absent" onclick="markAttendance('${s.id}','Absent',this)">A</button>
+        <td class="attendance-buttons">
+          <button class="present" onclick="markAttendance('${s.id}','Present', this)">Present</button>
+          <button class="absent" onclick="markAttendance('${s.id}','Absent', this)">Absent</button>
         </td>
       `;
-      tableBody.appendChild(tr);
+      tbody.appendChild(tr);
     });
   });
 }
 
-function markAttendance(studentId, status, btn) {
-  attendanceData[studentId] = status;
-  const row = btn.parentElement;
-  row.querySelectorAll('.attendance-btn').forEach(b => {
-    b.style.opacity = '0.4';
-    b.style.transform = 'scale(0.9)';
-  });
-  btn.style.opacity = '1';
-  btn.style.transform = 'scale(1)';
+function markAttendance(id,status,btn) {
+  attendanceData[id] = status;
+  const parent = btn.parentElement;
+  Array.from(parent.children).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
 }
 
 /***********************
- 💾 SAVE ATTENDANCE
+ SAVE ATTENDANCE
 ************************/
 function saveAttendance() {
-  if (!selectedClass || !selectedSubject) return toast('Select class & subject ⚠️');
+  const val = document.getElementById('subjectSelect').value;
+  if (!val) return toast("Select a class and subject ⚠️");
+  const [classId, subjectId] = val.split('|');
+  const today = new Date().toISOString().slice(0,10);
 
-  const today = new Date().toISOString().split('T')[0];
-  db.ref(`attendance/${selectedClass.id}/${selectedSubject}/${today}`).set(attendanceData)
-    .then(() => toast('✅ Attendance Saved!', true))
-    .then(() => loadDefaulters());
+  db.ref(`attendance/${classId}/${subjectId}/${today}`).set(attendanceData)
+    .then(() => toast("Attendance Saved ✅"));
 }
 
 /***********************
- 🔹 DEFUALTERS LOGIC
+ PROFILE
 ************************/
-function loadDefaulters() {
-  const defaulterTable = document.getElementById('defaulterTableBody');
-  defaulterTable.innerHTML = '';
-  const today = new Date().toISOString().split('T')[0];
-
-  db.ref(`attendance/${selectedClass.id}/${selectedSubject}/${today}`).once('value').then(snap => {
-    snap.forEach(s => {
-      if (s.val() === 'Absent') {
-        const tr = document.createElement('tr');
-        const student = selectedClass.data.students[s.key];
-        tr.innerHTML = `<td>${student.roll}</td><td>${student.name}</td>`;
-        defaulterTable.appendChild(tr);
-      }
-    });
+function loadProfile() {
+  db.ref('users/' + teacherId).once('value').then(snap => {
+    const t = snap.val();
+    document.getElementById('profileName').value = t.name;
+    document.getElementById('profileEmail').value = t.email;
   });
 }
 
-/***********************
- 🌟 TOAST MESSAGE
-************************/
-function toast(msg, success = false) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.innerText = msg;
-  t.style.background = success ? 'linear-gradient(135deg,#28a745,#85e085)' : 'linear-gradient(135deg,#ff6b6b,#ffd93d)';
-  document.body.appendChild(t);
-  setTimeout(() => t.classList.add('show'), 100);
-  setTimeout(() => t.classList.remove('show'), 3000);
-  setTimeout(() => t.remove(), 3500);
+function saveProfile() {
+  const name = document.getElementById('profileName').value.trim();
+  if(!name) return toast("Enter name ⚠️");
+  db.ref('users/' + teacherId).update({name}).then(()=> toast("Profile Saved ✅"));
 }
 
 /***********************
- 🟢 SUBJECT CHANGE EVENT
+ TOAST
 ************************/
-document.getElementById('subjectSelect')?.addEventListener('change', (e) => {
-  selectedSubject = e.target.value;
-  loadAttendance();
-});
+function toast(msg){
+  const t = document.createElement('div');
+  t.className='toast';
+  t.innerText = msg;
+  document.body.appendChild(t);
+  setTimeout(()=> t.classList.add('show'),100);
+  setTimeout(()=> t.classList.remove('show'),3000);
+  setTimeout(()=> t.remove(),3500);
+    }
