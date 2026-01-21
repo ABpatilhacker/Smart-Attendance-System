@@ -277,3 +277,42 @@ function toast(msg) {
   setTimeout(() => t.classList.add("show"), 100);
   setTimeout(() => t.remove(), 3000);
                           }
+/********************************
+ ✨ UI POLISH ADDITIONS
+*********************************/
+
+/* Ripple effect on click */
+document.addEventListener("click", e => {
+  const target = e.target.closest("button, .card, li");
+  if (!target) return;
+
+  const ripple = document.createElement("span");
+  ripple.className = "ripple";
+  target.appendChild(ripple);
+
+  const rect = target.getBoundingClientRect();
+  ripple.style.left = `${e.clientX - rect.left}px`;
+  ripple.style.top = `${e.clientY - rect.top}px`;
+
+  setTimeout(() => ripple.remove(), 600);
+});
+
+/* Sidebar active item */
+document.querySelectorAll(".sidebar ul li").forEach(item => {
+  item.addEventListener("click", () => {
+    document.querySelectorAll(".sidebar ul li")
+      .forEach(i => i.classList.remove("active"));
+    item.classList.add("active");
+  });
+});
+
+/* Better success feedback after save */
+const originalSaveAttendance = saveAttendance;
+saveAttendance = function () {
+  originalSaveAttendance();
+  setTimeout(() => {
+    document.querySelectorAll(".att-btn.active").forEach(b => {
+      b.style.boxShadow = "0 0 15px rgba(34,197,94,0.7)";
+    });
+  }, 300);
+};
