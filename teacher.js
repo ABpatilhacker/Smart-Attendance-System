@@ -22,23 +22,33 @@ updateDashboard();
 renderChart();
 
 /* =====================
-   SIDEBAR LOGIC
+   SIDEBAR FIX (FINAL)
 ===================== */
 const sidebar = document.getElementById("sidebar");
 const menuBtn = document.getElementById("menuBtn");
 
-menuBtn.onclick = () => sidebar.classList.toggle("open");
-
-document.addEventListener("click", e => {
-  if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-    sidebar.classList.remove("open");
-  }
+menuBtn.addEventListener("click", (e) => {
+  e.stopPropagation(); // ⛔ stop document click
+  sidebar.classList.toggle("open");
 });
 
+sidebar.addEventListener("click", (e) => {
+  e.stopPropagation(); // ⛔ clicking inside sidebar won't close it
+});
+
+document.addEventListener("click", () => {
+  sidebar.classList.remove("open"); // ✅ click outside closes sidebar
+});
+
+/* =====================
+   NAVIGATION (KEEP)
+===================== */
 function navigate(id) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll("section").forEach(s =>
+    s.classList.remove("active")
+  );
   document.getElementById(id).classList.add("active");
-  sidebar.classList.remove("open");
+  sidebar.classList.remove("open"); // ✅ close after navigation
 }
 
 /* =====================
