@@ -2,26 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart Attendance System</title>
-  <link rel="stylesheet" href="dashboard.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="dashboard.css" />
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body class="theme-dark glass-mode page-fade">
+<body class="glass-mode page-fade">
+
+  <!-- OVERLAY (for sidebar auto close) -->
+  <div id="overlay"></div>
 
   <!-- SIDEBAR -->
-  <aside class="sidebar animated-sidebar">
+  <aside class="sidebar animated-sidebar" id="sidebar">
     <div class="logo">
       <h2>Smart<span>Attendance</span></h2>
     </div>
 
     <nav>
-      <a href="#" class="active">Dashboard</a>
-      <a href="#attendance">Take Attendance</a>
-      <a href="#records">Attendance Records</a>
-      <a href="#defaulters">Defaulters</a>
-      <a href="#classes">Classes</a>
-      <a href="#profile">My Profile</a>
+      <a href="#" class="active" data-route="dashboard">Dashboard</a>
+      <a href="#" data-route="attendance">Take Attendance</a>
+      <a href="#" data-route="records">Attendance Records</a>
+      <a href="#" data-route="defaulters">Defaulters</a>
+      <a href="#" data-route="classes">Classes</a>
+      <a href="#" data-route="profile">My Profile</a>
       <a href="#" onclick="logout()">Logout</a>
     </nav>
   </aside>
@@ -31,27 +39,34 @@
 
     <!-- HEADER -->
     <header class="top-header gradient-header">
-      <h1 class="gradient-title">Welcome, <span id="teacherName">Teacher</span> 👋</h1>
-      <p class="muted">Smart Attendance System Dashboard</p>
+      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div>
+        <h1 class="gradient-title">
+          Welcome, <span id="teacherName">Teacher</span> 👋
+        </h1>
+        <p class="muted">Smart Attendance Management System</p>
+      </div>
     </header>
 
-    <!-- DASHBOARD CARDS -->
-    <section class="cards">
+    <!-- DASHBOARD STATS -->
+    <section class="cards route-active" id="dashboard">
       <div class="card glow-card">
         <h3>Classes</h3>
         <p id="classCount">0</p>
       </div>
+
       <div class="card glow-card">
         <h3>Subjects</h3>
         <p id="subjectCount">0</p>
       </div>
+
       <div class="card glow-card">
         <h3>Total Students</h3>
         <p id="studentCount">0</p>
       </div>
     </section>
 
-    <!-- CHART SECTION -->
+    <!-- CHART -->
     <section class="chart-section">
       <div class="chart-card floating-glow">
         <h3 class="gradient-title">Attendance Overview</h3>
@@ -59,12 +74,39 @@
       </div>
     </section>
 
-    <!-- PAGE CONTENT (JS switches this) -->
-    <section id="pageContent" class="page-section">
-      <!-- JS Injects Content -->
+    <!-- ROUTE CONTENT -->
+    <section id="pageContent" class="page-section route-animated">
+      <!-- JS injects route content -->
     </section>
 
   </main>
+
+  <!-- Minimal UI JS (ONLY UI – does not touch logic) -->
+  <script>
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    function toggleSidebar() {
+      sidebar.classList.toggle("open");
+      overlay.classList.toggle("show");
+    }
+
+    overlay.addEventListener("click", () => {
+      sidebar.classList.remove("open");
+      overlay.classList.remove("show");
+    });
+
+    // Animated route switching (UI only)
+    document.querySelectorAll("[data-route]").forEach(link => {
+      link.addEventListener("click", e => {
+        e.preventDefault();
+        document.querySelectorAll(".route-active").forEach(r => r.classList.remove("route-active"));
+        document.getElementById("pageContent").classList.add("route-active");
+        sidebar.classList.remove("open");
+        overlay.classList.remove("show");
+      });
+    });
+  </script>
 
 </body>
 </html>
