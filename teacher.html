@@ -1,128 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Smart Attendance | Teacher</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="teacher.css">
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Smart Attendance System</title>
+  <link rel="stylesheet" href="dashboard.css">
 </head>
 
-<body>
+<body class="theme-dark glass-mode page-fade">
 
-<div id="overlay"></div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar animated-sidebar">
+    <div class="logo">
+      <h2>Smart<span>Attendance</span></h2>
+    </div>
 
-<!-- TOPBAR -->
-<header class="topbar">
-  <button id="menuBtn">☰</button>
-  <h3>Smart Attendance</h3>
-  <button onclick="logout()">Logout</button>
-</header>
+    <nav>
+      <a href="#" class="active">Dashboard</a>
+      <a href="#attendance">Take Attendance</a>
+      <a href="#records">Attendance Records</a>
+      <a href="#defaulters">Defaulters</a>
+      <a href="#classes">Classes</a>
+      <a href="#profile">My Profile</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </aside>
 
-<!-- SIDEBAR -->
-<aside id="sidebar">
-  <a onclick="openSection('dashboard')">🏠 Dashboard</a>
-  <a onclick="openSection('attendance')">📝 Take Attendance</a>
-  <a onclick="openSection('records')">📅 Attendance Records</a>
-  <a onclick="openSection('defaulters')">⚠️ Defaulters</a>
-  <a onclick="openSection('profile')">👤 My Profile</a>
-</aside>
+  <!-- MAIN -->
+  <main class="main-content">
 
-<!-- MAIN -->
-<main>
+    <!-- HEADER -->
+    <header class="top-header gradient-header">
+      <h1 class="gradient-title">Welcome, <span id="teacherName">Teacher</span> 👋</h1>
+      <p class="muted">Smart Attendance System Dashboard</p>
+    </header>
 
-<!-- DASHBOARD -->
-<section id="dashboard" class="section active">
+    <!-- DASHBOARD CARDS -->
+    <section class="cards">
+      <div class="card glow-card">
+        <h3>Classes</h3>
+        <p id="classCount">0</p>
+      </div>
+      <div class="card glow-card">
+        <h3>Subjects</h3>
+        <p id="subjectCount">0</p>
+      </div>
+      <div class="card glow-card">
+        <h3>Total Students</h3>
+        <p id="studentCount">0</p>
+      </div>
+    </section>
 
-  <div class="welcome-card">
-    <h2 id="welcomeText">Welcome</h2>
-    <p>Manage your classes & attendance professionally</p>
-  </div>
+    <!-- CHART SECTION -->
+    <section class="chart-section">
+      <div class="chart-card floating-glow">
+        <h3 class="gradient-title">Attendance Overview</h3>
+        <canvas id="attendanceChart"></canvas>
+      </div>
+    </section>
 
-  <div class="card-grid">
-    <div class="dash-card" onclick="openSection('attendance')">📝 Take Attendance</div>
-    <div class="dash-card" onclick="openSection('records')">📅 Attendance Records</div>
-    <div class="dash-card" onclick="openSection('defaulters')">⚠️ Defaulters</div>
-    <div class="dash-card" onclick="openSection('profile')">👤 My Profile</div>
-  </div>
+    <!-- PAGE CONTENT (JS switches this) -->
+    <section id="pageContent" class="page-section">
+      <!-- JS Injects Content -->
+    </section>
 
-</section>
-<div class="chart-grid">
-  <div class="chart-card">
-    <h3>Today's Attendance</h3>
-    <canvas id="todayChart"></canvas>
-  </div>
+  </main>
 
-  <div class="chart-card">
-    <h3>Subject-wise Attendance</h3>
-    <canvas id="subjectChart"></canvas>
-  </div>
-</div>
-
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- TAKE ATTENDANCE -->
-<section id="attendance" class="section">
-  <h2>Take Attendance</h2>
-
-  <select id="classSelect"></select>
-  <select id="subjectSelect"></select>
-
-  <table class="table">
-    <thead>
-      <tr><th>Roll</th><th>Name</th><th>Status</th></tr>
-    </thead>
-    <tbody id="attendanceBody"></tbody>
-  </table>
-
-  <button class="primary-btn" onclick="saveAttendance()">Save Attendance</button>
-</section>
-
-<!-- RECORDS -->
-<section id="records" class="section">
-  <h2>Attendance Records</h2>
-
-  <select id="recordClass"></select>
-  <select id="recordSubject"></select>
-  <input type="date" id="recordDate">
-
-  <table class="table">
-    <thead>
-      <tr><th>Roll</th><th>Status</th></tr>
-    </thead>
-    <tbody id="recordBody"></tbody>
-  </table>
-</section>
-
-<!-- DEFAULTERS -->
-<section id="defaulters" class="section">
-  <h2>Defaulters</h2>
-  <table class="table">
-    <thead>
-      <tr><th>Roll</th><th>Attendance %</th></tr>
-    </thead>
-    <tbody id="defaulterBody"></tbody>
-  </table>
-</section>
-
-<!-- PROFILE -->
-<section id="profile" class="section">
-  <h2>My Profile</h2>
-  <input id="profileName">
-  <input id="profileEmail" disabled>
-  <button class="primary-btn" onclick="saveProfile()">Save</button>
-</section>
-
-</main>
-
-<!-- TOAST -->
-<div id="toast">Attendance Saved Successfully ✔</div>
-
-<script src="teacher.js"></script>
 </body>
 </html>
