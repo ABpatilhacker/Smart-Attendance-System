@@ -2,138 +2,158 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Teacher Dashboard</title>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="teacher.css">
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-  <!-- Chart -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Dashboard | Smart Attendance</title>
+  <link rel="stylesheet" href="teacher.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <!-- SIDEBAR -->
-<div class="sidebar" id="sidebar">
-  <h2>Teacher</h2>
-  <ul>
-    <li onclick="openSection('dashboard')">🏠 Dashboard</li>
-    <li onclick="openSection('classes')">📚 My Classes</li>
-    <li onclick="openSection('attendance')">📝 Take Attendance</li>
-    <li onclick="openSection('records')">📅 Attendance Records</li>
-    <li onclick="openSection('defaulters')">⚠️ Defaulters</li>
-    <li onclick="openSection('profile')">👤 My Profile</li>
-    <li onclick="logout()">🚪 Logout</li>
-  </ul>
-</div>
-
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>Smart Attendance</h2>
+  </div>
+  <nav>
+    <ul>
+      <li onclick="openSection('dashboard')">🏠 Dashboard</li>
+      <li onclick="openSection('classes')">🏫 My Classes</li>
+      <li onclick="openSection('attendance')">📝 Take Attendance</li>
+      <li onclick="openSection('records')">📅 Attendance Records</li>
+      <li onclick="openSection('defaulters')">⚠️ Defaulters</li>
+      <li onclick="openSection('profile')">👤 My Profile</li>
+      <li onclick="logout()">🚪 Logout</li>
+    </ul>
+  </nav>
+</aside>
 <div id="overlay" onclick="toggleSidebar()"></div>
 
 <!-- TOPBAR -->
-<div class="topbar">
-  <span class="menu-btn" onclick="toggleSidebar()">☰</span>
-  <h1>Teacher Dashboard</h1>
-  <div class="welcome-card" id="welcomeCard">Welcome 👋</div>
-</div>
+<header class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <div class="topbar-title">Teacher Dashboard</div>
+</header>
 
 <!-- MAIN -->
-<div class="main">
+<main class="main">
 
   <!-- DASHBOARD -->
-  <div class="section active" id="dashboard">
+  <section class="section active" id="dashboard">
+    <div class="welcome-card" id="welcomeCard">Welcome 👋</div>
     <div class="cards-container">
       <div class="card" onclick="openSection('classes')">
-        <span class="card-icon">📚</span>
         <h3>My Classes</h3>
-        <p>Subjects assigned to you</p>
+        <p>View assigned classes & subjects</p>
       </div>
-
       <div class="card" onclick="openSection('attendance')">
-        <span class="card-icon">📝</span>
         <h3>Take Attendance</h3>
-        <p>Mark daily attendance</p>
+        <p>Mark present / absent</p>
       </div>
-
       <div class="card" onclick="openSection('records')">
-        <span class="card-icon">📅</span>
         <h3>Attendance Records</h3>
-        <p>Date wise view</p>
+        <p>View saved attendance</p>
       </div>
-
       <div class="card" onclick="openSection('defaulters')">
-        <span class="card-icon">⚠️</span>
         <h3>Defaulters</h3>
-        <p>Low attendance</p>
+        <p>Low attendance students</p>
       </div>
     </div>
-
-    <canvas id="attendanceChart" height="200"></canvas>
-  </div>
+    <div class="chart-card">
+      <canvas id="attendanceChart"></canvas>
+    </div>
+  </section>
 
   <!-- CLASSES -->
-  <div class="section" id="classes">
+  <section class="section" id="classes">
     <h2>My Classes & Subjects</h2>
-    <div class="cards-container" id="classListContainer"></div>
-  </div>
+    <div id="classListContainer" class="cards-container"></div>
+  </section>
 
   <!-- ATTENDANCE -->
-  <div class="section" id="attendance">
+  <section class="section" id="attendance">
     <h2>Take Attendance</h2>
-
-    <select id="subjectSelect" onchange="loadAttendanceTable()"></select>
-
-    <table class="attendance-table">
-      <thead>
-        <tr>
-          <th>Roll</th>
-          <th>Name</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="attendanceBody"></tbody>
-    </table>
-
-    <button class="save-btn" onclick="saveAttendance()">Save Attendance</button>
-  </div>
+    <div class="form-group">
+      <label>Select Class & Subject</label>
+      <select id="subjectSelect" onchange="loadAttendanceTable()">
+        <option value="">-- Select --</option>
+      </select>
+    </div>
+    <div class="table-wrapper">
+      <table class="attendance-table">
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Student Name</th>
+            <th>Attendance</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceBody"></tbody>
+      </table>
+    </div>
+    <button class="save-btn" onclick="saveAttendance(event)">Save Attendance</button>
+  </section>
 
   <!-- RECORDS -->
-  <div class="section" id="records">
+  <section class="section" id="records">
     <h2>Attendance Records</h2>
-    <p>Select subject & date to view attendance.</p>
-  </div>
+    <div class="form-group">
+      <label>Select Date</label>
+      <input type="date" id="calendar" onchange="loadAttendanceRecords()" />
+      <select id="recordSubjectSelect" onchange="loadAttendanceRecords()">
+        <option value="">-- Select Subject --</option>
+      </select>
+    </div>
+    <div class="table-wrapper">
+      <table class="attendance-table">
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Name</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="recordBody"></tbody>
+      </table>
+    </div>
+  </section>
 
   <!-- DEFAULTERS -->
-  <div class="section" id="defaulters">
-    <h2>Defaulter List</h2>
-    <table class="defaulter-table">
-      <thead>
-        <tr>
-          <th>Roll</th>
-          <th>Name</th>
-          <th>Attendance %</th>
-        </tr>
-      </thead>
-      <tbody id="defaulterBody"></tbody>
-    </table>
-  </div>
+  <section class="section" id="defaulters">
+    <h2>Defaulters List</h2>
+    <div class="table-wrapper">
+      <table class="defaulter-table">
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Name</th>
+            <th>Absent %</th>
+          </tr>
+        </thead>
+        <tbody id="defaulterBody"></tbody>
+      </table>
+    </div>
+  </section>
 
   <!-- PROFILE -->
-  <div class="section" id="profile">
+  <section class="section" id="profile">
     <h2>My Profile</h2>
-    <input id="profileName" placeholder="Name"/>
-    <input id="profileEmail" placeholder="Email" disabled/>
-    <button class="save-btn" onclick="saveProfile()">Save Profile</button>
-  </div>
+    <div class="profile-card">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="profileName" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="profileEmail" readonly />
+      </div>
+      <button class="save-btn" onclick="saveProfile()">Save Profile</button>
+    </div>
+  </section>
 
-</div>
+</main>
 
 <script src="teacher.js"></script>
 </body>
