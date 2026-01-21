@@ -100,7 +100,7 @@ function loadSubjects() {
             </option>`;
 
           const card = document.createElement("div");
-          card.className = "card";
+          card.className = "card gradient-card";
           card.innerHTML = `
             <span class="card-icon">📚</span>
             <h3>${c.name}</h3>
@@ -137,14 +137,16 @@ function loadAttendanceTable() {
 
       students.sort((a, b) => a.roll - b.roll);
 
-      students.forEach(stu => {
+      students.forEach((stu, idx) => {
         attendanceData[stu.uid] = null;
 
         const tr = document.createElement("tr");
+        tr.className = "fade-row";
+        tr.style.animationDelay = `${idx * 0.05}s`;
         tr.innerHTML = `
           <td>${stu.roll}</td>
           <td>${stu.name}</td>
-          <td>
+          <td class="attendance-buttons">
             <button class="att-btn present" onclick="markAttendance('${stu.uid}','P',this)">P</button>
             <button class="att-btn absent" onclick="markAttendance('${stu.uid}','A',this)">A</button>
           </td>
@@ -159,6 +161,7 @@ function markAttendance(uid, status, btn) {
   const parent = btn.parentElement;
   parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
+  ripple(btn);
 }
 
 /********************************
@@ -176,7 +179,7 @@ function saveAttendance() {
 }
 
 /********************************
- 📊 CHART
+ 📊 CHART WITH FLOATING GLOW
 *********************************/
 function loadChart() {
   const ctx = document.getElementById("attendanceChart");
@@ -197,10 +200,27 @@ function loadChart() {
       labels: ["Present","Absent"],
       datasets:[{
         data:[present,absent],
-        backgroundColor:["rgba(0,255,200,0.8)","rgba(255,80,80,0.8)"]
+        backgroundColor:[
+          "rgba(0,255,200,0.9)",
+          "rgba(255,80,80,0.9)"
+        ],
+        borderWidth: 2,
+        borderColor: "#fff"
       }]
     },
-    options:{cutout:"70%",plugins:{legend:{position:"bottom"}}}
+    options:{
+      cutout:"70%",
+      plugins:{
+        legend:{position:"bottom"},
+        tooltip:{
+          callbacks:{
+            label: function(context){
+              return `${context.label}: ${context.raw} students`;
+            }
+          }
+        }
+      }
+    }
   });
 }
 
@@ -210,8 +230,7 @@ function loadChart() {
 function loadDefaulters() {
   const body = document.getElementById("defaulterBody");
   body.innerHTML = "";
-
-  // Demo static defaulters, replace with Firebase logic
+  // Replace with Firebase logic as needed
   body.innerHTML = `
     <tr><td>12</td><td>Rahul</td><td>42%</td></tr>
     <tr><td>18</td><td>Neha</td><td>38%</td></tr>
@@ -230,3 +249,18 @@ function toast(msg){
   setTimeout(()=>t.classList.remove("show"),2500);
   setTimeout(()=>t.remove(),3000);
 }
+
+/********************************
+ ✨ RIPPLE EFFECT
+*********************************/
+function ripple(btn){
+  const circle = document.createElement("span");
+  circle.className = "ripple";
+  btn.appendChild(circle);
+  const d = Math.max(btn.clientWidth, btn.clientHeight);
+  circle.style.width = circle.style.height = d + "px";
+  circle.style.left = event.offsetX - d/2 + "px";
+  circle.style.top = event.offsetY - d/2 + "px";
+  circle.classList.add("ripple-animate");
+  setTimeout(()=>circle.remove(), 600);
+      }
