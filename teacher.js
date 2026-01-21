@@ -1,318 +1,272 @@
-/* ==========================
-   GLOBAL RESET & FONT
-========================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+/********************************
+ 🔥 FIREBASE INIT
+*********************************/
+const firebaseConfig = {
+  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
+  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
+  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
+  projectId: "smart-attendance-system-17e89",
+  storageBucket: "smart-attendance-system-17e89.appspot.com",
+  messagingSenderId: "168700970246",
+  appId: "1:168700970246:web:392156387db81e92544a87"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentTeacher = null;
+let attendanceData = {};
+let selectedSubjectKey = null;
+
+/********************************
+ 🔐 AUTH CHECK
+*********************************/
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+  } else {
+    currentTeacher = user;
+    loadTeacherInfo();
+    loadSubjects();
+    loadChart();
+    loadDefaulters();
+  }
+});
+
+/********************************
+ 🚪 LOGOUT
+*********************************/
+function logout() {
+  auth.signOut().then(() => location.href = "login.html");
 }
 
-body {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f0f2f5, #e0e7ff);
-  color: #1A1F36;
-  display: flex;
-  font-size: 16px;
-  overflow-x: hidden;
-  transition: background 0.5s;
+/********************************
+ 📂 SIDEBAR + ROUTES
+*********************************/
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+
+function toggleSidebar() {
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
 }
 
-/* ==========================
-   SIDEBAR
-========================== */
-.sidebar {
-  width: 240px;
-  background: linear-gradient(135deg, #6B73FF, #000DFF);
-  color: #fff;
-  position: fixed;
-  height: 100%;
-  top: 0;
-  left: 0;
-  padding: 30px 20px;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease, background 2s linear;
-  z-index: 100;
-  border-radius: 0 20px 20px 0;
-  backdrop-filter: blur(10px);
+overlay.addEventListener("click", toggleSidebar);
+
+function openSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+
+  if (window.innerWidth < 992) {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+  }
 }
 
-.sidebar h2 {
-  text-align: center;
-  font-weight: 700;
-  font-size: 1.8rem;
-  margin-bottom: 40px;
-  background: linear-gradient(90deg, #FFD93D, #FF6B6B);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradientText 6s ease infinite;
+/********************************
+ 👋 WELCOME + PROFILE
+*********************************/
+function loadTeacherInfo() {
+  db.ref("users/" + currentTeacher.uid).once("value").then(snap => {
+    const data = snap.val();
+    document.getElementById("welcomeCard").innerText =
+      `Welcome 👋 ${data.name || "Teacher"}`;
+
+    document.getElementById("profileName").value = data.name || "";
+    document.getElementById("profileEmail").value = data.email || "";
+  });
 }
 
-.sidebar ul {
-  list-style: none;
-  flex: 1;
+function saveProfile() {
+  const name = document.getElementById("profileName").value.trim();
+  if (!name) return toast("Name required ⚠️");
+
+  db.ref("users/" + currentTeacher.uid).update({ name })
+    .then(() => toast("Profile updated ✅"));
 }
 
-.sidebar ul li {
-  padding: 12px 15px;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+/********************************
+ 📚 LOAD SUBJECTS (TEACHER ONLY)
+*********************************/
+function loadSubjects() {
+  const select = document.getElementById("subjectSelect");
+  const classContainer = document.getElementById("classListContainer");
+  select.innerHTML = `<option value="">-- Select --</option>`;
+  classContainer.innerHTML = "";
+
+  db.ref("classes").once("value").then(snap => {
+    snap.forEach(cls => {
+      const c = cls.val();
+      for (let s in c.subjects || {}) {
+        if (c.subjects[s].teacherId === currentTeacher.uid) {
+          const key = `${cls.key}_${s}`;
+
+          select.innerHTML += `
+            <option value="${key}">
+              ${c.name} – ${c.subjects[s].name}
+            </option>`;
+
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <h3>${c.name}</h3>
+            <p>${c.subjects[s].name}</p>
+          `;
+          card.addEventListener("click", () => openSection("attendance"));
+          classContainer.appendChild(card);
+        }
+      }
+    });
+  });
 }
 
-.sidebar ul li::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 100%;
-  width: 0;
-  background: rgba(255, 255, 255, 0.1);
-  transition: 0.3s;
-  border-radius: 12px;
+/********************************
+ 📝 ATTENDANCE TABLE
+*********************************/
+function loadAttendanceTable() {
+  const body = document.getElementById("attendanceBody");
+  body.innerHTML = "";
+  attendanceData = {};
+
+  selectedSubjectKey = document.getElementById("subjectSelect").value;
+  if (!selectedSubjectKey) return;
+
+  const [classId] = selectedSubjectKey.split("_");
+
+  db.ref("users").orderByChild("classId").equalTo(classId).once("value")
+    .then(snap => {
+      let students = [];
+      snap.forEach(s => {
+        const d = s.val();
+        if (d.role === "student") {
+          students.push({ ...d, uid: s.key });
+        }
+      });
+
+      students.sort((a, b) => a.roll - b.roll);
+
+      students.forEach(stu => {
+        attendanceData[stu.uid] = null;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${stu.roll}</td>
+          <td>${stu.name}</td>
+          <td class="attendance-buttons">
+            <button class="present" onclick="markAttendance('${stu.uid}','P',this)">P</button>
+            <button class="absent" onclick="markAttendance('${stu.uid}','A',this)">A</button>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    });
 }
 
-.sidebar ul li:hover::after {
-  width: 100%;
+function markAttendance(uid, status, btn) {
+  attendanceData[uid] = status;
+
+  const parent = btn.parentElement;
+  parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
 }
 
-.sidebar ul li:hover {
-  color: #FFD93D;
+/********************************
+ 💾 SAVE ATTENDANCE
+*********************************/
+function saveAttendance() {
+  if (!selectedSubjectKey) return toast("Select subject ⚠️");
+
+  const date = new Date().toISOString().split("T")[0];
+  const ref = db.ref(`attendance/${selectedSubjectKey}/${date}`);
+
+  ref.set(attendanceData).then(() => {
+    toast("Attendance Saved ✔️");
+    document.querySelectorAll(".att-btn").forEach(b => b.classList.add("fade"));
+    loadChart();
+  });
 }
 
-/* ==========================
-   TOPBAR
-========================== */
-.topbar {
-  position: fixed;
-  top: 0;
-  left: 240px;
-  right: 0;
-  height: 70px;
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(15px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 30px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  z-index: 90;
-  transition: left 0.3s ease, background 0.5s;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+/********************************
+ 📊 CHART (PREMIUM DONUT)
+*********************************/
+let chart;
+function loadChart() {
+  const ctx = document.getElementById("attendanceChart");
+  if (!ctx) return;
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Present", "Absent"],
+      datasets: [{
+        data: [75, 25], // Placeholder; you can calculate real % based on attendance
+        backgroundColor: [
+          "rgba(0,255,200,0.9)",
+          "rgba(255,80,80,0.9)"
+        ],
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      cutout: "70%",
+      plugins: {
+        legend: { position: "bottom" }
+      },
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
 }
 
-.menu-btn {
-  font-size: 24px;
-  cursor: pointer;
-  transition: transform 0.2s;
+/********************************
+ ⚠️ DEFAULTERS
+*********************************/
+function loadDefaulters() {
+  const body = document.getElementById("defaulterBody");
+  body.innerHTML = "";
+
+  // Example logic: can be replaced with real attendance %
+  body.innerHTML = `
+    <tr><td>12</td><td>Rahul</td><td>42%</td></tr>
+    <tr><td>18</td><td>Neha</td><td>38%</td></tr>
+  `;
 }
 
-.menu-btn:hover {
-  transform: scale(1.1);
+/********************************
+ 📅 ATTENDANCE RECORD
+*********************************/
+function loadAttendanceRecords() {
+  const date = document.getElementById("calendar").value;
+  const body = document.getElementById("recordBody");
+  body.innerHTML = "";
+  if (!selectedSubjectKey || !date) return;
+
+  db.ref(`attendance/${selectedSubjectKey}/${date}`).once("value").then(snap => {
+    const data = snap.val() || {};
+    Object.keys(data).forEach(uid => {
+      const status = data[uid];
+      db.ref(`users/${uid}`).once("value").then(userSnap => {
+        const stu = userSnap.val();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${stu.roll}</td><td>${stu.name}</td><td>${status}</td>`;
+        body.appendChild(tr);
+      });
+    });
+  });
 }
 
-.topbar-title {
-  font-weight: 700;
-  font-size: 1.4rem;
-  color: #1A1F36;
-}
-
-/* ==========================
-   MAIN CONTENT
-========================== */
-.main {
-  margin-left: 240px;
-  padding: 100px 40px 40px 40px;
-  transition: margin-left 0.3s ease;
-}
-
-.section {
-  display: none;
-  animation: fadeIn 0.6s ease;
-}
-
-.section.active {
-  display: block;
-}
-
-/* ==========================
-   CARDS
-========================== */
-.cards-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 25px;
-}
-
-.card {
-  flex: 1 1 200px;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
-  padding: 25px 20px;
-  text-align: center;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #fff;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s ease;
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(60deg, #FFD93D, #FF6B6B, #6B73FF, #000DFF);
-  animation: animateGradient 10s linear infinite;
-  z-index: 0;
-  filter: blur(30px);
-}
-
-.card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.3);
-}
-
-.card * {
-  position: relative;
-  z-index: 1;
-}
-
-/* ==========================
-   ATTENDANCE TABLE
-========================== */
-.table-wrapper {
-  overflow-x: auto;
-  margin-top: 20px;
-}
-
-.attendance-table, .defaulter-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(15px);
-  border-radius: 15px;
-  overflow: hidden;
-  transition: all 0.3s;
-}
-
-.attendance-table th, .attendance-table td,
-.defaulter-table th, .defaulter-table td {
-  padding: 12px 15px;
-  text-align: left;
-}
-
-.attendance-table th, .defaulter-table th {
-  background: rgba(255,255,255,0.05);
-}
-
-.attendance-table tbody tr:hover,
-.defaulter-table tbody tr:hover {
-  background: rgba(255,255,255,0.1);
-}
-
-.attendance-buttons button {
-  margin-right: 10px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.attendance-buttons .present {
-  background: #4CAF50;
-  color: #fff;
-}
-
-.attendance-buttons .absent {
-  background: #F44336;
-  color: #fff;
-}
-
-.attendance-buttons .active {
-  transform: scale(1.1);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
-}
-
-/* ==========================
-   BUTTONS
-========================== */
-.save-btn {
-  margin-top: 20px;
-  padding: 12px 30px;
-  font-weight: 700;
-  border-radius: 15px;
-  border: none;
-  background: linear-gradient(90deg, #FFD93D, #FF6B6B);
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.4s ease;
-}
-
-.save-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 25px rgba(255,107,107,0.4);
-}
-
-/* ==========================
-   TOAST
-========================== */
-.toast {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: linear-gradient(135deg, #FFD93D, #FF6B6B);
-  padding: 12px 25px;
-  border-radius: 20px;
-  color: #fff;
-  font-weight: 600;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.5s ease;
-  z-index: 999;
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ==========================
-   ANIMATIONS
-========================== */
-@keyframes fadeIn {
-  0% { opacity: 0; transform: translateY(10px);}
-  100% { opacity: 1; transform: translateY(0);}
-}
-
-@keyframes animateGradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes gradientText {
-  0%,100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-/* ==========================
-   RESPONSIVE
-========================== */
-@media(max-width: 992px) {
-  .sidebar { transform: translateX(-100%); position: fixed; }
-  .main { margin-left: 0; padding: 90px 20px 20px 20px; }
-  .topbar { left: 0; }
-   }
+/********************************
+ 🍞 TOAST
+*********************************/
+function toast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.innerText = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("show"), 100);
+  setTimeout(() => t.classList.remove("show"), 2500);
+  setTimeout(() => t.remove(), 3000);
+     }
