@@ -4,109 +4,105 @@
   <meta charset="UTF-8">
   <title>Teacher Dashboard | Smart Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="teacher.css">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="teacher.css">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
+
 <body>
 
 <!-- TOPBAR -->
-<div class="topbar">
-  <button id="menuBtn">☰</button>
-  <h2 id="welcomeText">Welcome</h2>
-  <button onclick="logout()">Logout</button>
-</div>
+<header class="topbar">
+  <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+  <h3>Smart Attendance – Teacher</h3>
+  <div id="welcomeName">Welcome</div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</header>
 
 <!-- SIDEBAR -->
 <aside id="sidebar">
-  <a onclick="navigate('dashboard')">Dashboard</a>
-  <a onclick="navigate('attendance')">Take Attendance</a>
-  <a onclick="navigate('records')">Attendance Records</a>
-  <a onclick="navigate('defaulters')">Defaulter List</a>
-  <a onclick="navigate('profile')">My Profile</a>
+  <a onclick="go('dashboard')">Dashboard</a>
+  <a onclick="go('attendance')">Attendance</a>
+  <a onclick="go('defaulters')">Defaulters</a>
+  <a onclick="go('analytics')">Analytics</a>
 </aside>
 
+<!-- OVERLAY -->
+<div id="overlay" onclick="closeSidebar()"></div>
+
 <!-- MAIN -->
-<main id="main">
+<main>
 
-  <!-- DASHBOARD -->
-  <section id="dashboard" class="active">
-    <h2>Dashboard Overview</h2>
-
-    <div class="cards">
-      <div class="card">
-        <h3>Total Students</h3>
-        <span id="totalStudents">0</span>
-      </div>
-      <div class="card">
-        <h3>Today's Attendance</h3>
-        <span id="todayAttendance">0%</span>
-      </div>
+<!-- DASHBOARD -->
+<section id="dashboard" class="page active">
+  <h2>Dashboard</h2>
+  <div class="cards">
+    <div class="card" onclick="go('attendance')">
+      <h3>📋 Take Attendance</h3>
+      <p>Mark today’s attendance</p>
     </div>
-
-    <div class="card" style="margin-top:20px">
-      <h3>Attendance Summary</h3>
-      <canvas id="attendanceChart"></canvas>
+    <div class="card" onclick="go('analytics')">
+      <h3>📊 Attendance Analytics</h3>
+      <p>View attendance statistics</p>
     </div>
-  </section>
+    <div class="card" onclick="go('defaulters')">
+      <h3>⚠️ Defaulter List</h3>
+      <p>Students below criteria</p>
+    </div>
+  </div>
+</section>
 
-  <!-- ATTENDANCE -->
-  <section id="attendance">
-    <h2>Take Attendance</h2>
+<!-- ATTENDANCE -->
+<section id="attendance" class="page">
+  <h2>Attendance</h2>
 
-    <table id="attendanceTable" class="fancy-table">
-      <thead>
-        <tr>
-          <th>Roll No</th>
-          <th>Name</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <select id="classSelect" onchange="loadStudents()"></select>
 
-    <button class="save-btn" onclick="saveAttendance()">Save Attendance</button>
-  </section>
+  <table class="attendance-table">
+    <thead>
+      <tr>
+        <th>Roll</th>
+        <th>Name</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="attendanceBody"></tbody>
+  </table>
 
-  <!-- RECORDS -->
-  <section id="records">
-    <h2>Attendance Records</h2>
-    <input type="date" id="recordDate" onchange="loadRecord()">
+  <button class="primary-btn" onclick="saveAttendance()">Save Attendance</button>
+</section>
 
-    <table class="fancy-table">
-      <thead>
-        <tr>
-          <th>Roll No</th>
-          <th>Name</th>
-          <th>Attendance</th>
-        </tr>
-      </thead>
-      <tbody id="recordBody"></tbody>
-    </table>
-  </section>
+<!-- DEFUALTERS -->
+<section id="defaulters" class="page">
+  <h2>Defaulter List</h2>
+  <table class="attendance-table">
+    <thead>
+      <tr>
+        <th>Roll</th>
+        <th>Name</th>
+        <th>Attendance %</th>
+      </tr>
+    </thead>
+    <tbody id="defaulterBody"></tbody>
+  </table>
+</section>
 
-  <!-- DEFAULTERS -->
-  <section id="defaulters">
-    <h2>Defaulter List (Below 75%)</h2>
-
-    <table class="fancy-table">
-      <thead>
-        <tr>
-          <th>Roll No</th>
-          <th>Name</th>
-          <th>%</th>
-        </tr>
-      </thead>
-      <tbody id="defaulterBody"></tbody>
-    </table>
-  </section>
-
-  <!-- PROFILE -->
-  <section id="profile">
-    <h2>My Profile</h2>
-    <input type="text" id="teacherName">
-    <input type="email" id="teacherEmail" disabled>
-    <button class="save-btn" onclick="saveProfile()">Save Profile</button>
-  </section>
+<!-- ANALYTICS -->
+<section id="analytics" class="page">
+  <h2>Attendance Analytics</h2>
+  <canvas id="attendanceChart" height="260"></canvas>
+</section>
 
 </main>
 
