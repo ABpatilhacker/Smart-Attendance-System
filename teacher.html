@@ -3,108 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Attendance | Teacher Dashboard</title>
-<link rel="stylesheet" href="teacher.css">
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<title>Smart Attendance - Teacher Dashboard</title>
+<link rel="stylesheet" href="teacher-dashboard.css">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<!-- Sidebar -->
+<!-- SIDEBAR -->
 <div id="sidebar" class="sidebar">
-  <h3>Smart Attendance</h3>
-  <ul>
-    <li onclick="openSection('dashboard')">Dashboard</li>
-    <li onclick="openSection('classes')">Classes</li>
-    <li onclick="openSection('attendance')">Take Attendance</li>
-    <li onclick="openSection('records')">Attendance Records</li>
-    <li onclick="openSection('defaulters')">Defaulters</li>
-    <li onclick="openSection('profile')">My Profile</li>
+  <h2 class="logo">Smart Attendance</h2>
+  <ul class="menu">
+    <li onclick="openPage('dashboard')">Dashboard</li>
+    <li onclick="openPage('classes')">Classes</li>
+    <li onclick="openPage('attendance')">Take Attendance</li>
+    <li onclick="openPage('defaulters')">Defaulter List</li>
+    <li onclick="openPage('attendanceRecord')">Attendance Record</li>
+    <li onclick="openPage('profile')">My Profile</li>
     <li onclick="logout()">Logout</li>
   </ul>
 </div>
 
-<!-- Topbar -->
+<!-- TOPBAR -->
 <div class="topbar">
-  <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+  <span class="menu-btn" onclick="toggleSidebar()">☰</span>
   <h3>Teacher Dashboard</h3>
-  <div id="teacherWelcome">Welcome, Teacher</div>
 </div>
 
-<!-- Main Content -->
+<!-- MAIN CONTENT -->
 <main>
-  <!-- Dashboard -->
+
+  <!-- DASHBOARD -->
   <section id="dashboard" class="section active">
+    <div class="welcome-card glass">
+      <h2>Welcome, <span id="teacherNameDisplay">Teacher</span>!</h2>
+    </div>
     <div class="cards">
-      <div class="card" onclick="openSection('classes')">
-        <h2 id="classCount">0</h2>
-        <p>Classes</p>
-      </div>
-      <div class="card" onclick="openSection('attendance')">
-        <h2>Take</h2>
-        <p>Attendance</p>
-      </div>
+      <div class="card glass" onclick="openPage('classes')">Classes</div>
+      <div class="card glass" onclick="openPage('attendance')">Take Attendance</div>
+      <div class="card glass" onclick="openPage('defaulters')">Defaulter List</div>
+      <div class="card glass" onclick="openPage('attendanceRecord')">Attendance Record</div>
+      <div class="card glass" onclick="openPage('profile')">My Profile</div>
     </div>
   </section>
 
-  <!-- Classes -->
+  <!-- CLASSES -->
   <section id="classes" class="section">
-    <h2>Classes</h2>
-    <div id="classList" class="cards"></div>
+    <h2>Your Classes</h2>
+    <div id="classCards" class="cards"></div>
   </section>
 
-  <!-- Attendance -->
+  <!-- ATTENDANCE -->
   <section id="attendance" class="section">
     <h2>Take Attendance</h2>
-    <div class="attendance-controls">
-      <select id="attendanceClass"></select>
-      <select id="attendanceSubject"></select>
-      <input type="date" id="attendanceDate">
-      <button onclick="loadAttendance()">Load Students</button>
-    </div>
+    <label for="selectClass">Select Class:</label>
+    <select id="selectClass" onchange="loadSubjects()"></select>
+    <label for="selectSubject">Select Subject:</label>
+    <select id="selectSubject"></select>
     <table id="attendanceTable">
       <thead>
-        <tr><th>Roll</th><th>Name</th><th>Attendance</th></tr>
+        <tr>
+          <th>Roll</th>
+          <th>Name</th>
+          <th>Attendance</th>
+        </tr>
       </thead>
       <tbody></tbody>
     </table>
-    <button class="primary" onclick="saveAttendance()">Save Attendance</button>
+    <button id="saveAttendanceBtn" class="primary-btn" onclick="saveAttendance()">Save Attendance</button>
   </section>
 
-  <!-- Attendance Records -->
-  <section id="records" class="section">
-    <h2>Attendance Records</h2>
-    <div class="records-chart-wrapper gradient-bg">
-      <canvas id="attendanceChart" height="250"></canvas>
-    </div>
-    <div class="record-controls">
-      <select id="recordClass"></select>
-      <select id="recordSubject"></select>
-      <input type="date" id="recordDate">
-    </div>
-  </section>
-
-  <!-- Defaulters -->
+  <!-- DEFAULTER LIST -->
   <section id="defaulters" class="section">
     <h2>Defaulter List</h2>
     <table id="defaulterTable">
-      <thead><tr><th>Roll</th><th>Name</th><th>Subjects</th></tr></thead>
+      <thead>
+        <tr><th>Roll</th><th>Name</th><th>Subject</th><th>Attendance %</th></tr>
+      </thead>
       <tbody></tbody>
     </table>
   </section>
 
-  <!-- Profile -->
+  <!-- ATTENDANCE RECORD -->
+  <section id="attendanceRecord" class="section">
+    <h2>Attendance Record</h2>
+    <label for="recordClass">Select Class:</label>
+    <select id="recordClass" onchange="loadSubjectsRecord()"></select>
+    <label for="recordSubject">Select Subject:</label>
+    <select id="recordSubject"></select>
+    <input type="date" id="recordDate" onchange="loadAttendanceRecord()">
+    <table id="recordTable">
+      <thead>
+        <tr><th>Roll</th><th>Name</th><th>Status</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- PROFILE -->
   <section id="profile" class="section">
     <h2>My Profile</h2>
-    <div id="profileCard" class="card">
-      <p><strong>Name:</strong> <span id="profileName"></span></p>
-      <p><strong>Email:</strong> <span id="profileEmail"></span></p>
-      <button onclick="editProfile()">Edit Name</button>
+    <div class="profile-card glass">
+      <label>Name:</label>
+      <input type="text" id="profileName">
+      <label>Email:</label>
+      <input type="email" id="profileEmail" readonly>
+      <button class="primary-btn" onclick="updateProfile()">Save</button>
     </div>
   </section>
+
 </main>
+
+<!-- TOAST -->
+<div id="toast"></div>
 
 <script src="teacher.js"></script>
 </body>
