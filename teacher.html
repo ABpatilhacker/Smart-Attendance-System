@@ -1,66 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Attendance System - Teacher Dashboard</title>
-  <link rel="stylesheet" href="teacher.css">
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Attendance - Teacher Dashboard</title>
+<link rel="stylesheet" href="teacher.css">
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <div id="sidebar" class="sidebar">
-    <div class="menu-header">Dashboard</div>
-    <ul>
-      <li onclick="redirectPage('classes')">Classes</li>
-      <li onclick="redirectPage('attendance')">Take Attendance</li>
-      <li onclick="redirectPage('records')">Attendance Records</li>
-      <li onclick="redirectPage('defaulters')">Defaulters</li>
-      <li onclick="redirectPage('profile')">My Profile</li>
-      <li onclick="logout()">Logout</li>
-    </ul>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-header">Teacher Dashboard</div>
+  <ul>
+    <li onclick="openSection('dashboard')">🏠 Dashboard</li>
+    <li onclick="openSection('classes')">🏫 Classes</li>
+    <li onclick="openSection('attendance')">📝 Take Attendance</li>
+    <li onclick="openSection('defaulters')">⚠️ Defaulters</li>
+    <li onclick="openSection('records')">📊 Attendance Records</li>
+    <li onclick="openSection('profile')">👤 My Profile</li>
+    <li onclick="logout()">🚪 Logout</li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div id="main">
+  <div class="topbar">
+    <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+    <h3>Smart Attendance System</h3>
   </div>
 
-  <div class="main">
-    <div class="topbar">
-      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-      <h1>Smart Attendance System</h1>
+  <!-- Dashboard Section -->
+  <section id="dashboard" class="section active">
+    <div class="welcome-card glass-card">
+      <h2>Welcome, <span id="teacherNameDisplay">Teacher</span> 👋</h2>
     </div>
-
-    <div class="content">
-      <div id="welcomeCard"></div>
-
-      <div id="dashboardCards" class="dashboard-cards">
-        <div class="card">
-          <h3>Total Classes</h3>
-          <span id="classCount">0</span>
-        </div>
-        <div class="card">
-          <h3>Total Students</h3>
-          <span id="studentCount">0</span>
-        </div>
+    <div class="cards">
+      <div class="card ripple" onclick="openSection('classes')">
+        <h2>Classes</h2>
+        <p>View and manage your classes</p>
       </div>
-
-      <div id="classListContainer">
-        <h2>My Classes</h2>
-        <ul id="classList"></ul>
-      </div>
-
-      <div id="classSubjectsContainer"></div>
-
-      <div id="subjectAttendanceContainer">
+      <div class="card ripple" onclick="openSection('attendance')">
         <h2>Take Attendance</h2>
-        <select id="subjectSelect">
-          <option value="">Select Subject</option>
-        </select>
-        <div id="attendanceStudentsContainer"></div>
+        <p>Record attendance for your subjects</p>
       </div>
-
-      <div id="defaultersContainer"></div>
+      <div class="card ripple" onclick="openSection('defaulters')">
+        <h2>Defaulters</h2>
+        <p>View students with low attendance</p>
+      </div>
+      <div class="card ripple" onclick="openSection('records')">
+        <h2>Attendance Records</h2>
+        <p>Check historical attendance</p>
+      </div>
+      <div class="card ripple" onclick="openSection('profile')">
+        <h2>My Profile</h2>
+        <p>Update your info</p>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <script src="teacher.js"></script>
+  <!-- Classes Section -->
+  <section id="classes" class="section">
+    <h2>Your Classes</h2>
+    <div id="classCards" class="cards"></div>
+  </section>
+
+  <!-- Attendance Section -->
+  <section id="attendance" class="section">
+    <h2>Take Attendance</h2>
+    <div class="attendance-selector glass-card">
+      <label for="attendanceClass">Select Class</label>
+      <select id="attendanceClass" onchange="loadAttendanceSubjects()"></select>
+
+      <label for="attendanceSubject">Select Subject</label>
+      <select id="attendanceSubject"></select>
+
+      <button class="primary" onclick="loadAttendanceTable()">Load Students</button>
+    </div>
+    <div id="attendanceTableWrapper"></div>
+  </section>
+
+  <!-- Defaulters Section -->
+  <section id="defaulters" class="section">
+    <h2>Defaulters</h2>
+    <div id="defaulterTableWrapper"></div>
+  </section>
+
+  <!-- Attendance Records Section -->
+  <section id="records" class="section">
+    <h2>Attendance Records</h2>
+    <input type="date" id="recordDate" onchange="loadAttendanceRecords()">
+    <select id="recordSubject" onchange="loadAttendanceRecords()"></select>
+    <div id="recordsTableWrapper"></div>
+  </section>
+
+  <!-- Profile Section -->
+  <section id="profile" class="section">
+    <h2>My Profile</h2>
+    <div class="glass-card profile-card">
+      <label>Name</label>
+      <input type="text" id="profileName">
+      <label>Email</label>
+      <input type="text" id="profileEmail" readonly>
+      <button class="primary" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </section>
+</div>
+
+<script src="teacher.js"></script>
 </body>
 </html>
