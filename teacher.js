@@ -106,3 +106,109 @@ function loadRecords(){
 function saveProfile(){
   db.ref("users/"+uid+"/name").set(profileName.value);
 }
+let todayChart, subjectChart;
+
+/* ===== BUTTON UI IMPROVEMENT ===== */
+function mark(r,v,btn){
+  attendance[r]=v;
+
+  const cell = btn.parentElement;
+  cell.querySelectorAll("button").forEach(b=>{
+    b.classList.remove("active");
+  });
+
+  btn.classList.add("active");
+}
+
+/* ===== CHART: TODAY ATTENDANCE ===== */
+function renderTodayChart(present, absent){
+  if(todayChart) todayChart.destroy();
+
+  todayChart = new Chart(document.getElementById("todayChart"),{
+    type:"doughnut",
+    data:{
+      labels:["Present","Absent"],
+      datasets:[{
+        data:[present,absent],
+        backgroundColor:["#22c55e","#ef4444"],
+        borderWidth:0
+      }]
+    },
+    options:{
+      cutout:"70%",
+      plugins:{legend:{position:"bottom"}}
+    }
+  });
+}
+
+/* ===== CHART: SUBJECT WISE ===== */
+function renderSubjectChart(data){
+  if(subjectChart) subjectChart.destroy();
+
+  subjectChart = new Chart(document.getElementById("subjectChart"),{
+    type:"bar",
+    data:{
+      labels:Object.keys(data),
+      datasets:[{
+        label:"Attendance %",
+        data:Object.values(data),
+        backgroundColor:"#6366f1",
+        borderRadius:10
+      }]
+    },
+    options:{
+      scales:{y:{beginAtZero:true,max:100}},
+      plugins:{legend:{display:false}}
+    }
+  });
+}
+
+/* ===== UPDATE CHART AFTER SAVE ===== */
+function saveAttendance(){
+  const d=new Date().toISOString().split("T")[0];
+  let p=0,a=0;
+
+  Object.values(attendance).forEach(v=>{
+    if(v==="P")p++; else a++;
+  });
+
+  db.ref(`attendance/${cls}/${sub}/${d}`).set(attendance).then(()=>{
+    toast.classList.add("show");
+    setTimeout(()=>toast.classList.remove("show"),3000);
+
+    renderTodayChart(p,a);
+  });
+}
+
+/* ===== LOAD SUBJECT % (DEFUALTER BASE) ===== */
+function loadSubjectStats(){
+  db.ref(`attendance/${cls}`).once("value").then(s=>{
+    let result={};
+
+    s.forEach(subSnap=>{
+      let total=0,present=0;
+      subSnap.forEach(dateSnap=>{
+        dateSnap.forEach(r=>{
+          total++;
+          if(r.val()==="P")present++;
+        });
+      });
+
+      if(total>0){
+        result[subSnap.key]=Math.round((present/total)*100);
+      }
+    });
+
+    renderSubjectChart(result);
+  });
+}
+
+/* call when dashboard opens */
+openSection = (id)=>{
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
+
+  if(id==="dashboard") loadSubjectStats();
+};
