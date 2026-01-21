@@ -281,6 +281,23 @@ function renderAttendanceChart(classId, subjectId, date) {
 
     if(attendanceChart) attendanceChart.destroy();
 
+let attendanceChart;
+
+function renderAttendanceChart(classId, subjectId, date) {
+  if(!classId || !subjectId || !date) return;
+
+  db.ref(`attendance/${classId}/${subjectId}/${date}`).once("value").then(snap=>{
+    let present = 0, absent = 0;
+
+    snap.forEach(s=>{
+      if(s.val() === 'present') present++;
+      else if(s.val() === 'absent') absent++;
+    });
+
+    const ctx = document.getElementById("attendanceChart").getContext("2d");
+
+    if(attendanceChart) attendanceChart.destroy();
+
     attendanceChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
@@ -288,28 +305,43 @@ function renderAttendanceChart(classId, subjectId, date) {
         datasets: [{
           data: [present, absent],
           backgroundColor: [
-            'rgba(72, 239, 128, 0.8)', // Green with transparency
-            'rgba(255, 99, 132, 0.8)'  // Red with transparency
+            'rgba(72, 239, 128, 0.85)',
+            'rgba(255, 99, 132, 0.85)'
           ],
           borderColor: [
             'rgba(72, 239, 128, 1)',
             'rgba(255, 99, 132, 1)'
           ],
-          borderWidth: 2,
-          hoverOffset: 10,
-          hoverBorderWidth: 4
+          borderWidth: 3,
+          hoverOffset: 15
         }]
       },
       options: {
         responsive: true,
+        cutout: '70%',
         plugins: {
-          legend: { position: 'bottom', labels:{color:'#fff', font:{size:14}} },
+          legend: { position: 'bottom', labels:{color:'#fff', font:{size:14, weight:'600'}} },
           tooltip: { enabled:true, backgroundColor:'#000', titleColor:'#fff', bodyColor:'#fff' }
         },
-        cutout: '70%',
-        animation: { animateScale: true, animateRotate: true },
+        animation: {
+          animateScale: true,
+          animateRotate: true,
+        },
       }
     });
+
+    // Glow effect
+    document.getElementById("attendanceChart").style.filter = "drop-shadow(0px 0px 20px rgba(72,239,128,0.7))";
+  });
+}
+
+// Event listener for date/class/subject changes
+document.getElementById("recordDate").addEventListener("change", ()=>{
+  const classId = document.getElementById("attendanceClass").value;
+  const subjectId = document.getElementById("attendanceSubject").value;
+  const date = document.getElementById("recordDate").value;
+  renderAttendanceChart(classId, subjectId, date);
+});
 
     // Glow effect using CSS filter
     document.getElementById("attendanceChart").style.filter = "drop-shadow(0px 0px 15px rgba(72,239,128,0.7))";
