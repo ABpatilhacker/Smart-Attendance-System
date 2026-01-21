@@ -2,56 +2,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smart Attendance – Teacher</title>
+  <title>Teacher Dashboard | Smart Attendance</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="teacher.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="teacher.css">
 
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
+
 <body>
 
-<div class="overlay" id="overlay"></div>
+<!-- TOPBAR -->
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn">☰</button>
+  <h2>Smart Attendance</h2>
+  <div class="user-info">
+    <span id="welcomeText">Welcome</span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</header>
 
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
-  <h2>Smart Attendance</h2>
-  <nav>
-    <a onclick="showPage('dashboard')">Dashboard</a>
-    <a onclick="showPage('attendance')">Attendance</a>
-    <a onclick="showPage('calendar')">Calendar</a>
-    <a onclick="showPage('defaulters')">Defaulters</a>
-    <a onclick="logout()">Logout</a>
-  </nav>
+  <a onclick="openSection('dashboard')">🏠 Dashboard</a>
+  <a onclick="openSection('attendance')">📝 Attendance</a>
+  <a onclick="openSection('defaulters')">⚠️ Defaulters</a>
+  <a onclick="openSection('records')">📅 Records</a>
 </aside>
 
+<!-- OVERLAY -->
+<div id="overlay"></div>
+
 <!-- MAIN -->
-<div class="main">
-  <header class="topbar">
-    <button id="menuBtn">☰</button>
-    <h3 id="welcomeText">Welcome</h3>
-  </header>
+<main id="main">
 
   <!-- DASHBOARD -->
-  <section id="dashboard" class="page active">
+  <section id="dashboard" class="section active">
     <div class="cards">
-      <div class="card">
-        <h4>Today Attendance</h4>
-        <canvas id="donutChart"></canvas>
+      <div class="card" onclick="openSection('attendance')">
+        <h3>Take Attendance</h3>
+        <p>Mark today’s attendance</p>
+      </div>
+      <div class="card" onclick="openSection('defaulters')">
+        <h3>Defaulters</h3>
+        <p>Low attendance list</p>
+      </div>
+      <div class="card" onclick="openSection('records')">
+        <h3>Attendance Records</h3>
+        <p>View past attendance</p>
       </div>
     </div>
   </section>
 
   <!-- ATTENDANCE -->
-  <section id="attendance" class="page">
-    <h3>Mark Attendance</h3>
+  <section id="attendance" class="section">
+    <h2>Mark Attendance</h2>
     <table class="attendance-table">
       <thead>
         <tr>
-          <th>Roll</th>
+          <th>Roll No</th>
           <th>Name</th>
           <th>Status</th>
         </tr>
@@ -61,28 +74,38 @@
     <button class="save-btn" onclick="saveAttendance()">Save Attendance</button>
   </section>
 
-  <!-- CALENDAR -->
-  <section id="calendar" class="page">
-    <h3>Attendance Calendar</h3>
-    <input type="date" id="calendarDate" onchange="loadCalendarAttendance()" />
-    <div id="calendarResult"></div>
-  </section>
-
   <!-- DEFAULTERS -->
-  <section id="defaulters" class="page">
-    <h3>Defaulter List</h3>
-    <table class="attendance-table">
+  <section id="defaulters" class="section">
+    <h2>Defaulter List</h2>
+    <table class="defaulter-table">
       <thead>
         <tr>
           <th>Roll</th>
           <th>Name</th>
-          <th>% Attendance</th>
+          <th>%</th>
         </tr>
       </thead>
       <tbody id="defaulterBody"></tbody>
     </table>
   </section>
-</div>
+
+  <!-- RECORDS -->
+  <section id="records" class="section">
+    <h2>Attendance Records</h2>
+    <input type="date" id="recordDate" onchange="loadRecord()">
+    <table class="attendance-table">
+      <thead>
+        <tr>
+          <th>Roll</th>
+          <th>Name</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="recordBody"></tbody>
+    </table>
+  </section>
+
+</main>
 
 <script src="teacher.js"></script>
 </body>
