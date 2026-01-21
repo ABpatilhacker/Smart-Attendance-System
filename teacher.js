@@ -15,16 +15,19 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+/********************************
+ 🌐 GLOBAL STATE
+*********************************/
 let currentTeacher = null;
-let attendanceData = {};
 let selectedSubjectKey = null;
+let attendanceData = {};
 
 /********************************
  🔐 AUTH CHECK
 *********************************/
 auth.onAuthStateChanged(user => {
   if (!user) {
-    window.location.href = "login.html";
+    location.href = "login.html";
   } else {
     currentTeacher = user;
     loadTeacherInfo();
@@ -32,13 +35,6 @@ auth.onAuthStateChanged(user => {
     loadChart();
   }
 });
-
-/********************************
- 🚪 LOGOUT
-*********************************/
-function logout() {
-  auth.signOut().then(() => location.href = "login.html");
-}
 
 /********************************
  📂 SIDEBAR + ROUTES
@@ -51,39 +47,29 @@ function toggleSidebar() {
 function openSection(id) {
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  toggleSidebar();
+  if (window.innerWidth < 768) toggleSidebar();
 }
 
 /********************************
- 👋 WELCOME + PROFILE
+ 👋 TEACHER INFO
 *********************************/
 function loadTeacherInfo() {
   db.ref("users/" + currentTeacher.uid).once("value").then(snap => {
-    const data = snap.val();
-    document.getElementById("welcomeCard").innerText =
-      `Welcome 👋 ${data.name}`;
-
-    document.getElementById("profileName").value = data.name;
-    document.getElementById("profileEmail").value = data.email;
+    const d = snap.val();
+    document.getElementById("welcomeCard").innerText = `Welcome 👋 ${d.name}`;
+    document.getElementById("profileName").value = d.name;
+    document.getElementById("profileEmail").value = d.email;
   });
 }
 
-function saveProfile() {
-  const name = document.getElementById("profileName").value.trim();
-  if (!name) return toast("Name required ⚠️");
-
-  db.ref("users/" + currentTeacher.uid).update({ name })
-    .then(() => toast("Profile updated ✅"));
-}
-
 /********************************
- 📚 LOAD SUBJECTS (TEACHER ONLY)
+ 📚 LOAD SUBJECTS + CLASSES
 *********************************/
 function loadSubjects() {
   const select = document.getElementById("subjectSelect");
-  const classContainer = document.getElementById("classListContainer");
-  select.innerHTML = `<option value="">-- Select --</option>`;
-  classContainer.innerHTML = "";
+  const container = document.getElementById("classListContainer");
+  select.innerHTML = `<option value="">-- Select Subject --</option>`;
+  container.innerHTML = "";
 
   db.ref("classes").once("value").then(snap => {
     snap.forEach(cls => {
@@ -99,11 +85,16 @@ function loadSubjects() {
 
           const card = document.createElement("div");
           card.className = "card";
+          card.onclick = () => {
+            openSection("attendance");
+            document.getElementById("subjectSelect").value = key;
+            loadAttendanceTable();
+          };
           card.innerHTML = `
             <h3>${c.name}</h3>
             <p>${c.subjects[s].name}</p>
           `;
-          classContainer.appendChild(card);
+          container.appendChild(card);
         }
       }
     });
@@ -111,7 +102,7 @@ function loadSubjects() {
 }
 
 /********************************
- 📝 ATTENDANCE TABLE
+ 📝 LOAD ATTENDANCE TABLE
 *********************************/
 function loadAttendanceTable() {
   const body = document.getElementById("attendanceBody");
@@ -121,15 +112,17 @@ function loadAttendanceTable() {
   selectedSubjectKey = document.getElementById("subjectSelect").value;
   if (!selectedSubjectKey) return;
 
-  const [classId] = selectedSubjectKey.split("_");
+  const classId = selectedSubjectKey.split("_")[0];
 
-  db.ref("users").orderByChild("classId").equalTo(classId).once("value")
+  db.ref("users")
+    .orderByChild("classId")
+    .equalTo(classId)
+    .once("value")
     .then(snap => {
       let students = [];
       snap.forEach(s => {
-        const d = s.val();
-        if (d.role === "student") {
-          students.push({ ...d, uid: s.key });
+        if (s.val().role === "student") {
+          students.push({ ...s.val(), uid: s.key });
         }
       });
 
@@ -137,29 +130,33 @@ function loadAttendanceTable() {
 
       students.forEach(stu => {
         attendanceData[stu.uid] = null;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${stu.roll}</td>
-          <td>${stu.name}</td>
-          <td>
-            <button class="att-btn present"
-              onclick="markAttendance('${stu.uid}','P',this)">P</button>
-            <button class="att-btn absent"
-              onclick="markAttendance('${stu.uid}','A',this)">A</button>
-          </td>
+        body.innerHTML += `
+          <tr>
+            <td>${stu.roll}</td>
+            <td>${stu.name}</td>
+            <td>
+              <button class="att-btn present"
+                onclick="markAttendance('${stu.uid}','P',this)">Present</button>
+              <button class="att-btn absent"
+                onclick="markAttendance('${stu.uid}','A',this)">Absent</button>
+            </td>
+          </tr>
         `;
-        body.appendChild(tr);
       });
     });
 }
 
+/********************************
+ ✅ MARK ATTENDANCE
+*********************************/
 function markAttendance(uid, status, btn) {
   attendanceData[uid] = status;
-
   const parent = btn.parentElement;
   parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
+
+  btn.style.background =
+    status === "P" ? "#22c55e" : "#ef4444";
 }
 
 /********************************
@@ -168,18 +165,21 @@ function markAttendance(uid, status, btn) {
 function saveAttendance() {
   if (!selectedSubjectKey) return toast("Select subject ⚠️");
 
-  const date = new Date().toISOString().split("T")[0];
-  const ref = db.ref(`attendance/${selectedSubjectKey}/${date}`);
+  for (let k in attendanceData) {
+    if (!attendanceData[k]) return toast("Mark all students ⚠️");
+  }
 
-  ref.set(attendanceData).then(() => {
-    toast("Attendance Saved ✔️");
-    document.querySelectorAll(".att-btn").forEach(b => b.classList.add("fade"));
-    loadChart();
-  });
+  const date = new Date().toISOString().split("T")[0];
+  db.ref(`attendance/${selectedSubjectKey}/${date}`)
+    .set(attendanceData)
+    .then(() => {
+      toast("Attendance Saved Successfully ✅");
+      loadChart();
+    });
 }
 
 /********************************
- 📊 CHART (PREMIUM DONUT)
+ 📊 DASHBOARD CHART
 *********************************/
 let chart;
 function loadChart() {
@@ -193,33 +193,77 @@ function loadChart() {
     data: {
       labels: ["Present", "Absent"],
       datasets: [{
-        data: [75, 25],
-        backgroundColor: [
-          "rgba(0,255,200,0.9)",
-          "rgba(255,80,80,0.9)"
-        ]
+        data: [80, 20],
+        backgroundColor: ["#22c55e", "#ef4444"]
       }]
     },
     options: {
       cutout: "70%",
-      plugins: {
-        legend: { position: "bottom" }
-      }
+      plugins: { legend: { position: "bottom" } }
     }
   });
 }
 
 /********************************
- ⚠️ DEFAULTERS
+ 📅 ATTENDANCE RECORD (DATE WISE)
+*********************************/
+function loadAttendanceRecord() {
+  const date = document.getElementById("recordDate").value;
+  const body = document.getElementById("recordBody");
+  body.innerHTML = "";
+
+  if (!date || !selectedSubjectKey) return;
+
+  db.ref(`attendance/${selectedSubjectKey}/${date}`)
+    .once("value")
+    .then(snap => {
+      snap.forEach(s => {
+        body.innerHTML += `
+          <tr>
+            <td>${s.key}</td>
+            <td>${s.val() === "P" ? "Present" : "Absent"}</td>
+          </tr>
+        `;
+      });
+    });
+}
+
+/********************************
+ ⚠️ DEFAULTER LOGIC (REAL)
 *********************************/
 function loadDefaulters() {
   const body = document.getElementById("defaulterBody");
   body.innerHTML = "";
 
-  body.innerHTML = `
-    <tr><td>12</td><td>Rahul</td><td>42%</td></tr>
-    <tr><td>18</td><td>Neha</td><td>38%</td></tr>
-  `;
+  if (!selectedSubjectKey) return;
+
+  db.ref(`attendance/${selectedSubjectKey}`)
+    .once("value")
+    .then(snap => {
+      const stats = {};
+
+      snap.forEach(day => {
+        day.forEach(s => {
+          stats[s.key] ??= { total: 0, present: 0 };
+          stats[s.key].total++;
+          if (s.val() === "P") stats[s.key].present++;
+        });
+      });
+
+      for (let uid in stats) {
+        const perc = Math.round(
+          (stats[uid].present / stats[uid].total) * 100
+        );
+        if (perc < 75) {
+          body.innerHTML += `
+            <tr>
+              <td>${uid}</td>
+              <td>${perc}%</td>
+            </tr>
+          `;
+        }
+      }
+    });
 }
 
 /********************************
@@ -231,6 +275,5 @@ function toast(msg) {
   t.innerText = msg;
   document.body.appendChild(t);
   setTimeout(() => t.classList.add("show"), 100);
-  setTimeout(() => t.classList.remove("show"), 2500);
   setTimeout(() => t.remove(), 3000);
-}
+                          }
