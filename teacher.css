@@ -1,0 +1,283 @@
+/* ==========================
+   GLOBAL RESET & FONT
+========================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  transition: all 0.4s ease;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0eafc, #cfdef3);
+  color: #1A1F36;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+/* ==========================
+   SIDEBAR
+========================== */
+.sidebar {
+  width: 250px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  position: fixed;
+  height: 100%;
+  top: 0;
+  left: 0;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s ease, background 3s linear;
+  z-index: 100;
+  border-radius: 0 20px 20px 0;
+  overflow: hidden;
+}
+
+.sidebar.open { transform: translateX(0); }
+.sidebar h2 {
+  text-align: center;
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 40px;
+  background: linear-gradient(90deg, #ffd700, #ff6347);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sidebar ul {
+  list-style: none;
+  flex: 1;
+}
+
+.sidebar ul li {
+  padding: 14px 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar ul li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 100%;
+  width: 0;
+  background: rgba(255, 255, 255, 0.1);
+  transition: 0.3s;
+  border-radius: 12px;
+}
+
+.sidebar ul li:hover::after { width: 100%; }
+.sidebar ul li:hover { color: #ffd700; }
+
+/* ==========================
+   TOPBAR
+========================== */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 250px;
+  right: 0;
+  height: 70px;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  z-index: 90;
+}
+
+.menu-btn { font-size: 26px; cursor: pointer; }
+.topbar-title { font-weight: 700; font-size: 1.3rem; }
+
+/* ==========================
+   MAIN CONTENT
+========================== */
+.main {
+  margin-left: 250px;
+  padding: 100px 40px 40px 40px;
+}
+
+.section { display: none; animation: fadeIn 0.6s ease; }
+.section.active { display: block; }
+
+/* ==========================
+   WELCOME CARD
+========================== */
+.welcome-card {
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  padding: 15px 25px;
+  border-radius: 20px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+/* ==========================
+   CARDS
+========================== */
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 25px;
+}
+
+.card {
+  flex: 1 1 220px;
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 25px 20px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #fff;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
+  animation: animateGradient 8s linear infinite;
+  z-index: 0;
+  filter: blur(30px);
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+}
+
+.card * { position: relative; z-index: 1; }
+
+/* ==========================
+   TABLES
+========================== */
+.attendance-table, .defaulter-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(15px);
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.attendance-table th, .attendance-table td,
+.defaulter-table th, .defaulter-table td {
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: 500;
+}
+
+.attendance-table th, .defaulter-table th {
+  background: rgba(255,255,255,0.1);
+}
+
+.attendance-table tbody tr:nth-child(even),
+.defaulter-table tbody tr:nth-child(even) {
+  background: rgba(255,255,255,0.05);
+}
+
+/* ==========================
+   ATTENDANCE BUTTONS
+========================== */
+.attendance-buttons button {
+  margin-right: 12px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.attendance-buttons .present { background: #4caf50; color: #fff; }
+.attendance-buttons .absent { background: #f44336; color: #fff; }
+.attendance-buttons .selected {
+  transform: scale(1.1);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+/* ==========================
+   SAVE BUTTON
+========================== */
+.save-btn {
+  margin-top: 20px;
+  padding: 12px 30px;
+  font-weight: 700;
+  border-radius: 15px;
+  border: none;
+  background: linear-gradient(90deg, #ff7e5f, #feb47b);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.4s;
+}
+
+.save-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+}
+
+/* ==========================
+   TOAST
+========================== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  padding: 12px 25px;
+  border-radius: 20px;
+  color: #fff;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease;
+  z-index: 999;
+}
+
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ==========================
+   ANIMATIONS
+========================== */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px);}
+  100% { opacity: 1; transform: translateY(0);}
+}
+
+@keyframes animateGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ==========================
+   RESPONSIVE
+========================== */
+@media(max-width: 992px) {
+  .sidebar { transform: translateX(-100%); position: fixed; }
+  .main { margin-left: 0; padding: 90px 20px 20px 20px; }
+  .topbar { left: 0; }
+}
