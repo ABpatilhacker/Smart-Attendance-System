@@ -264,3 +264,62 @@ function toast(msg){
   setTimeout(()=> t.classList.remove("show"),3000);
   setTimeout(()=> t.remove(),3500);
     }
+let attendanceChart;
+
+function renderAttendanceChart(classId, subjectId, date) {
+  if(!classId || !subjectId || !date) return;
+
+  db.ref(`attendance/${classId}/${subjectId}/${date}`).once("value").then(snap=>{
+    let present = 0, absent = 0;
+
+    snap.forEach(s=>{
+      if(s.val() === 'present') present++;
+      else if(s.val() === 'absent') absent++;
+    });
+
+    const ctx = document.getElementById("attendanceChart").getContext("2d");
+
+    if(attendanceChart) attendanceChart.destroy();
+
+    attendanceChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Present', 'Absent'],
+        datasets: [{
+          data: [present, absent],
+          backgroundColor: [
+            'rgba(72, 239, 128, 0.8)', // Green with transparency
+            'rgba(255, 99, 132, 0.8)'  // Red with transparency
+          ],
+          borderColor: [
+            'rgba(72, 239, 128, 1)',
+            'rgba(255, 99, 132, 1)'
+          ],
+          borderWidth: 2,
+          hoverOffset: 10,
+          hoverBorderWidth: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom', labels:{color:'#fff', font:{size:14}} },
+          tooltip: { enabled:true, backgroundColor:'#000', titleColor:'#fff', bodyColor:'#fff' }
+        },
+        cutout: '70%',
+        animation: { animateScale: true, animateRotate: true },
+      }
+    });
+
+    // Glow effect using CSS filter
+    document.getElementById("attendanceChart").style.filter = "drop-shadow(0px 0px 15px rgba(72,239,128,0.7))";
+  });
+}
+
+// Call this function whenever date/class/subject changes in records section
+document.getElementById("recordDate").addEventListener("change", ()=>{
+  const classId = document.getElementById("attendanceClass").value;
+  const subjectId = document.getElementById("attendanceSubject").value;
+  const date = document.getElementById("recordDate").value;
+  renderAttendanceChart(classId, subjectId, date);
+});
