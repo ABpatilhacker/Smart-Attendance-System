@@ -115,7 +115,27 @@
   </section>
 
 </main>
+<script>
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.querySelector(".overlay");
+  const sections = document.querySelectorAll(".section");
 
+  function toggleSidebar() {
+    sidebar.classList.toggle("open");
+    overlay.style.display = sidebar.classList.contains("open") ? "block" : "none";
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+    overlay.style.display = "none";
+  }
+
+  function openSection(id) {
+    sections.forEach(sec => sec.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    closeSidebar();
+  }
+</script>
 <script src="admin.js"></script>
 </body>
 </html>
