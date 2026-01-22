@@ -1,346 +1,82 @@
-/* ===============================
-   🌟 GLOBAL RESET & THEME
-================================ */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+*{box-sizing:border-box;font-family:Inter,Arial}
+body{margin:0;background:#f5f7fb;color:#0f172a}
+
+/* TOP BAR */
+.topbar{
+  height:56px;background:#fff;display:flex;align-items:center;
+  justify-content:space-between;padding:0 16px;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+.menu-btn{font-size:20px;background:none;border:none}
+.logout-btn{background:#ef4444;color:#fff;border:none;padding:6px 12px;border-radius:6px}
+
+/* LAYOUT */
+.layout{display:flex}
+
+/* SIDEBAR */
+.sidebar{
+  width:260px;background:linear-gradient(180deg,#020617,#0f172a);
+  color:#fff;padding:20px;position:fixed;top:56px;left:-260px;
+  height:calc(100% - 56px);transition:.3s;z-index:1000
+}
+.sidebar.open{left:0}
+.sidebar h2{margin-bottom:20px}
+.sidebar button{
+  width:100%;background:none;border:none;color:#cbd5f5;
+  padding:12px;text-align:left;border-radius:8px;
+}
+.sidebar button:hover{background:#1e293b;color:#fff}
+
+/* MAIN */
+main{flex:1;padding:20px;margin-top:56px}
+@media(min-width:900px){
+  .sidebar{left:0;position:relative;height:auto}
+  main{margin-left:260px}
 }
 
-:root {
-  --bg: #f4f6f8;
-  --panel: #ffffff;
-  --sidebar: #0f172a;
-  --sidebar-hover: #1e293b;
-  --primary: #2563eb;
-  --success: #16a34a;
-  --danger: #dc2626;
-  --text: #0f172a;
-  --muted: #64748b;
-  --border: #e5e7eb;
-  --radius: 14px;
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* CARDS */
+.cards{display:flex;gap:20px;flex-wrap:wrap}
+.card{
+  background:#fff;padding:20px;border-radius:16px;width:180px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08)
 }
+.card span{font-size:32px;font-weight:700}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
+/* LIST */
+ul{list-style:none;padding:0}
+li{
+  background:#fff;margin:10px 0;padding:14px;border-radius:12px;
+  display:flex;justify-content:space-between;align-items:center;
+  box-shadow:0 6px 15px rgba(0,0,0,.06)
 }
+.actions button{margin-left:6px}
 
-/* ===============================
-   🔝 TOPBAR
-================================ */
-.topbar {
-  height: 60px;
-  background: var(--panel);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+/* PANELS */
+.panel{
+  position:fixed;top:0;right:-420px;width:420px;height:100%;
+  background:#fff;padding:20px;transition:.35s;z-index:2000;
+  box-shadow:-20px 0 40px rgba(0,0,0,.25)
 }
+.panel.active-panel{right:0}
 
-.menu-btn {
-  font-size: 22px;
-  cursor: pointer;
+/* BLUR */
+body.panel-open main{filter:blur(6px);pointer-events:none}
+
+/* MODAL */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;z-index:3000
 }
+.modal.show{display:flex}
+.modal-box{background:#fff;padding:20px;border-radius:14px;width:300px}
+.danger{background:#ef4444;color:#fff;border:none;padding:8px 12px;border-radius:8px}
 
-.logout-btn {
-  background: var(--danger);
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* ===============================
-   📌 SIDEBAR
-================================ */
-#sidebar {
-  position: fixed;
-  top: 60px;
-  left: -240px;
-  width: 240px;
-  height: calc(100vh - 60px);
-  background: var(--sidebar);
-  color: white;
-  padding: 20px;
-  transition: left 0.3s ease;
-  z-index: 200;
-}
-
-#sidebar.open {
-  left: 0;
-}
-
-#sidebar h3 {
-  margin-bottom: 20px;
-  font-size: 16px;
-  opacity: 0.85;
-}
-
-#sidebar a {
-  display: block;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  color: white;
-  text-decoration: none;
-  transition: background 0.25s;
-}
-
-#sidebar a:hover {
-  background: var(--sidebar-hover);
-}
-
-/* ===============================
-   📦 MAIN CONTENT
-================================ */
-main {
-  padding: 20px;
-  margin-top: 60px;
-  transition: filter 0.3s ease;
-}
-
-body.panel-open main {
-  filter: blur(6px);
-  pointer-events: none;
-}
-
-/* ===============================
-   📄 SECTIONS / PAGES
-================================ */
-.section {
-  display: none;
-  animation: fadeIn 0.4s ease;
-}
-
-.section.active {
-  display: block;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ===============================
-   🟦 DASHBOARD CARDS
-================================ */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.card {
-  background: var(--panel);
-  border-radius: var(--radius);
-  padding: 24px;
-  text-align: center;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  transition: transform 0.25s, box-shadow 0.25s;
-}
-
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-}
-
-.card h2 {
-  font-size: 32px;
-  color: var(--primary);
-}
-
-.card p {
-  margin-top: 6px;
-  color: var(--muted);
-}
-
-/* ===============================
-   📋 LISTS
-================================ */
-ul {
-  list-style: none;
-  margin-top: 20px;
-}
-
-li {
-  background: var(--panel);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border: 1px solid var(--border);
-  transition: box-shadow 0.2s;
-}
-
-li:hover {
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-}
-
-.actions button {
-  margin-left: 6px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-}
-
-.actions button:nth-child(1) { background: #e0e7ff; }
-.actions button:nth-child(2) { background: #fde68a; }
-.actions button:nth-child(3) { background: #fecaca; }
-
-/* ===============================
-   ✍️ INPUTS & BUTTONS
-================================ */
-input, select {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-}
-
-button.primary {
-  margin-top: 12px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-/* ===============================
-   ➡️ SLIDE-IN PANELS
-================================ */
-.panel {
-  position: fixed;
-  top: 0;
-  right: -420px;
-  width: 420px;
-  height: 100vh;
-  background: var(--panel);
-  padding: 24px;
-  z-index: 1000;
-  transition: right 0.35s ease;
-  box-shadow: -20px 0 40px rgba(0,0,0,0.2);
-}
-
-.panel.active-panel {
-  right: 0;
-}
-
-.panel h3 {
-  margin-bottom: 10px;
-}
-
-.panel button {
-  margin-top: 20px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 10px;
-}
-
-/* ===============================
-   ⚠️ MODAL
-================================ */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.modal.show {
-  display: flex;
-}
-
-.modal-box {
-  background: white;
-  padding: 24px;
-  border-radius: var(--radius);
-  width: 320px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.danger {
-  background: var(--danger);
-  color: white;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-}
-
-/* ===============================
-   🍞 TOAST
-================================ */
-.toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--panel);
-  padding: 12px 20px;
-  border-radius: 30px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  animation: toastIn 0.3s ease;
-  z-index: 3000;
-}
-
-@keyframes toastIn {
-  from { opacity: 0; transform: translate(-50%,20px); }
-  to { opacity: 1; transform: translate(-50%,0); }
-}
-
-/* ===============================
-   🦴 SKELETON LOADER
-================================ */
-.skeleton {
-  height: 60px;
-  border-radius: var(--radius);
-  background: linear-gradient(90deg,#eee,#f5f5f5,#eee);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite;
-  margin-bottom: 12px;
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* ===============================
-   📱 RESPONSIVE
-================================ */
-@media (min-width: 768px) {
-  main {
-    margin-left: 240px;
-  }
-
-  #sidebar {
-    left: 0;
-  }
+/* TOAST */
+.toast{
+  position:fixed;bottom:20px;right:20px;background:#0f172a;
+  color:#fff;padding:10px 16px;border-radius:8px;
 }
