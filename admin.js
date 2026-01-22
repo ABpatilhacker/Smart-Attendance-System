@@ -451,3 +451,10 @@ function openTeacherProfile(uid){
     openPanel("teacherProfile");
   });
 }
+function toggleSidebar() {
+  document.body.classList.toggle("sidebar-open");
+}
+
+function closeSidebar() {
+  document.body.classList.remove("sidebar-open");
+}
