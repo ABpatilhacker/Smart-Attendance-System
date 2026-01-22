@@ -20,14 +20,14 @@
 <body>
 
 <!-- TOPBAR -->
-<div class="topbar">
-  <div class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</div>
+<header class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <h3>Smart Attendance – Admin Panel</h3>
   <button class="logout-btn" onclick="logout()">Logout</button>
-</div>
+</header>
 
 <!-- SIDEBAR -->
-<div id="sidebar">
+<aside id="sidebar">
   <h3>Navigation</h3>
   <a onclick="openSection('dashboard')">📊 Dashboard</a>
   <a onclick="openSection('classes')">🏫 Classes</a>
@@ -35,29 +35,35 @@
   <a onclick="openSection('students')">🎓 Students</a>
   <a onclick="openSection('settings')">⚙️ Settings</a>
   <a onclick="openSection('approvals')">🟡 Approvals</a>
-</div>
+</aside>
+
+<!-- OVERLAY (click outside closes sidebar) -->
+<div class="overlay" onclick="closeSidebar()"></div>
 
 <!-- MAIN -->
-<main onclick="document.getElementById('sidebar').classList.remove('open')">
+<main onclick="closeSidebar()">
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="section active">
     <h2>Dashboard Overview</h2>
 
     <div class="cards">
-      <div class="card">
+      <div class="card" onclick="openSection('classes')">
         <h2 id="classCount">0</h2>
         <p>Total Classes</p>
       </div>
-      <div class="card">
+
+      <div class="card" onclick="openSection('teachers')">
         <h2 id="teacherCount">0</h2>
         <p>Total Teachers</p>
       </div>
-      <div class="card">
+
+      <div class="card" onclick="openSection('students')">
         <h2 id="studentCount">0</h2>
         <p>Total Students</p>
       </div>
-      <div class="card">
+
+      <div class="card" onclick="openSection('settings')">
         <h2>⚙️</h2>
         <p>Settings</p>
       </div>
@@ -67,34 +73,38 @@
   <!-- CLASSES -->
   <section id="classes" class="section">
     <h2>Classes</h2>
-    <input id="className" placeholder="Class Name">
+    <input type="text" id="className" placeholder="Class Name">
     <button class="primary" onclick="addClass()">Add Class</button>
     <ul id="classList"></ul>
+    <div id="classPanel" class="panel"></div>
   </section>
 
   <!-- TEACHERS -->
   <section id="teachers" class="section">
     <h2>Teachers</h2>
-    <input id="teacherName" placeholder="Teacher Name">
-    <input id="teacherEmail" type="email" placeholder="Teacher Email">
+    <input type="text" id="teacherName" placeholder="Teacher Name">
+    <input type="email" id="teacherEmail" placeholder="Teacher Email">
     <button class="primary" onclick="addTeacher()">Add Teacher</button>
     <ul id="teacherList"></ul>
+    <div id="teacherProfile" class="panel"></div>
   </section>
 
   <!-- STUDENTS -->
   <section id="students" class="section">
     <h2>Students</h2>
-    <input id="studentName" placeholder="Student Name">
-    <input id="studentRoll" type="number" placeholder="Roll Number">
-    <input id="studentEmail" type="email" placeholder="Student Email">
+    <input type="text" id="studentName" placeholder="Student Name">
+    <input type="number" id="studentRoll" placeholder="Roll Number">
+    <input type="email" id="studentEmail" placeholder="Student Email">
     <select id="studentClass"></select>
     <button class="primary" onclick="addStudent()">Add Student</button>
+    <div id="studentPanel" class="panel"></div>
   </section>
 
   <!-- SETTINGS -->
   <section id="settings" class="section">
     <h2>Settings</h2>
-    <input id="minAttendance" type="number" placeholder="Minimum Attendance %">
+    <label>Minimum Attendance (%)</label>
+    <input type="number" id="minAttendance">
     <button class="primary" onclick="saveSettings()">Save Settings</button>
   </section>
 
@@ -104,20 +114,8 @@
     <ul id="pendingList"></ul>
   </section>
 
-  <!-- PANELS -->
-  <div id="teacherProfile" class="panel"></div>
-  <div id="classPanel" class="panel"></div>
-  <div id="studentPanel" class="panel"></div>
-
 </main>
 
 <script src="admin.js"></script>
-<script>
-  function openSection(id){
-    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-  }
-</script>
-
 </body>
 </html>
