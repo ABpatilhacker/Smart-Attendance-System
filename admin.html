@@ -2,135 +2,92 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Attendance – Admin</title>
+  <title>Admin Dashboard</title>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css" />
 </head>
 
 <body>
+<div class="layout">
 
-<!-- ================= TOP BAR ================= -->
-<div class="topbar">
-  <span class="menu-btn" onclick="toggleSidebar()">☰</span>
-  <strong>Admin Dashboard</strong>
-  <button class="logout-btn" onclick="logout()">Logout</button>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2>Admin</h2>
+    <button onclick="showPage('dashboard')">Dashboard</button>
+    <button onclick="showPage('classes')">Classes</button>
+    <button onclick="showPage('teachers')">Teachers</button>
+    <button onclick="showPage('approvals')">Approvals</button>
+    <button onclick="showPage('settings')">Settings</button>
+    <button onclick="logout()">Logout</button>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page active">
+      <div class="cards">
+        <div class="card">Classes<br><span id="classCount">0</span></div>
+        <div class="card">Teachers<br><span id="teacherCount">0</span></div>
+        <div class="card">Students<br><span id="studentCount">0</span></div>
+      </div>
+    </section>
+
+    <!-- CLASSES -->
+    <section id="classes" class="page">
+      <h2>Classes</h2>
+      <input id="className" placeholder="Class name" />
+      <button onclick="addClass()">Add Class</button>
+      <ul id="classList"></ul>
+    </section>
+
+    <!-- TEACHERS -->
+    <section id="teachers" class="page">
+      <h2>Teachers</h2>
+      <input id="teacherName" placeholder="Name" />
+      <input id="teacherEmail" placeholder="Email" />
+      <button onclick="addTeacher()">Add Teacher</button>
+      <ul id="teacherList"></ul>
+    </section>
+
+    <!-- APPROVALS -->
+    <section id="approvals" class="page">
+      <h2>Pending Approvals</h2>
+      <ul id="pendingList"></ul>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settings" class="page">
+      <h2>Settings</h2>
+      <input id="minAttendance" placeholder="Min Attendance %" />
+      <button onclick="saveSettings()">Save</button>
+    </section>
+
+  </main>
 </div>
 
-<!-- ================= SIDEBAR ================= -->
-<nav id="sidebar">
-  <h3>Navigation</h3>
-  <a href="#" onclick="showPage('dashboard')">Dashboard</a>
-  <a href="#" onclick="showPage('approvals')">Approvals</a>
-  <a href="#" onclick="showPage('classes')">Classes</a>
-  <a href="#" onclick="showPage('teachers')">Teachers</a>
-  <a href="#" onclick="showPage('students')">Students</a>
-  <a href="#" onclick="showPage('settings')">Settings</a>
-</nav>
-
-<!-- ================= MAIN ================= -->
-<main onclick="closeSidebar()">
-
-<!-- ===== DASHBOARD ===== -->
-<section id="dashboard" class="page active">
-  <h2>Dashboard</h2>
-
-  <div class="stats">
-    <div class="stat-card" onclick="showPage('classes')">
-      <h2 id="classCount">0</h2>
-      <p>Classes</p>
-    </div>
-    <div class="stat-card" onclick="showPage('teachers')">
-      <h2 id="teacherCount">0</h2>
-      <p>Teachers</p>
-    </div>
-    <div class="stat-card" onclick="showPage('students')">
-      <h2 id="studentCount">0</h2>
-      <p>Students</p>
-    </div>
-  </div>
-</section>
-
-<!-- ===== APPROVALS ===== -->
-<section id="approvals" class="page">
-  <h2>Pending Approvals</h2>
-  <ul id="pendingList"></ul>
-</section>
-
-<!-- ===== CLASSES ===== -->
-<section id="classes" class="page">
-  <h2>Classes</h2>
-
-  <input id="className" placeholder="Class Name">
-  <button class="primary" onclick="addClass()">Add Class</button>
-
-  <ul id="classList"></ul>
-</section>
-
-<!-- ===== TEACHERS ===== -->
-<section id="teachers" class="page">
-  <h2>Teachers</h2>
-
-  <input id="teacherName" placeholder="Teacher Name">
-  <input id="teacherEmail" placeholder="Teacher Email">
-  <button class="primary" onclick="addTeacher()">Add Teacher</button>
-
-  <ul id="teacherList"></ul>
-</section>
-
-<!-- ===== STUDENTS ===== -->
-<section id="students" class="page">
-  <h2>Students</h2>
-
-  <input id="studentName" placeholder="Student Name">
-  <input id="studentRoll" placeholder="Roll Number">
-  <input id="studentEmail" placeholder="Student Email">
-  <select id="studentClass"></select>
-
-  <button class="primary" onclick="addStudent()">Add Student</button>
-</section>
-
-<!-- ===== SETTINGS ===== -->
-<section id="settings" class="page">
-  <h2>Settings</h2>
-
-  <input id="minAttendance" placeholder="Minimum Attendance %">
-  <button class="primary" onclick="saveSettings()">Save Settings</button>
-</section>
-
-</main>
-
-<!-- ================= SLIDE PANELS ================= -->
+<!-- PANELS -->
 <div id="teacherProfile" class="panel"></div>
 <div id="classPanel" class="panel"></div>
 <div id="studentPanel" class="panel"></div>
 
-<!-- ================= JS ================= -->
+<!-- CONFIRM MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+    <p id="modalText"></p>
+    <div class="modal-actions">
+      <button onclick="closeModal()">Cancel</button>
+      <button id="modalOk" class="danger">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <script src="admin.js"></script>
-
-<script>
-/* ===== SIDEBAR LOGIC ===== */
-function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("open");
-}
-
-function closeSidebar() {
-  document.getElementById("sidebar").classList.remove("open");
-}
-
-/* ===== PAGE SWITCHING ===== */
-function showPage(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  closeSidebar();
-}
-</script>
-
 </body>
 </html>
