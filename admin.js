@@ -113,16 +113,15 @@ function loadClasses() {
   if (select) select.innerHTML = "";
 
   db.ref("classes").on("value", snap => {
-    list.innerHTML = "";
-    snap.forEach(c => {
-      const li = document.createElement("li");
-      li.className = "class-card";
-      li.innerHTML = `
-        <strong>${c.val().name}</strong>
-        <button onclick="openClassDetails('${c.key}')">View Details</button>
-      `;
-      list.appendChild(li);
 
+li.innerHTML = `
+  <strong>${c.val().name}</strong>
+  <div class="actions">
+    <button onclick="openClassDetails('${c.key}')">View</button>
+    <button onclick="editClass('${c.key}','${c.val().name}')">✏️</button>
+    <button onclick="deleteClass('${c.key}')">🗑️</button>
+  </div>
+`;
       if (select) {
         const opt = document.createElement("option");
         opt.value = c.key;
@@ -160,10 +159,13 @@ function loadTeachers() {
         const li = document.createElement("li");
         li.className = "teacher-card";
         li.innerHTML = `
-          <span>${data.email}</span>
-          <button onclick="openTeacherProfile('${u.key}')">View Profile</button>
-        `;
-        list.appendChild(li);
+  <span>${data.email}</span>
+  <div class="actions">
+    <button onclick="openTeacherProfile('${u.key}')">View</button>
+    <button onclick="editTeacher('${u.key}','${data.name}','${data.email}')">✏️</button>
+    <button onclick="deleteTeacher('${u.key}')">🗑️</button>
+  </div>
+`;
       }
     });
   });
@@ -303,13 +305,16 @@ function openStudentProfile(uid) {
     const panel = document.getElementById("studentPanel");
     db.ref("classes/" + s.classId).once("value").then(cSnap => {
       const className = cSnap.exists() ? cSnap.val().name : "Unknown";
-      panel.innerHTML = `
-        <h3>${s.name} – Student Profile</h3>
-        <p><strong>Email:</strong> ${s.email}</p>
-        <p><strong>Roll Number:</strong> ${s.roll}</p>
-        <p><strong>Class:</strong> ${className}</p>
-        <button onclick="closePanel('studentPanel')">Close</button>
-      `;
+      panel.studentsHTML += `
+<tr>
+  <td>${student.roll}</td>
+  <td>${student.name}</td>
+  <td>
+    <button onclick="openStudentProfile('${uid}')">View</button>
+    <button onclick="editStudent('${uid}','${student.name}','${student.roll}','${student.email}')">✏️</button>
+    <button onclick="deleteStudent('${uid}')">🗑️</button>
+  </td>
+</tr>`;
       panel.classList.add("active-panel");
     });
   });
@@ -331,69 +336,68 @@ function toast(msg) {
   setTimeout(() => t.classList.remove("show"), 3000);
   setTimeout(() => t.remove(), 3500);
                             }
-
 /***********************
- ✏️ EDIT & DELETE CLASSES
+ ✏️ EDIT & DELETE – CLASSES
 ************************/
 function editClass(classId, oldName) {
   const newName = prompt("Edit class name:", oldName);
   if (!newName) return;
 
   db.ref("classes/" + classId).update({ name: newName })
-    .then(() => toast("Class updated ✅"));
+    .then(() => toast("Class updated ✏️"));
 }
 
 function deleteClass(classId) {
-  if (!confirm("Delete this class? This cannot be undone.")) return;
+  if (!confirm("Delete this class permanently?")) return;
 
   db.ref("classes/" + classId).remove()
-    .then(() => toast("Class deleted ❌"));
+    .then(() => toast("Class deleted 🗑️"));
 }
 
 /***********************
- ✏️ EDIT & DELETE TEACHERS
+ ✏️ EDIT & DELETE – TEACHERS
 ************************/
-function editTeacher(uid, currentName, currentEmail) {
-  const name = prompt("Edit teacher name:", currentName);
+function editTeacher(uid, oldName, oldEmail) {
+  const name = prompt("Edit teacher name:", oldName);
   if (!name) return;
 
-  const email = prompt("Edit teacher email:", currentEmail);
+  const email = prompt("Edit teacher email:", oldEmail);
   if (!email) return;
 
   db.ref("users/" + uid).update({ name, email })
-    .then(() => toast("Teacher updated ✅"));
+    .then(() => toast("Teacher updated ✏️"));
 }
 
 function deleteTeacher(uid) {
   if (!confirm("Delete this teacher?")) return;
 
   db.ref("users/" + uid).remove()
-    .then(() => toast("Teacher deleted ❌"));
+    .then(() => toast("Teacher deleted 🗑️"));
 }
 
 /***********************
- ✏️ EDIT & DELETE STUDENTS
+ ✏️ EDIT & DELETE – STUDENTS
 ************************/
-function editStudent(uid, data) {
-  const name = prompt("Edit student name:", data.name);
+function editStudent(uid, oldName, oldRoll, oldEmail) {
+  const name = prompt("Edit student name:", oldName);
   if (!name) return;
 
-  const roll = prompt("Edit roll number:", data.roll);
+  const roll = prompt("Edit roll number:", oldRoll);
   if (!roll) return;
 
-  const email = prompt("Edit student email:", data.email);
+  const email = prompt("Edit email:", oldEmail);
   if (!email) return;
 
   db.ref("users/" + uid).update({
     name,
     roll: Number(roll),
     email
-  }).then(() => toast("Student updated ✅"));
+  }).then(() => toast("Student updated ✏️"));
 }
 
 function deleteStudent(uid) {
   if (!confirm("Delete this student?")) return;
 
   db.ref("users/" + uid).remove()
-    .then(() => toast("Student deleted ❌"));
-}
+    .then(() => toast("Student deleted 🗑️"));
+   }
