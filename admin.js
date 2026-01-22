@@ -37,30 +37,6 @@ function logout() {
   auth.signOut().then(() => window.location.href = "login.html");
 }
 
-/* ======================================================
-   🧭 SIDEBAR TOGGLE (NEW – SAFE ADDITION)
-   DOES NOT TOUCH FIREBASE OR DATA LOGIC
-====================================================== */
-document.addEventListener("DOMContentLoaded", () => {
-  const toggleBtn = document.getElementById("sidebarToggle");
-  const sidebar = document.querySelector(".sidebar");
-  const overlay = document.querySelector(".sidebar-overlay");
-
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      if (overlay) overlay.classList.toggle("active");
-    });
-  }
-
-  if (overlay) {
-    overlay.addEventListener("click", () => {
-      sidebar.classList.remove("open");
-      overlay.classList.remove("active");
-    });
-  }
-});
-
 /***********************
  📊 DASHBOARD COUNTS
 ************************/
@@ -170,6 +146,180 @@ function addClass() {
 }
 
 /***********************
+ 👨‍🏫 TEACHERS
+************************/
+function loadTeachers() {
+  const list = document.getElementById("teacherList");
+  if (!list) return;
+
+  db.ref("users").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(u => {
+      const data = u.val();
+      if (data.role === "teacher" && data.approved) {
+        const li = document.createElement("li");
+        li.className = "teacher-card";
+        li.innerHTML = `
+          <span>${data.email}</span>
+          <button onclick="openTeacherProfile('${u.key}')">View Profile</button>
+        `;
+        list.appendChild(li);
+      }
+    });
+  });
+}
+
+function addTeacher() {
+  const name = document.getElementById("teacherName").value.trim();
+  const email = document.getElementById("teacherEmail").value.trim();
+  if (!name || !email) return toast("Fill all fields ⚠️");
+
+  const uid = db.ref("users").push().key;
+  db.ref("users/" + uid).set({
+    name, email, role: "teacher", approved: true, assignments: {}
+  }).then(() => {
+    document.getElementById("teacherName").value = "";
+    document.getElementById("teacherEmail").value = "";
+    toast("Teacher added ✅");
+  });
+}
+
+/***********************
+ 🎓 STUDENTS
+************************/
+function addStudent() {
+  const name = document.getElementById("studentName").value.trim();
+  const roll = document.getElementById("studentRoll").value.trim();
+  const email = document.getElementById("studentEmail").value.trim();
+  const classId = document.getElementById("studentClass").value;
+
+  if (!name || !roll || !email || !classId) return toast("Fill all fields ⚠️");
+
+  const uid = db.ref("users").push().key;
+  db.ref("users/" + uid).set({
+    name, roll: Number(roll), email, role: "student", classId, approved: true
+  }).then(() => {
+    document.getElementById("studentName").value = "";
+    document.getElementById("studentRoll").value = "";
+    document.getElementById("studentEmail").value = "";
+    toast("Student added ✅");
+  });
+}
+
+/***********************
+ ⚙️ SETTINGS
+************************/
+function loadSettings() {
+  db.ref("settings/minAttendance").once("value", snap => {
+    if (snap.exists()) document.getElementById("minAttendance").value = snap.val();
+  });
+}
+
+function saveSettings() {
+  const val = document.getElementById("minAttendance").value;
+  if (!val) return toast("Enter minimum attendance ⚠️");
+
+  db.ref("settings").update({ minAttendance: Number(val) })
+    .then(() => toast("Settings saved ✅"));
+}
+
+/***********************
+ 🌟 DETAILS PANELS
+************************/
+function openTeacherProfile(uid) {
+  db.ref("users/" + uid).once("value").then(snap => {
+    const t = snap.val();
+    const panel = document.getElementById("teacherProfile");
+
+    db.ref("classes").once("value").then(csnap => {
+      let subjects = [];
+      let classesAssigned = [];
+      csnap.forEach(c => {
+        const classData = c.val();
+        if (classData.subjects) {
+          for (let sub in classData.subjects) {
+            if (classData.subjects[sub].teacherId === uid)
+              subjects.push(classData.subjects[sub].name);
+          }
+        }
+        if (classData.subjects) {
+          for (let sub in classData.subjects) {
+            if (classData.subjects[sub].teacherId === uid)
+              classesAssigned.push(classData.name);
+          }
+        }
+      });
+
+      panel.innerHTML = `
+        <h3>${t.name} – Teacher Profile</h3>
+        <p><strong>Email:</strong> ${t.email}</p>
+        <p><strong>Classes:</strong> ${[...new Set(classesAssigned)].join(", ") || "None"}</p>
+        <p><strong>Subjects:</strong> ${subjects.join(", ") || "None"}</p>
+        <button onclick="closePanel('teacherProfile')">Close</button>
+      `;
+      panel.classList.add("active-panel");
+    });
+  });
+}
+
+function openClassDetails(classId) {
+  db.ref("classes/" + classId).once("value").then(snap => {
+    const c = snap.val();
+    const panel = document.getElementById("classPanel");
+
+    db.ref("users").once("value").then(usersSnap => {
+      // Subjects with teacher names
+      let subjectsHTML = "";
+      for (let sub in c.subjects) {
+        const teacherId = c.subjects[sub].teacherId;
+        const teacher = usersSnap.val()[teacherId];
+        const teacherName = teacher ? teacher.name : "Unassigned";
+        subjectsHTML += `<li>${c.subjects[sub].name} – ${teacherName}</li>`;
+      }
+
+      // Students Table
+      let studentsHTML = "<tr><th>Roll</th><th>Name</th></tr>";
+      for (let uid in c.students || {}) {
+        const student = usersSnap.val()[uid];
+        if (student) studentsHTML += `<tr onclick="openStudentProfile('${uid}')"><td>${student.roll}</td><td>${student.name}</td></tr>`;
+      }
+
+      panel.innerHTML = `
+        <h3>${c.name} – Class Details</h3>
+        <h4>Subjects</h4>
+        <ul>${subjectsHTML || "<li>No subjects assigned</li>"}</ul>
+        <h4>Students</h4>
+        <table>${studentsHTML}</table>
+        <button onclick="closePanel('classPanel')">Close</button>
+      `;
+      panel.classList.add("active-panel");
+    });
+  });
+}
+
+function openStudentProfile(uid) {
+  db.ref("users/" + uid).once("value").then(snap => {
+    const s = snap.val();
+    const panel = document.getElementById("studentPanel");
+    db.ref("classes/" + s.classId).once("value").then(cSnap => {
+      const className = cSnap.exists() ? cSnap.val().name : "Unknown";
+      panel.innerHTML = `
+        <h3>${s.name} – Student Profile</h3>
+        <p><strong>Email:</strong> ${s.email}</p>
+        <p><strong>Roll Number:</strong> ${s.roll}</p>
+        <p><strong>Class:</strong> ${className}</p>
+        <button onclick="closePanel('studentPanel')">Close</button>
+      `;
+      panel.classList.add("active-panel");
+    });
+  });
+}
+
+function closePanel(id) {
+  document.getElementById(id).classList.remove("active-panel");
+}
+
+/***********************
  🌟 TOAST MESSAGE
 ************************/
 function toast(msg) {
@@ -180,4 +330,4 @@ function toast(msg) {
   setTimeout(() => t.classList.add("show"), 100);
   setTimeout(() => t.classList.remove("show"), 3000);
   setTimeout(() => t.remove(), 3500);
-}
+                            }
