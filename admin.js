@@ -148,6 +148,58 @@ function addClass() {
       toast("Class added ✅");
     });
 }
+function openClassDetails(classId) {
+  db.ref("classes/" + classId).once("value").then(snap => {
+    const c = snap.val();
+    const panel = document.getElementById("classPanel");
+
+    db.ref("users").once("value").then(usersSnap => {
+      let subjectsHTML = "";
+      if (c.subjects) {
+        for (let sub in c.subjects) {
+          const teacherId = c.subjects[sub].teacherId;
+          const teacher = usersSnap.val()[teacherId];
+          subjectsHTML += `
+            <li class="fancy-row">
+              <span>${c.subjects[sub].name}</span>
+              <small>${teacher ? teacher.name : "Unassigned"}</small>
+            </li>`;
+        }
+      }
+
+      let studentsHTML = "";
+      for (let uid in c.students || {}) {
+        const s = usersSnap.val()[uid];
+        if (s) {
+          studentsHTML += `
+            <li class="fancy-row">
+              <span>${s.roll}</span>
+              <strong>${s.name}</strong>
+            </li>`;
+        }
+      }
+
+      panel.innerHTML = `
+        <div class="panel-header">
+          <h2>${c.name}</h2>
+          <button class="close-btn" onclick="closePanel('classPanel')">✕</button>
+        </div>
+
+        <div class="panel-section">
+          <h4>📘 Subjects</h4>
+          <ul>${subjectsHTML || "<li class='muted'>No subjects</li>"}</ul>
+        </div>
+
+        <div class="panel-section">
+          <h4>🎓 Students</h4>
+          <ul>${studentsHTML || "<li class='muted'>No students</li>"}</ul>
+        </div>
+      `;
+
+      openPanel("classPanel"); // 🔥 THIS WAS MISSING
+    });
+  });
+}
 
 /***********************
  👨‍🏫 TEACHERS
