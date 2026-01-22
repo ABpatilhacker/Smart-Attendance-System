@@ -13,6 +13,20 @@
   --border: #1e293b;          /* subtle borders */
   --radius: 14px;
 }
+/* ===============================
+   🌗 LIGHT MODE
+================================ */
+body.light {
+  --bg: #f8fafc;
+  --panel: #ffffff;
+  --card: #f1f5f9;
+  --primary: #0ea5e9;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --text: #020617;
+  --muted: #475569;
+  --border: #e2e8f0;
+}
 * {
   margin: 0;
   padding: 0;
@@ -369,3 +383,39 @@ button.primary:hover,
 .chart-container {
   box-shadow: 0 0 25px rgba(34,211,238,0.15);
                          }
+
+/* ===============================
+   ✨ GLASSMORPHISM LAYER
+================================ */
+.glass {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+}
+/* ===============================
+   🌈 ANIMATED PREMIUM GLOW
+================================ */
+@keyframes softGlow {
+  0% { box-shadow: 0 0 12px rgba(34,211,238,0.15); }
+  50% { box-shadow: 0 0 22px rgba(34,211,238,0.30); }
+  100% { box-shadow: 0 0 12px rgba(34,211,238,0.15); }
+}
+
+/* Dashboard cards glow */
+.card:hover {
+  animation: softGlow 2.5s infinite ease-in-out;
+}
+
+/* Chart glow */
+.chart-card,
+canvas {
+  border-radius: 20px;
+  animation: softGlow 3s infinite ease-in-out;
+}
+
+/* Save button glow */
+.save-btn:hover {
+  animation: softGlow 2s infinite ease-in-out;
+}
