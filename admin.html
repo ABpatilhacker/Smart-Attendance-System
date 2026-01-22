@@ -18,10 +18,9 @@
 
 <body>
 
+<!-- TOP BAR (MOBILE) -->
 <header class="topbar">
-  <button class="menu-btn" onclick="toggleSidebar()">
-    <i class="fas fa-bars"></i>
-  </button>
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <h1>Admin Dashboard</h1>
   <button class="logout-btn" onclick="logout()">Logout</button>
 </header>
@@ -32,11 +31,11 @@
 <aside id="sidebar" class="sidebar">
   <h2>ADMIN PANEL</h2>
   <nav>
-    <button onclick="nav('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
-    <button onclick="nav('classes')"><i class="fas fa-school"></i> Classes</button>
-    <button onclick="nav('teachers')"><i class="fas fa-chalkboard-teacher"></i> Teachers</button>
-    <button onclick="nav('approvals')"><i class="fas fa-user-check"></i> Approvals</button>
-    <button onclick="nav('settings')"><i class="fas fa-gear"></i> Settings</button>
+    <button onclick="showPage('dashboard'); closeSidebar()">Dashboard</button>
+<button onclick="showPage('classes'); closeSidebar()">Classes</button>
+<button onclick="showPage('teachers'); closeSidebar()">Teachers</button>
+<button onclick="showPage('approvals'); closeSidebar()">Approvals</button>
+<button onclick="showPage('settings'); closeSidebar()">Settings</button>
   </nav>
 </aside>
 
