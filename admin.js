@@ -59,7 +59,7 @@ function loadDashboard() {
 }
 
 /***********************
- 🟡 APPROVALS
+ 🟡 APPROVAL DASHBOARD
 ************************/
 function loadApprovals() {
   const list = document.getElementById("pendingList");
@@ -82,8 +82,8 @@ function loadApprovals() {
           <strong>${u.name}</strong><br>
           <small>${u.email}</small><br>
           <span class="badge">${u.role.toUpperCase()}</span><br><br>
-          <button class="approve-btn" onclick="approveUser('${uid}')">Approve</button>
-          <button class="reject-btn" onclick="rejectUser('${uid}')">Reject</button>
+          <button class="approve-btn" onclick="approveUser('${uid}')">✅ Approve</button>
+          <button class="reject-btn" onclick="rejectUser('${uid}')">❌ Reject</button>
         `;
         list.appendChild(li);
       }
@@ -99,7 +99,7 @@ function approveUser(uid) {
 }
 
 function rejectUser(uid) {
-  if (!confirm("Reject this user?")) return;
+  if (!confirm("Are you sure you want to reject this user?")) return;
   db.ref("users/" + uid).remove()
     .then(() => toast("User rejected ❌"));
 }
@@ -119,11 +119,7 @@ function loadClasses() {
       li.className = "class-card";
       li.innerHTML = `
         <strong>${c.val().name}</strong>
-        <div class="actions">
-          <button onclick="openClassDetails('${c.key}')">View</button>
-          <button onclick="editClass('${c.key}','${c.val().name}')">✏️</button>
-          <button onclick="deleteClass('${c.key}')">🗑️</button>
-        </div>
+        <button onclick="openClassDetails('${c.key}')">View Details</button>
       `;
       list.appendChild(li);
 
@@ -139,66 +135,14 @@ function loadClasses() {
 
 function addClass() {
   const name = document.getElementById("className").value.trim();
-  if (!name) return toast("Enter class name");
+  if (!name) return toast("Enter class name ⚠️");
 
   const id = name.toLowerCase().replace(/\s+/g, "");
   db.ref("classes/" + id).set({ name, subjects: {}, students: {} })
     .then(() => {
       document.getElementById("className").value = "";
-      toast("Class added ✅");
+      toast("Class added successfully ✅");
     });
-}
-function openClassDetails(classId) {
-  db.ref("classes/" + classId).once("value").then(snap => {
-    const c = snap.val();
-    const panel = document.getElementById("classPanel");
-
-    db.ref("users").once("value").then(usersSnap => {
-      let subjectsHTML = "";
-      if (c.subjects) {
-        for (let sub in c.subjects) {
-          const teacherId = c.subjects[sub].teacherId;
-          const teacher = usersSnap.val()[teacherId];
-          subjectsHTML += `
-            <li class="fancy-row">
-              <span>${c.subjects[sub].name}</span>
-              <small>${teacher ? teacher.name : "Unassigned"}</small>
-            </li>`;
-        }
-      }
-
-      let studentsHTML = "";
-      for (let uid in c.students || {}) {
-        const s = usersSnap.val()[uid];
-        if (s) {
-          studentsHTML += `
-            <li class="fancy-row">
-              <span>${s.roll}</span>
-              <strong>${s.name}</strong>
-            </li>`;
-        }
-      }
-
-      panel.innerHTML = `
-        <div class="panel-header">
-          <h2>${c.name}</h2>
-          <button class="close-btn" onclick="closePanel('classPanel')">✕</button>
-        </div>
-
-        <div class="panel-section">
-          <h4>📘 Subjects</h4>
-          <ul>${subjectsHTML || "<li class='muted'>No subjects</li>"}</ul>
-        </div>
-
-        <div class="panel-section">
-          <h4>🎓 Students</h4>
-          <ul>${studentsHTML || "<li class='muted'>No students</li>"}</ul>
-        </div>
-      `;
-
-      openPanel("classPanel"); // 🔥 THIS WAS MISSING
-    });
-  });
 }
 
 /***********************
@@ -211,17 +155,13 @@ function loadTeachers() {
   db.ref("users").on("value", snap => {
     list.innerHTML = "";
     snap.forEach(u => {
-      const d = u.val();
-      if (d.role === "teacher" && d.approved) {
+      const data = u.val();
+      if (data.role === "teacher" && data.approved) {
         const li = document.createElement("li");
         li.className = "teacher-card";
         li.innerHTML = `
-          <span>${d.email}</span>
-          <div class="actions">
-            <button onclick="openTeacherProfile('${u.key}')">View</button>
-            <button onclick="editTeacher('${u.key}','${d.name}','${d.email}')">✏️</button>
-            <button onclick="deleteTeacher('${u.key}')">🗑️</button>
-          </div>
+          <span>${data.email}</span>
+          <button onclick="openTeacherProfile('${u.key}')">View Profile</button>
         `;
         list.appendChild(li);
       }
@@ -232,12 +172,16 @@ function loadTeachers() {
 function addTeacher() {
   const name = document.getElementById("teacherName").value.trim();
   const email = document.getElementById("teacherEmail").value.trim();
-  if (!name || !email) return toast("Fill all fields");
+  if (!name || !email) return toast("Fill all fields ⚠️");
 
   const uid = db.ref("users").push().key;
   db.ref("users/" + uid).set({
-    name, email, role: "teacher", approved: true
-  }).then(() => toast("Teacher added ✅"));
+    name, email, role: "teacher", approved: true, assignments: {}
+  }).then(() => {
+    document.getElementById("teacherName").value = "";
+    document.getElementById("teacherEmail").value = "";
+    toast("Teacher added ✅");
+  });
 }
 
 /***********************
@@ -249,12 +193,17 @@ function addStudent() {
   const email = document.getElementById("studentEmail").value.trim();
   const classId = document.getElementById("studentClass").value;
 
-  if (!name || !roll || !email || !classId) return toast("Fill all fields");
+  if (!name || !roll || !email || !classId) return toast("Fill all fields ⚠️");
 
   const uid = db.ref("users").push().key;
   db.ref("users/" + uid).set({
     name, roll: Number(roll), email, role: "student", classId, approved: true
-  }).then(() => toast("Student added ✅"));
+  }).then(() => {
+    document.getElementById("studentName").value = "";
+    document.getElementById("studentRoll").value = "";
+    document.getElementById("studentEmail").value = "";
+    toast("Student added ✅");
+  });
 }
 
 /***********************
@@ -268,58 +217,110 @@ function loadSettings() {
 
 function saveSettings() {
   const val = document.getElementById("minAttendance").value;
-  if (!val) return toast("Enter value");
+  if (!val) return toast("Enter minimum attendance ⚠️");
+
   db.ref("settings").update({ minAttendance: Number(val) })
     .then(() => toast("Settings saved ✅"));
 }
 
 /***********************
- ✏️ EDIT & DELETE
+ 🌟 DETAILS PANELS
 ************************/
-function editClass(id, oldName) {
-  const name = prompt("Edit class name:", oldName);
-  if (!name) return;
-  db.ref("classes/" + id).update({ name })
-    .then(() => toast("Class updated"));
+function openTeacherProfile(uid) {
+  db.ref("users/" + uid).once("value").then(snap => {
+    const t = snap.val();
+    const panel = document.getElementById("teacherProfile");
+
+    db.ref("classes").once("value").then(csnap => {
+      let subjects = [];
+      let classesAssigned = [];
+      csnap.forEach(c => {
+        const classData = c.val();
+        if (classData.subjects) {
+          for (let sub in classData.subjects) {
+            if (classData.subjects[sub].teacherId === uid)
+              subjects.push(classData.subjects[sub].name);
+          }
+        }
+        if (classData.subjects) {
+          for (let sub in classData.subjects) {
+            if (classData.subjects[sub].teacherId === uid)
+              classesAssigned.push(classData.name);
+          }
+        }
+      });
+
+      panel.innerHTML = `
+        <h3>${t.name} – Teacher Profile</h3>
+        <p><strong>Email:</strong> ${t.email}</p>
+        <p><strong>Classes:</strong> ${[...new Set(classesAssigned)].join(", ") || "None"}</p>
+        <p><strong>Subjects:</strong> ${subjects.join(", ") || "None"}</p>
+        <button onclick="closePanel('teacherProfile')">Close</button>
+      `;
+      panel.classList.add("active-panel");
+    });
+  });
 }
 
-function deleteClass(id) {
-  if (!confirm("Delete class?")) return;
-  db.ref("classes/" + id).remove()
-    .then(() => toast("Class deleted"));
+function openClassDetails(classId) {
+  db.ref("classes/" + classId).once("value").then(snap => {
+    const c = snap.val();
+    const panel = document.getElementById("classPanel");
+
+    db.ref("users").once("value").then(usersSnap => {
+      // Subjects with teacher names
+      let subjectsHTML = "";
+      for (let sub in c.subjects) {
+        const teacherId = c.subjects[sub].teacherId;
+        const teacher = usersSnap.val()[teacherId];
+        const teacherName = teacher ? teacher.name : "Unassigned";
+        subjectsHTML += `<li>${c.subjects[sub].name} – ${teacherName}</li>`;
+      }
+
+      // Students Table
+      let studentsHTML = "<tr><th>Roll</th><th>Name</th></tr>";
+      for (let uid in c.students || {}) {
+        const student = usersSnap.val()[uid];
+        if (student) studentsHTML += `<tr onclick="openStudentProfile('${uid}')"><td>${student.roll}</td><td>${student.name}</td></tr>`;
+      }
+
+      panel.innerHTML = `
+        <h3>${c.name} – Class Details</h3>
+        <h4>Subjects</h4>
+        <ul>${subjectsHTML || "<li>No subjects assigned</li>"}</ul>
+        <h4>Students</h4>
+        <table>${studentsHTML}</table>
+        <button onclick="closePanel('classPanel')">Close</button>
+      `;
+      panel.classList.add("active-panel");
+    });
+  });
 }
 
-function editTeacher(uid, oldName, oldEmail) {
-  const name = prompt("Edit name:", oldName);
-  const email = prompt("Edit email:", oldEmail);
-  if (!name || !email) return;
-  db.ref("users/" + uid).update({ name, email })
-    .then(() => toast("Teacher updated"));
+function openStudentProfile(uid) {
+  db.ref("users/" + uid).once("value").then(snap => {
+    const s = snap.val();
+    const panel = document.getElementById("studentPanel");
+    db.ref("classes/" + s.classId).once("value").then(cSnap => {
+      const className = cSnap.exists() ? cSnap.val().name : "Unknown";
+      panel.innerHTML = `
+        <h3>${s.name} – Student Profile</h3>
+        <p><strong>Email:</strong> ${s.email}</p>
+        <p><strong>Roll Number:</strong> ${s.roll}</p>
+        <p><strong>Class:</strong> ${className}</p>
+        <button onclick="closePanel('studentPanel')">Close</button>
+      `;
+      panel.classList.add("active-panel");
+    });
+  });
 }
 
-function deleteTeacher(uid) {
-  if (!confirm("Delete teacher?")) return;
-  db.ref("users/" + uid).remove()
-    .then(() => toast("Teacher deleted"));
-}
-
-function editStudent(uid, oldName, oldRoll, oldEmail) {
-  const name = prompt("Edit name:", oldName);
-  const roll = prompt("Edit roll:", oldRoll);
-  const email = prompt("Edit email:", oldEmail);
-  if (!name || !roll || !email) return;
-  db.ref("users/" + uid).update({ name, roll: Number(roll), email })
-    .then(() => toast("Student updated"));
-}
-
-function deleteStudent(uid) {
-  if (!confirm("Delete student?")) return;
-  db.ref("users/" + uid).remove()
-    .then(() => toast("Student deleted"));
+function closePanel(id) {
+  document.getElementById(id).classList.remove("active-panel");
 }
 
 /***********************
- 🌟 TOAST
+ 🌟 TOAST MESSAGE
 ************************/
 function toast(msg) {
   const t = document.createElement("div");
@@ -327,134 +328,6 @@ function toast(msg) {
   t.innerText = msg;
   document.body.appendChild(t);
   setTimeout(() => t.classList.add("show"), 100);
+  setTimeout(() => t.classList.remove("show"), 3000);
   setTimeout(() => t.remove(), 3500);
-           }
-function showPage(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-/* ===== PANEL HELPERS ===== */
-function openPanel(id) {
-  document.getElementById(id).classList.add("active-panel");
-  document.body.classList.add("panel-open");
-}
-
-function closePanel(id) {
-  document.getElementById(id).classList.remove("active-panel");
-  document.body.classList.remove("panel-open");
-}
-
-/* ===== CONFIRM MODAL ===== */
-function confirmModal(title, text, onConfirm) {
-  document.getElementById("modalTitle").innerText = title;
-  document.getElementById("modalText").innerText = text;
-  document.getElementById("modal").classList.add("show");
-
-  document.getElementById("modalOk").onclick = () => {
-    closeModal();
-    onConfirm();
-  };
-}
-
-function closeModal() {
-  document.getElementById("modal").classList.remove("show");
-}
-
-/* ===== OVERRIDES (SAFE) ===== */
-function deleteClass(id) {
-  confirmModal("Delete Class", "Are you sure?", () => {
-    db.ref("classes/" + id).remove().then(() => toast("Class deleted"));
-  });
-}
-
-function deleteTeacher(uid) {
-  confirmModal("Delete Teacher", "Are you sure?", () => {
-    db.ref("users/" + uid).remove().then(() => toast("Teacher deleted"));
-  });
-}
-
-function rejectUser(uid) {
-  confirmModal("Reject User", "Reject this user?", () => {
-    db.ref("users/" + uid).remove().then(() => toast("User rejected"));
-  });
-}
-
-/* ===== PANEL OPEN FIX ===== */
-function openTeacherProfile(uid) {
-  db.ref("users/" + uid).once("value").then(snap => {
-    const t = snap.val();
-    const panel = document.getElementById("teacherProfile");
-    panel.innerHTML = `
-      <h3>${t.name}</h3>
-      <p>${t.email}</p>
-      <button onclick="closePanel('teacherProfile')">Close</button>
-    `;
-    openPanel("teacherProfile");
-  });
-}
-
-/* ===== UI HELPERS ===== */
-function toggleSidebar(){
-  document.getElementById("sidebar").classList.toggle("open");
-}
-
-function nav(id){
-  showPage(id);
-  document.getElementById("sidebar").classList.remove("open");
-}
-
-/* ===== PAGE SWITCH ===== */
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-/* ===== PANEL ===== */
-function openPanel(id){
-  document.getElementById(id).classList.add("active-panel");
-  document.body.classList.add("panel-open");
-}
-function closePanel(id){
-  document.getElementById(id).classList.remove("active-panel");
-  document.body.classList.remove("panel-open");
-}
-
-/* ===== CONFIRM MODAL ===== */
-function confirmModal(title,text,onConfirm){
-  modalTitle.innerText=title;
-  modalText.innerText=text;
-  modal.classList.add("show");
-  modalOk.onclick=()=>{closeModal();onConfirm();}
-}
-function closeModal(){modal.classList.remove("show");}
-
-/* ===== OVERRIDES ===== */
-function deleteClass(id){
-  confirmModal("Delete Class","Are you sure?",()=>{
-    db.ref("classes/"+id).remove().then(()=>toast("Deleted"));
-  });
-}
-function deleteTeacher(uid){
-  confirmModal("Delete Teacher","Are you sure?",()=>{
-    db.ref("users/"+uid).remove().then(()=>toast("Deleted"));
-  });
-}
-
-/* ===== PANEL FIX ===== */
-function openTeacherProfile(uid){
-  db.ref("users/"+uid).once("value").then(s=>{
-    teacherProfile.innerHTML=`
-      <h2>${s.val().name}</h2>
-      <p>${s.val().email}</p>
-      <button onclick="closePanel('teacherProfile')">Close</button>`;
-    openPanel("teacherProfile");
-  });
-}
-function toggleSidebar() {
-  document.body.classList.toggle("sidebar-open");
-}
-
-function closeSidebar() {
-  document.body.classList.remove("sidebar-open");
 }
