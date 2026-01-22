@@ -1,90 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Admin Dashboard</title>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <link rel="stylesheet" href="admin.css" />
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<link rel="stylesheet" href="admin.css">
 </head>
 
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">
-    ☰
-  </div>
+<header class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </button>
+  <h1>Admin Dashboard</h1>
   <button class="logout-btn" onclick="logout()">Logout</button>
-</div>
+</header>
+
+<div class="layout">
 
 <!-- SIDEBAR -->
-<aside id="sidebar">
-  <h3>ADMIN PANEL</h3>
-  <a onclick="showPage('dashboard')">Dashboard</a>
-  <a onclick="showPage('classes')">Classes</a>
-  <a onclick="showPage('teachers')">Teachers</a>
-  <a onclick="showPage('approvals')">Approvals</a>
-  <a onclick="showPage('settings')">Settings</a>
+<aside id="sidebar" class="sidebar">
+  <h2>ADMIN PANEL</h2>
+  <nav>
+    <button onclick="nav('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+    <button onclick="nav('classes')"><i class="fas fa-school"></i> Classes</button>
+    <button onclick="nav('teachers')"><i class="fas fa-chalkboard-teacher"></i> Teachers</button>
+    <button onclick="nav('approvals')"><i class="fas fa-user-check"></i> Approvals</button>
+    <button onclick="nav('settings')"><i class="fas fa-gear"></i> Settings</button>
+  </nav>
 </aside>
 
 <!-- MAIN -->
 <main>
 
-  <!-- DASHBOARD -->
-  <section id="dashboard" class="section active">
-    <h2>Dashboard</h2>
-    <div class="cards">
-      <div class="card" onclick="showPage('classes')">
-        <h2 id="classCount">0</h2>
-        <p>Classes</p>
-      </div>
-      <div class="card" onclick="showPage('teachers')">
-        <h2 id="teacherCount">0</h2>
-        <p>Teachers</p>
-      </div>
-      <div class="card">
-        <h2 id="studentCount">0</h2>
-        <p>Students</p>
-      </div>
-    </div>
-  </section>
+<section id="dashboard" class="page active">
+  <div class="cards">
+    <div class="card"><p>Classes</p><span id="classCount">0</span></div>
+    <div class="card"><p>Teachers</p><span id="teacherCount">0</span></div>
+    <div class="card"><p>Students</p><span id="studentCount">0</span></div>
+  </div>
+</section>
 
-  <!-- CLASSES -->
-  <section id="classes" class="section">
-    <h2>Classes</h2>
-    <input id="className" placeholder="Class name" />
-    <button class="primary" onclick="addClass()">Add Class</button>
-    <ul id="classList"></ul>
-  </section>
+<section id="classes" class="page">
+  <h2>Classes</h2>
+  <input id="className" placeholder="Class name">
+  <button onclick="addClass()">Add Class</button>
+  <ul id="classList"></ul>
+</section>
 
-  <!-- TEACHERS -->
-  <section id="teachers" class="section">
-    <h2>Teachers</h2>
-    <input id="teacherName" placeholder="Name" />
-    <input id="teacherEmail" placeholder="Email" />
-    <button class="primary" onclick="addTeacher()">Add Teacher</button>
-    <ul id="teacherList"></ul>
-  </section>
+<section id="teachers" class="page">
+  <h2>Teachers</h2>
+  <input id="teacherName" placeholder="Name">
+  <input id="teacherEmail" placeholder="Email">
+  <button onclick="addTeacher()">Add Teacher</button>
+  <ul id="teacherList"></ul>
+</section>
 
-  <!-- APPROVALS -->
-  <section id="approvals" class="section">
-    <h2>Pending Approvals</h2>
-    <ul id="pendingList"></ul>
-  </section>
+<section id="approvals" class="page">
+  <h2>Pending Approvals</h2>
+  <ul id="pendingList"></ul>
+</section>
 
-  <!-- SETTINGS -->
-  <section id="settings" class="section">
-    <h2>Settings</h2>
-    <input id="minAttendance" placeholder="Min Attendance %" />
-    <button class="primary" onclick="saveSettings()">Save</button>
-  </section>
+<section id="settings" class="page">
+  <h2>Settings</h2>
+  <input id="minAttendance" placeholder="Min Attendance %">
+  <button onclick="saveSettings()">Save</button>
+</section>
 
 </main>
+</div>
 
 <!-- PANELS -->
 <div id="teacherProfile" class="panel"></div>
