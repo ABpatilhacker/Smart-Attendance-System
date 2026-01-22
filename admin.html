@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -16,26 +16,34 @@
 
 <body>
 
-<!-- ================= SIDEBAR ================= -->
-<div class="sidebar" id="sidebar">
-  <h2>Admin Panel</h2>
+<!-- ===== OVERLAY (for outside click close) ===== -->
+<div id="overlay" onclick="toggleSidebar(false)"></div>
 
-  <a href="#" onclick="showSection('dashboard')">📊 Dashboard</a>
-  <a href="#" onclick="showSection('approvals')">🟡 Approvals</a>
-  <a href="#" onclick="showSection('classes')">🏫 Classes</a>
-  <a href="#" onclick="showSection('teachers')">👨‍🏫 Teachers</a>
-  <a href="#" onclick="showSection('students')">🎓 Students</a>
-  <a href="#" onclick="showSection('settings')">⚙️ Settings</a>
+<!-- ===== HEADER ===== -->
+<header class="topbar">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+  <h1>Admin Dashboard</h1>
+</header>
 
-  <a href="#" onclick="logout()">🚪 Logout</a>
-</div>
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar" class="sidebar">
+  <h2>Admin</h2>
 
-<!-- ================= MAIN ================= -->
-<div class="main">
+  <a onclick="navigate('dashboard')">📊 Dashboard</a>
+  <a onclick="navigate('approvals')">🟡 Approvals</a>
+  <a onclick="navigate('classes')">🏫 Classes</a>
+  <a onclick="navigate('teachers')">👨‍🏫 Teachers</a>
+  <a onclick="navigate('students')">🎓 Students</a>
+  <a onclick="navigate('settings')">⚙️ Settings</a>
+
+  <a class="logout" onclick="logout()">🚪 Logout</a>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main">
 
   <!-- DASHBOARD -->
-  <section id="dashboard" class="page">
-    <h1>Dashboard</h1>
+  <section id="dashboard" class="page active">
     <div class="stats">
       <div class="stat-card">
         <h3>Classes</h3>
@@ -53,67 +61,70 @@
   </section>
 
   <!-- APPROVALS -->
-  <section id="approvals" class="page" style="display:none">
-    <h1>Pending Approvals</h1>
+  <section id="approvals" class="page">
+    <h2>Pending Approvals</h2>
     <ul id="pendingList"></ul>
   </section>
 
   <!-- CLASSES -->
-  <section id="classes" class="page" style="display:none">
-    <h1>Classes</h1>
-
+  <section id="classes" class="page">
+    <h2>Classes</h2>
     <input id="className" placeholder="Class Name">
-    <button class="primary" onclick="addClass()">Add Class</button>
-
+    <button onclick="addClass()">Add Class</button>
     <ul id="classList"></ul>
   </section>
 
   <!-- TEACHERS -->
-  <section id="teachers" class="page" style="display:none">
-    <h1>Teachers</h1>
-
+  <section id="teachers" class="page">
+    <h2>Teachers</h2>
     <input id="teacherName" placeholder="Teacher Name">
     <input id="teacherEmail" placeholder="Teacher Email">
-    <button class="primary" onclick="addTeacher()">Add Teacher</button>
-
+    <button onclick="addTeacher()">Add Teacher</button>
     <ul id="teacherList"></ul>
   </section>
 
   <!-- STUDENTS -->
-  <section id="students" class="page" style="display:none">
-    <h1>Students</h1>
-
+  <section id="students" class="page">
+    <h2>Students</h2>
     <input id="studentName" placeholder="Student Name">
     <input id="studentRoll" placeholder="Roll Number">
     <input id="studentEmail" placeholder="Student Email">
     <select id="studentClass"></select>
-
-    <button class="primary" onclick="addStudent()">Add Student</button>
+    <button onclick="addStudent()">Add Student</button>
   </section>
 
   <!-- SETTINGS -->
-  <section id="settings" class="page" style="display:none">
-    <h1>Settings</h1>
-
-    <input id="minAttendance" placeholder="Minimum Attendance (%)">
-    <button class="primary" onclick="saveSettings()">Save Settings</button>
+  <section id="settings" class="page">
+    <h2>Settings</h2>
+    <input id="minAttendance" placeholder="Minimum Attendance %">
+    <button onclick="saveSettings()">Save</button>
   </section>
 
-</div>
+</main>
 
-<!-- ================= PANELS ================= -->
+<!-- ===== DETAIL PANELS (USED BY YOUR JS) ===== -->
 <div id="teacherProfile" class="panel"></div>
 <div id="classPanel" class="panel"></div>
 <div id="studentPanel" class="panel"></div>
 
-<!-- ================= JS ================= -->
+<!-- ===== JS ===== -->
 <script src="admin.js"></script>
 
-<!-- ================= PAGE SWITCH SCRIPT ================= -->
+<!-- ===== SAFE UI SCRIPT (NO LOGIC TOUCH) ===== -->
 <script>
-function showSection(id) {
-  document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-  document.getElementById(id).style.display = "block";
+function toggleSidebar(force) {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+  const open = force !== undefined ? force : !sidebar.classList.contains("open");
+
+  sidebar.classList.toggle("open", open);
+  overlay.classList.toggle("show", open);
+}
+
+function navigate(pageId) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(pageId).classList.add("active");
+  toggleSidebar(false);
 }
 </script>
 
