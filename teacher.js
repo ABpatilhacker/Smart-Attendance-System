@@ -284,3 +284,18 @@ function toast(msg) {
   setTimeout(() => t.classList.remove("show"), 2500);
   setTimeout(() => t.remove(), 3000);
                                        }
+/********************************
+ 🌗 DARK / LIGHT MODE
+*********************************/
+function toggleTheme() {
+  document.body.classList.toggle("light");
+  localStorage.setItem(
+    "theme",
+    document.body.classList.contains("light") ? "light" : "dark"
+  );
+}
+
+/* Restore theme */
+if (localStorage.getItem("theme") === "light") {
+  document.body.classList.add("light");
+}
