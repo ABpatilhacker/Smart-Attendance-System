@@ -277,3 +277,67 @@ function toast(msg) {
   setTimeout(() => t.classList.add("show"), 100);
   setTimeout(() => t.remove(), 3500);
            }
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* ===== PANEL HELPERS ===== */
+function openPanel(id) {
+  document.getElementById(id).classList.add("active-panel");
+  document.body.classList.add("panel-open");
+}
+
+function closePanel(id) {
+  document.getElementById(id).classList.remove("active-panel");
+  document.body.classList.remove("panel-open");
+}
+
+/* ===== CONFIRM MODAL ===== */
+function confirmModal(title, text, onConfirm) {
+  document.getElementById("modalTitle").innerText = title;
+  document.getElementById("modalText").innerText = text;
+  document.getElementById("modal").classList.add("show");
+
+  document.getElementById("modalOk").onclick = () => {
+    closeModal();
+    onConfirm();
+  };
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("show");
+}
+
+/* ===== OVERRIDES (SAFE) ===== */
+function deleteClass(id) {
+  confirmModal("Delete Class", "Are you sure?", () => {
+    db.ref("classes/" + id).remove().then(() => toast("Class deleted"));
+  });
+}
+
+function deleteTeacher(uid) {
+  confirmModal("Delete Teacher", "Are you sure?", () => {
+    db.ref("users/" + uid).remove().then(() => toast("Teacher deleted"));
+  });
+}
+
+function rejectUser(uid) {
+  confirmModal("Reject User", "Reject this user?", () => {
+    db.ref("users/" + uid).remove().then(() => toast("User rejected"));
+  });
+}
+
+/* ===== PANEL OPEN FIX ===== */
+function openTeacherProfile(uid) {
+  db.ref("users/" + uid).once("value").then(snap => {
+    const t = snap.val();
+    const panel = document.getElementById("teacherProfile");
+    panel.innerHTML = `
+      <h3>${t.name}</h3>
+      <p>${t.email}</p>
+      <button onclick="closePanel('teacherProfile')">Close</button>
+    `;
+    openPanel("teacherProfile");
+  });
+}
