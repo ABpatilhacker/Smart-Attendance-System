@@ -2,18 +2,17 @@
    🌈 GLOBAL THEME
 ================================ */
 :root {
-  --bg: #0f172a;
-  --panel: #111827;
-  --card: #1f2933;
-  --primary: #38bdf8;
-  --success: #22c55e;
-  --danger: #ef4444;
-  --text: #e5e7eb;
-  --muted: #9ca3af;
-  --border: #334155;
+  --bg: #020617;              /* deep navy */
+  --panel: #020617;           /* sidebar & topbar */
+  --card: #0f172a;            /* cards */
+  --primary: #22d3ee;         /* cyan-blue (premium) */
+  --success: #16a34a;         /* calm green */
+  --danger: #dc2626;          /* soft red */
+  --text: #e5e7eb;            /* main text */
+  --muted: #94a3b8;           /* secondary text */
+  --border: #1e293b;          /* subtle borders */
   --radius: 14px;
 }
-
 * {
   margin: 0;
   padding: 0;
@@ -162,6 +161,13 @@ body {
 
 .card p {
   color: var(--muted);
+}
+.card {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.card:hover {
+  box-shadow: 0 20px 40px rgba(34,211,238,0.25);
 }
 
 /* ===============================
