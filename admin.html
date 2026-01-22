@@ -2,73 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard</title>
+
+  <!-- Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <link rel="stylesheet" href="admin.css" />
+  <link rel="stylesheet" href="admin.css">
 </head>
-
 <body>
 
-<!-- TOPBAR (MOBILE) -->
-<header class="topbar">
-  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h1>Admin Dashboard</h1>
-  <button class="logout-btn" onclick="logout()">Logout</button>
-</header>
-
-<div class="layout">
+<div class="app">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <h2 class="logo">ADMIN PANEL</h2>
+  <aside id="sidebar">
+    <h2>ADMIN PANEL</h2>
 
-    <button onclick="showPage('dashboard'); closeSidebar()">📊 Dashboard</button>
-    <button onclick="showPage('classes'); closeSidebar()">🏫 Classes</button>
-    <button onclick="showPage('teachers'); closeSidebar()">👨‍🏫 Teachers</button>
-    <button onclick="showPage('approvals'); closeSidebar()">✅ Approvals</button>
-    <button onclick="showPage('settings'); closeSidebar()">⚙️ Settings</button>
+    <nav>
+      <button onclick="nav('dashboard')"><i class="fa fa-chart-pie"></i> Dashboard</button>
+      <button onclick="nav('classes')"><i class="fa fa-school"></i> Classes</button>
+      <button onclick="nav('teachers')"><i class="fa fa-user-tie"></i> Teachers</button>
+      <button onclick="nav('approvals')"><i class="fa fa-check-circle"></i> Approvals</button>
+      <button onclick="nav('settings')"><i class="fa fa-gear"></i> Settings</button>
+    </nav>
 
-    <button class="danger-btn" onclick="logout()">🚪 Logout</button>
+    <button class="logout" onclick="logout()">
+      <i class="fa fa-sign-out-alt"></i> Logout
+    </button>
   </aside>
 
   <!-- MAIN -->
   <main>
+    <header>
+      <button class="menu-btn" onclick="toggleSidebar()">
+        <i class="fa fa-bars"></i>
+      </button>
+      <h1>Admin Dashboard</h1>
+    </header>
 
     <!-- DASHBOARD -->
     <section id="dashboard" class="page active">
       <div class="cards">
-        <div class="card">Classes<br><span id="classCount">0</span></div>
-        <div class="card">Teachers<br><span id="teacherCount">0</span></div>
-        <div class="card">Students<br><span id="studentCount">0</span></div>
+        <div class="card"><span>Classes</span><b id="classCount">0</b></div>
+        <div class="card"><span>Teachers</span><b id="teacherCount">0</b></div>
+        <div class="card"><span>Students</span><b id="studentCount">0</b></div>
       </div>
     </section>
 
     <!-- CLASSES -->
     <section id="classes" class="page">
       <h2>Classes</h2>
-      <input id="className" placeholder="Class name" />
-      <button onclick="addClass()">Add Class</button>
-      <ul id="classList"></ul>
+      <ul id="classList" class="list"></ul>
     </section>
 
     <!-- TEACHERS -->
     <section id="teachers" class="page">
       <h2>Teachers</h2>
-      <input id="teacherName" placeholder="Name" />
-      <input id="teacherEmail" placeholder="Email" />
-      <button onclick="addTeacher()">Add Teacher</button>
-      <ul id="teacherList"></ul>
+      <ul id="teacherList" class="list"></ul>
     </section>
 
     <!-- APPROVALS -->
     <section id="approvals" class="page">
       <h2>Pending Approvals</h2>
-      <ul id="pendingList"></ul>
+      <ul id="pendingList" class="list"></ul>
     </section>
 
     <!-- SETTINGS -->
@@ -77,26 +78,14 @@
       <input id="minAttendance" placeholder="Min Attendance %" />
       <button onclick="saveSettings()">Save</button>
     </section>
-
   </main>
 </div>
 
 <!-- PANELS -->
-<div id="teacherProfile" class="panel"></div>
-<div id="classPanel" class="panel"></div>
-<div id="studentPanel" class="panel"></div>
+<div id="overlay"></div>
 
-<!-- MODAL -->
-<div id="modal" class="modal">
-  <div class="modal-box">
-    <h3 id="modalTitle"></h3>
-    <p id="modalText"></p>
-    <div class="modal-actions">
-      <button onclick="closeModal()">Cancel</button>
-      <button id="modalOk" class="danger">Confirm</button>
-    </div>
-  </div>
-</div>
+<div id="classPanel" class="panel"></div>
+<div id="teacherPanel" class="panel"></div>
 
 <script src="admin.js"></script>
 </body>
