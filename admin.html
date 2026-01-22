@@ -101,20 +101,43 @@
     </section>
 
     <!-- DETAILS PANELS -->
-    <div id="teacherProfile" class="panel"></div>
-    <div id="classPanel" class="panel"></div>
-    <div id="studentProfilePanel" class="panel"></div>
+<div id="teacherProfile" class="panel"></div>
+<div id="classPanel" class="panel"></div>
+<div id="studentPanel" class="panel"></div>
   </main>
 
   <script src="admin.js"></script>
   <script>
-    function toggleSidebar(){document.getElementById("sidebar").classList.toggle("open")}
-    function closeSidebar(){document.getElementById("sidebar").classList.remove("open")}
-    function openSection(id){
-      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
+  const sidebar = document.getElementById("sidebar");
+
+  function toggleSidebar() {
+    sidebar.classList.toggle("open");
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+  }
+
+  function openSection(id) {
+    // Sections
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+
+    // Sidebar active link
+    document.querySelectorAll("#sidebar a").forEach(a => a.classList.remove("active"));
+    document
+      .querySelector(`#sidebar a[onclick*="${id}"]`)
+      ?.classList.add("active");
+
+    closeSidebar();
+  }
+
+  // Close sidebar when clicking outside (mobile)
+  document.addEventListener("click", e => {
+    if (!sidebar.contains(e.target) && !e.target.classList.contains("menu-btn")) {
       closeSidebar();
     }
+  });
   </script>
 </body>
     </html>
