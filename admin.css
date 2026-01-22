@@ -1,92 +1,340 @@
-:root{
-  --primary:#2b4eff;
-  --bg:#f5f7ff;
-  --card:#ffffff;
-  --text:#1f2937;
-  --muted:#6b7280;
+/* =========================
+   🌟 ROOT THEME (CLASSIC)
+========================= */
+:root {
+  --bg-main: #f4f6f9;
+  --bg-card: #ffffff;
+  --bg-sidebar: #1f2937;
+  --bg-sidebar-hover: #374151;
+
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --text-light: #e5e7eb;
+
+  --primary: #2563eb;
+  --primary-soft: rgba(37, 99, 235, 0.1);
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #f59e0b;
+
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0,0,0,.08);
+  --transition: all .25s ease;
 }
 
-*{box-sizing:border-box;font-family:Inter}
-body{margin:0;background:var(--bg);color:var(--text)}
-
-.topbar{
-  display:flex;align-items:center;gap:12px;
-  background:#fff;padding:14px 18px;
-  box-shadow:0 4px 20px rgba(0,0,0,.08);
-}
-.menu-btn{font-size:22px;background:none;border:none;cursor:pointer}
-.logout-btn{
-  margin-left:auto;background:#ef4444;color:#fff;
-  border:none;padding:8px 14px;border-radius:8px;
+/* =========================
+   🔤 BASE
+========================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-#sidebar{
-  position:fixed;top:0;left:-260px;width:260px;height:100%;
-  background:#fff;box-shadow:4px 0 20px rgba(0,0,0,.1);
-  transition:.3s;z-index:1000;padding-top:70px;
-}
-#sidebar.open{left:0}
-#sidebar nav a{
-  display:block;padding:14px 20px;
-  text-decoration:none;color:#111;
-}
-#sidebar nav a:hover{
-  background:var(--primary);color:#fff;
+body {
+  background: var(--bg-main);
+  color: var(--text-main);
 }
 
-#overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.3);
-  opacity:0;pointer-events:none;transition:.3s;
-}
-#overlay.show{opacity:1;pointer-events:auto}
-
-main{padding:20px}
-
-.section{display:none}
-.section.active{display:block}
-
-.cards{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:16px;
-}
-.card{
-  background:var(--card);padding:20px;border-radius:16px;
-  box-shadow:0 10px 25px rgba(0,0,0,.08);
-  cursor:pointer;text-align:center;
-  transition:.25s;
-}
-.card:hover{transform:translateY(-4px)}
-
-input,select,button{
-  width:100%;padding:10px;margin:6px 0;
-  border-radius:10px;border:1px solid #ddd;
-}
-button.primary{
-  background:var(--primary);color:#fff;border:none;
+/* =========================
+   📦 LAYOUT
+========================= */
+.main {
+  margin-left: 260px;
+  padding: 28px;
+  transition: var(--transition);
 }
 
-ul{list-style:none;padding:0}
-li{
-  background:#fff;margin:10px 0;padding:14px;
-  border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,.06);
+/* =========================
+   📚 SIDEBAR
+========================= */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 260px;
+  height: 100vh;
+  background: var(--bg-sidebar);
+  color: var(--text-light);
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  z-index: 100;
+  box-shadow: 4px 0 20px rgba(0,0,0,.2);
 }
 
-.panel{
-  position:fixed;inset:10%;background:#fff;
-  border-radius:20px;padding:20px;
-  box-shadow:0 30px 80px rgba(0,0,0,.25);
-  display:none;overflow:auto;z-index:2000;
+.sidebar h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 30px;
 }
-.panel.active-panel{display:block}
 
-.toast{
-  position:fixed;bottom:20px;right:20px;
-  background:var(--primary);color:#fff;
-  padding:12px 16px;border-radius:10px;
-  opacity:0;transition:.3s;
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  border-radius: var(--radius);
+  color: var(--text-light);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
 }
-.toast.show{opacity:1}
 
-@media(max-width:600px){
-  .panel{inset:5%}
+.sidebar a:hover {
+  background: var(--bg-sidebar-hover);
+  transform: translateX(4px);
+}
+
+.sidebar a.active {
+  background: var(--primary);
+}
+
+/* =========================
+   📊 DASHBOARD CARDS
+========================= */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  padding: 26px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.stat-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, var(--primary-soft));
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.stat-card:hover::after {
+  opacity: 1;
+}
+
+.stat-card h3 {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.stat-card span {
+  font-size: 34px;
+  font-weight: 700;
+}
+
+/* =========================
+   🧾 LIST CARDS
+========================= */
+ul {
+  list-style: none;
+}
+
+.approval-card,
+.class-card,
+.teacher-card,
+.student-card {
+  background: var(--bg-card);
+  padding: 18px 20px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: var(--transition);
+}
+
+.approval-card:hover,
+.class-card:hover,
+.teacher-card:hover,
+.student-card:hover {
+  transform: translateY(-3px);
+}
+
+/* =========================
+   🏷️ BADGES
+========================= */
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* =========================
+   🔘 BUTTONS
+========================= */
+button {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+.approve-btn {
+  background: var(--success);
+  color: #fff;
+}
+
+.reject-btn {
+  background: var(--danger);
+  color: #fff;
+}
+
+button.primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+button.warning {
+  background: var(--warning);
+  color: #fff;
+}
+
+/* =========================
+   📝 FORMS
+========================= */
+input,
+select {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 14px;
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* =========================
+   🪟 DETAIL PANELS
+========================= */
+.panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 420px;
+  max-width: 90%;
+  transform: translate(-50%, -50%) scale(.95);
+  background: var(--bg-card);
+  padding: 28px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition);
+  z-index: 200;
+}
+
+.panel.active-panel {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.panel h3 {
+  margin-bottom: 14px;
+}
+
+.panel h4 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.panel table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.panel th,
+.panel td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* =========================
+   🍞 TOAST
+========================= */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--bg-card);
+  padding: 16px 22px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: var(--transition);
+  z-index: 300;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =========================
+   🌫️ OVERLAY (FOR PANELS)
+========================= */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: var(--transition);
+  z-index: 150;
+}
+
+.overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* =========================
+   📱 RESPONSIVE
+========================= */
+@media (max-width: 900px) {
+  .main {
+    margin-left: 0;
+    padding: 20px;
   }
+
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}
