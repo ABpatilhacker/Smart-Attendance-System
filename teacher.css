@@ -1,283 +1,312 @@
-/* ==========================
-   GLOBAL RESET & FONT
-========================== */
+/* ===============================
+   🌈 GLOBAL THEME
+================================ */
+:root {
+  --bg: #0f172a;
+  --panel: #111827;
+  --card: #1f2933;
+  --primary: #38bdf8;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --border: #334155;
+  --radius: 14px;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Inter', 'Segoe UI', sans-serif;
-  transition: all 0.4s ease;
+  font-family: "Inter", system-ui, sans-serif;
 }
 
 body {
+  background: linear-gradient(135deg, #020617, #020617);
+  color: var(--text);
   min-height: 100vh;
-  background: linear-gradient(135deg, #e0eafc, #cfdef3);
-  color: #1A1F36;
-  font-size: 16px;
   overflow-x: hidden;
 }
 
-/* ==========================
-   SIDEBAR
-========================== */
+/* ===============================
+   📌 SIDEBAR
+================================ */
 .sidebar {
-  width: 250px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
   position: fixed;
-  height: 100%;
+  left: -260px;
   top: 0;
-  left: 0;
-  padding: 30px 20px;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.4s ease, background 3s linear;
-  z-index: 100;
-  border-radius: 0 20px 20px 0;
-  overflow: hidden;
+  width: 260px;
+  height: 100vh;
+  background: var(--panel);
+  padding: 20px;
+  transition: 0.3s ease;
+  z-index: 1000;
 }
 
-.sidebar.open { transform: translateX(0); }
-.sidebar h2 {
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header h2 {
   text-align: center;
-  font-weight: 700;
-  font-size: 2rem;
-  margin-bottom: 40px;
-  background: linear-gradient(90deg, #ffd700, #ff6347);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--primary);
+  margin-bottom: 30px;
 }
 
 .sidebar ul {
   list-style: none;
-  flex: 1;
 }
 
-.sidebar ul li {
-  padding: 14px 15px;
-  border-radius: 12px;
-  margin-bottom: 15px;
+.sidebar li {
+  padding: 14px;
+  margin-bottom: 10px;
+  border-radius: var(--radius);
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
+  transition: 0.2s;
+  color: var(--text);
 }
 
-.sidebar ul li::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 100%;
-  width: 0;
-  background: rgba(255, 255, 255, 0.1);
-  transition: 0.3s;
-  border-radius: 12px;
+.sidebar li:hover {
+  background: var(--card);
 }
 
-.sidebar ul li:hover::after { width: 100%; }
-.sidebar ul li:hover { color: #ffd700; }
-
-/* ==========================
-   TOPBAR
-========================== */
-.topbar {
+/* Overlay */
+#overlay {
   position: fixed;
-  top: 0;
-  left: 250px;
-  right: 0;
-  height: 70px;
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 30px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  z-index: 90;
-}
-
-.menu-btn { font-size: 26px; cursor: pointer; }
-.topbar-title { font-weight: 700; font-size: 1.3rem; }
-
-/* ==========================
-   MAIN CONTENT
-========================== */
-.main {
-  margin-left: 250px;
-  padding: 100px 40px 40px 40px;
-}
-
-.section { display: none; animation: fadeIn 0.6s ease; }
-.section.active { display: block; }
-
-/* ==========================
-   WELCOME CARD
-========================== */
-.welcome-card {
-  background: linear-gradient(135deg, #ff7e5f, #feb47b);
-  padding: 15px 25px;
-  border-radius: 20px;
-  font-weight: 600;
-  color: #fff;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-  margin-bottom: 30px;
-  text-align: center;
-  font-size: 1.2rem;
-}
-
-/* ==========================
-   CARDS
-========================== */
-.cards-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 25px;
-}
-
-.card {
-  flex: 1 1 220px;
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(15px);
-  border-radius: 20px;
-  padding: 25px 20px;
-  text-align: center;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #fff;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s ease;
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
-  animation: animateGradient 8s linear infinite;
-  z-index: 0;
-  filter: blur(30px);
-}
-
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.25);
-}
-
-.card * { position: relative; z-index: 1; }
-
-/* ==========================
-   TABLES
-========================== */
-.attendance-table, .defaulter-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(15px);
-  border-radius: 15px;
-  overflow: hidden;
-}
-
-.attendance-table th, .attendance-table td,
-.defaulter-table th, .defaulter-table td {
-  padding: 12px 15px;
-  text-align: left;
-  font-weight: 500;
-}
-
-.attendance-table th, .defaulter-table th {
-  background: rgba(255,255,255,0.1);
-}
-
-.attendance-table tbody tr:nth-child(even),
-.defaulter-table tbody tr:nth-child(even) {
-  background: rgba(255,255,255,0.05);
-}
-
-/* ==========================
-   ATTENDANCE BUTTONS
-========================== */
-.attendance-buttons button {
-  margin-right: 12px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.attendance-buttons .present { background: #4caf50; color: #fff; }
-.attendance-buttons .absent { background: #f44336; color: #fff; }
-.attendance-buttons .selected {
-  transform: scale(1.1);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-}
-
-/* ==========================
-   SAVE BUTTON
-========================== */
-.save-btn {
-  margin-top: 20px;
-  padding: 12px 30px;
-  font-weight: 700;
-  border-radius: 15px;
-  border: none;
-  background: linear-gradient(90deg, #ff7e5f, #feb47b);
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.4s;
-}
-
-.save-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.4);
-}
-
-/* ==========================
-   TOAST
-========================== */
-.toast {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: linear-gradient(135deg, #ff7e5f, #feb47b);
-  padding: 12px 25px;
-  border-radius: 20px;
-  color: #fff;
-  font-weight: 600;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.5s ease;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
   z-index: 999;
 }
 
-.toast.show { opacity: 1; transform: translateY(0); }
-
-/* ==========================
-   ANIMATIONS
-========================== */
-@keyframes fadeIn {
-  0% { opacity: 0; transform: translateY(10px);}
-  100% { opacity: 1; transform: translateY(0);}
+#overlay.show {
+  display: block;
 }
 
-@keyframes animateGradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* ===============================
+   🔝 TOPBAR
+================================ */
+.topbar {
+  height: 60px;
+  background: var(--panel);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
 }
 
-/* ==========================
-   RESPONSIVE
-========================== */
-@media(max-width: 992px) {
-  .sidebar { transform: translateX(-100%); position: fixed; }
-  .main { margin-left: 0; padding: 90px 20px 20px 20px; }
-  .topbar { left: 0; }
+.menu-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.topbar-title {
+  margin-left: 15px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ===============================
+   📦 MAIN
+================================ */
+.main {
+  padding: 20px;
+  margin-top: 60px;
+}
+
+.section {
+  display: none;
+  animation: fade 0.3s ease;
+}
+
+.section.active {
+  display: block;
+}
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===============================
+   🟦 CARDS
+================================ */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.card {
+  background: linear-gradient(135deg, #1e293b, #020617);
+  border-radius: var(--radius);
+  padding: 25px;
+  cursor: pointer;
+  transition: 0.3s;
+  border: 1px solid var(--border);
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  border-color: var(--primary);
+}
+
+.card h3 {
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.card p {
+  color: var(--muted);
+}
+
+/* ===============================
+   👋 WELCOME
+================================ */
+.welcome-card {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: #020617;
+  padding: 25px;
+  border-radius: var(--radius);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* ===============================
+   📋 TABLES
+================================ */
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+th, td {
+  padding: 14px;
+  text-align: center;
+}
+
+th {
+  background: #020617;
+  color: var(--primary);
+}
+
+tr:nth-child(even) {
+  background: #020617;
+}
+
+/* ===============================
+   ✅ ATTENDANCE BUTTONS
+================================ */
+.att-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  margin: 0 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  color: #020617;
+}
+
+.att-btn.present {
+  background: #bbf7d0;
+}
+
+.att-btn.absent {
+  background: #fecaca;
+}
+
+.att-btn.active.present {
+  background: var(--success);
+  color: white;
+}
+
+.att-btn.active.absent {
+  background: var(--danger);
+  color: white;
+}
+
+/* ===============================
+   💾 SAVE BUTTON
+================================ */
+.save-btn {
+  margin-top: 20px;
+  padding: 12px 22px;
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #020617;
+}
+
+/* ===============================
+   📑 FORMS
+================================ */
+.form-group {
+  margin-top: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  background: #020617;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+}
+
+/* ===============================
+   🍞 TOAST
+================================ */
+.toast {
+  position: fixed;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel);
+  padding: 12px 20px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  transition: 0.3s;
+  z-index: 2000;
+}
+
+.toast.show {
+  bottom: 30px;
+}
+
+/* ===============================
+   📱 MOBILE
+================================ */
+@media (min-width: 768px) {
+  .main {
+    margin-left: 260px;
+  }
+
+  .sidebar {
+    left: 0;
+  }
+
+  #overlay {
+    display: none !important;
+  }
 }
