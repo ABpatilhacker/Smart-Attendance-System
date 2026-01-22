@@ -341,3 +341,61 @@ function openTeacherProfile(uid) {
     openPanel("teacherProfile");
   });
 }
+
+/* ===== UI HELPERS ===== */
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("open");
+}
+
+function nav(id){
+  showPage(id);
+  document.getElementById("sidebar").classList.remove("open");
+}
+
+/* ===== PAGE SWITCH ===== */
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* ===== PANEL ===== */
+function openPanel(id){
+  document.getElementById(id).classList.add("active-panel");
+  document.body.classList.add("panel-open");
+}
+function closePanel(id){
+  document.getElementById(id).classList.remove("active-panel");
+  document.body.classList.remove("panel-open");
+}
+
+/* ===== CONFIRM MODAL ===== */
+function confirmModal(title,text,onConfirm){
+  modalTitle.innerText=title;
+  modalText.innerText=text;
+  modal.classList.add("show");
+  modalOk.onclick=()=>{closeModal();onConfirm();}
+}
+function closeModal(){modal.classList.remove("show");}
+
+/* ===== OVERRIDES ===== */
+function deleteClass(id){
+  confirmModal("Delete Class","Are you sure?",()=>{
+    db.ref("classes/"+id).remove().then(()=>toast("Deleted"));
+  });
+}
+function deleteTeacher(uid){
+  confirmModal("Delete Teacher","Are you sure?",()=>{
+    db.ref("users/"+uid).remove().then(()=>toast("Deleted"));
+  });
+}
+
+/* ===== PANEL FIX ===== */
+function openTeacherProfile(uid){
+  db.ref("users/"+uid).once("value").then(s=>{
+    teacherProfile.innerHTML=`
+      <h2>${s.val().name}</h2>
+      <p>${s.val().email}</p>
+      <button onclick="closePanel('teacherProfile')">Close</button>`;
+    openPanel("teacherProfile");
+  });
+}
