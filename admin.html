@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard | Smart Attendance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Smart Attendance – Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="admin.css">
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
+
 <body>
 
 <!-- TOPBAR -->
@@ -27,13 +24,14 @@
 
 <!-- SIDEBAR -->
 <aside id="sidebar">
-  <h3>Navigation</h3>
-  <a onclick="openSection('dashboard')">📊 Dashboard</a>
-  <a onclick="openSection('classes')">🏫 Classes</a>
-  <a onclick="openSection('teachers')">👨‍🏫 Teachers</a>
-  <a onclick="openSection('students')">🎓 Students</a>
-  <a onclick="openSection('settings')">⚙️ Settings</a>
-  <a onclick="openSection('approvals')">🟡 Approvals</a>
+  <nav>
+    <a onclick="openSection('dashboard')">📊 Dashboard</a>
+    <a onclick="openSection('classes')">🏫 Classes</a>
+    <a onclick="openSection('teachers')">👨‍🏫 Teachers</a>
+    <a onclick="openSection('students')">🎓 Students</a>
+    <a onclick="openSection('approvals')">🟡 Approvals</a>
+    <a onclick="openSection('settings')">⚙️ Settings</a>
+  </nav>
 </aside>
 
 <!-- OVERLAY -->
@@ -42,69 +40,54 @@
 <!-- MAIN -->
 <main>
 
-<!-- DASHBOARD -->
 <section id="dashboard" class="section active">
-  <h2>Dashboard</h2>
+  <h2>Dashboard Overview</h2>
   <div class="cards">
     <div class="card" onclick="openSection('classes')">
-      <h3 id="classCount">0</h3>
-      <p>Classes</p>
+      <h3 id="classCount">0</h3><p>Total Classes</p>
     </div>
     <div class="card" onclick="openSection('teachers')">
-      <h3 id="teacherCount">0</h3>
-      <p>Teachers</p>
+      <h3 id="teacherCount">0</h3><p>Total Teachers</p>
     </div>
     <div class="card" onclick="openSection('students')">
-      <h3 id="studentCount">0</h3>
-      <p>Students</p>
+      <h3 id="studentCount">0</h3><p>Total Students</p>
     </div>
   </div>
 </section>
 
-<!-- CLASSES -->
 <section id="classes" class="section">
   <h2>Classes</h2>
-  <div class="form-row">
-    <input id="className" placeholder="Class Name">
-    <button class="primary" onclick="addClass()">Add Class</button>
-  </div>
-  <ul id="classList" class="list"></ul>
+  <input id="className" placeholder="Class Name">
+  <button class="primary" onclick="addClass()">Add Class</button>
+  <ul id="classList"></ul>
 </section>
 
-<!-- TEACHERS -->
 <section id="teachers" class="section">
   <h2>Teachers</h2>
-  <div class="form-row">
-    <input id="teacherName" placeholder="Teacher Name">
-    <input id="teacherEmail" placeholder="Teacher Email">
-    <button class="primary" onclick="addTeacher()">Add Teacher</button>
-  </div>
-  <ul id="teacherList" class="list"></ul>
+  <input id="teacherName" placeholder="Teacher Name">
+  <input id="teacherEmail" placeholder="Teacher Email">
+  <button class="primary" onclick="addTeacher()">Add Teacher</button>
+  <ul id="teacherList"></ul>
 </section>
 
-<!-- STUDENTS -->
 <section id="students" class="section">
   <h2>Students</h2>
-  <div class="form-grid">
-    <input id="studentName" placeholder="Student Name">
-    <input id="studentRoll" placeholder="Roll No">
-    <input id="studentEmail" placeholder="Email">
-    <select id="studentClass"></select>
-    <button class="primary" onclick="addStudent()">Add Student</button>
-  </div>
+  <input id="studentName" placeholder="Student Name">
+  <input id="studentRoll" placeholder="Roll No">
+  <input id="studentEmail" placeholder="Email">
+  <select id="studentClass"></select>
+  <button class="primary" onclick="addStudent()">Add Student</button>
 </section>
 
-<!-- SETTINGS -->
+<section id="approvals" class="section">
+  <h2>Approvals</h2>
+  <ul id="pendingList"></ul>
+</section>
+
 <section id="settings" class="section">
   <h2>Settings</h2>
-  <input id="minAttendance" placeholder="Minimum Attendance %">
+  <input id="minAttendance" placeholder="Min Attendance %">
   <button class="primary" onclick="saveSettings()">Save</button>
-</section>
-
-<!-- APPROVALS -->
-<section id="approvals" class="section">
-  <h2>Pending Approvals</h2>
-  <ul id="pendingList" class="list"></ul>
 </section>
 
 <!-- PANELS -->
@@ -115,7 +98,6 @@
 </main>
 
 <script src="admin.js"></script>
-
 <script>
 function toggleSidebar(){
   sidebar.classList.toggle("open");
