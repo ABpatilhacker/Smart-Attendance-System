@@ -419,3 +419,123 @@ canvas {
 .save-btn:hover {
   animation: softGlow 2s infinite ease-in-out;
 }
+/* =================================================
+   🧠 MICRO-POLISH (PREMIUM ERP FINISH)
+================================================= */
+
+/* ---- Smooth page transition ---- */
+.section {
+  animation: pageEnter 0.45s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---- Button click feel (ripple-like) ---- */
+button, .card, .sidebar li {
+  position: relative;
+  overflow: hidden;
+}
+
+button:active,
+.card:active,
+.sidebar li:active {
+  transform: scale(0.97);
+}
+
+/* ---- Subtle hover lift everywhere ---- */
+button:hover,
+.card:hover {
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+/* ---- Table row hover clarity ---- */
+tbody tr {
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+tbody tr:hover {
+  background: rgba(34,211,238,0.08);
+  transform: scale(1.01);
+}
+
+/* ---- Sidebar micro glow on hover ---- */
+.sidebar li:hover {
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+/* ---- Input focus elegance ---- */
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(34,211,238,0.15);
+}
+
+/* ---- Save button success pulse ---- */
+@keyframes successPulse {
+  0% { box-shadow: 0 0 0 rgba(22,163,74,0); }
+  50% { box-shadow: 0 0 20px rgba(22,163,74,0.6); }
+  100% { box-shadow: 0 0 0 rgba(22,163,74,0); }
+}
+
+.save-btn.saved {
+  animation: successPulse 1.2s ease;
+}
+
+/* ---- Toast refinement ---- */
+.toast {
+  backdrop-filter: blur(12px);
+  background: linear-gradient(
+    135deg,
+    rgba(15,23,42,0.9),
+    rgba(2,6,23,0.95)
+  );
+  border: 1px solid rgba(34,211,238,0.25);
+}
+
+/* ---- Scrollbar (desktop only) ---- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(34,211,238,0.35);
+  border-radius: 10px;
+}
+
+/* ---- Chart gentle float ---- */
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+canvas {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ---- Card title polish ---- */
+.card h3 {
+  letter-spacing: 0.3px;
+}
+
+/* ---- Reduce harshness on mobile ---- */
+@media (max-width: 768px) {
+  .card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
