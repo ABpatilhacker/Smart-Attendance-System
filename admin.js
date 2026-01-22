@@ -331,3 +331,69 @@ function toast(msg) {
   setTimeout(() => t.classList.remove("show"), 3000);
   setTimeout(() => t.remove(), 3500);
                             }
+
+/***********************
+ ✏️ EDIT & DELETE CLASSES
+************************/
+function editClass(classId, oldName) {
+  const newName = prompt("Edit class name:", oldName);
+  if (!newName) return;
+
+  db.ref("classes/" + classId).update({ name: newName })
+    .then(() => toast("Class updated ✅"));
+}
+
+function deleteClass(classId) {
+  if (!confirm("Delete this class? This cannot be undone.")) return;
+
+  db.ref("classes/" + classId).remove()
+    .then(() => toast("Class deleted ❌"));
+}
+
+/***********************
+ ✏️ EDIT & DELETE TEACHERS
+************************/
+function editTeacher(uid, currentName, currentEmail) {
+  const name = prompt("Edit teacher name:", currentName);
+  if (!name) return;
+
+  const email = prompt("Edit teacher email:", currentEmail);
+  if (!email) return;
+
+  db.ref("users/" + uid).update({ name, email })
+    .then(() => toast("Teacher updated ✅"));
+}
+
+function deleteTeacher(uid) {
+  if (!confirm("Delete this teacher?")) return;
+
+  db.ref("users/" + uid).remove()
+    .then(() => toast("Teacher deleted ❌"));
+}
+
+/***********************
+ ✏️ EDIT & DELETE STUDENTS
+************************/
+function editStudent(uid, data) {
+  const name = prompt("Edit student name:", data.name);
+  if (!name) return;
+
+  const roll = prompt("Edit roll number:", data.roll);
+  if (!roll) return;
+
+  const email = prompt("Edit student email:", data.email);
+  if (!email) return;
+
+  db.ref("users/" + uid).update({
+    name,
+    roll: Number(roll),
+    email
+  }).then(() => toast("Student updated ✅"));
+}
+
+function deleteStudent(uid) {
+  if (!confirm("Delete this student?")) return;
+
+  db.ref("users/" + uid).remove()
+    .then(() => toast("Student deleted ❌"));
+}
