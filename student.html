@@ -1,26 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Student Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="student.css">
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-
-<div class="sidebar" id="sidebar">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Fonts & Icons -->  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>  <!-- CSS -->  <link rel="stylesheet" href="student.css">  <!-- Chart.js -->  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script></head>
+<body><!-- SIDEBAR --><div class="sidebar" id="sidebar">
   <div class="brand">
     <h2>🎓 Student</h2>
-    <p id="studentName">Loading...</p>
+    <p id="studentNameTop">Loading...</p>
   </div>
   <nav>
     <button onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
@@ -28,17 +15,10 @@
     <button onclick="showSection('attendance')"><i class="fas fa-calendar-check"></i> Attendance</button>
     <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
   </nav>
-</div>
-
-<div class="topbar">
+</div><!-- TOPBAR --><div class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <h1 id="pageTitle">Dashboard</h1>
-</div>
-
-<div class="main">
-
-  <!-- DASHBOARD -->
-  <section id="dashboard" class="section active">
+</div><!-- MAIN CONTENT --><div class="main">  <!-- DASHBOARD -->  <section id="dashboard" class="section active">
     <h2>Welcome, <span id="dashName"></span>!</h2>
     <p>Check your classes, attendance, and performance here.</p>
     <div class="card-grid">
@@ -47,17 +27,11 @@
       <div class="card">⚠️ Defaulters<br><span id="defaulterCount">0</span></div>
     </div>
     <canvas id="attendanceChart" style="margin-top:30px;"></canvas>
-  </section>
-
-  <!-- CLASSES -->
-  <section id="classes" class="section">
+  </section>  <!-- CLASSES -->  <section id="classes" class="section">
     <h2>Your Classes</h2>
     <div id="classList" class="card-grid"></div>
-  </section>
-
-  <!-- ATTENDANCE -->
-  <section id="attendance" class="section">
-    <h2>Attendance</h2>
+  </section>  <!-- ATTENDANCE -->  <section id="attendance" class="section">
+    <h2>Attendance for: <span id="attendanceSubjectName">Select Subject</span></h2>
     <div id="attendanceTableContainer">
       <table id="attendanceTable">
         <thead>
@@ -70,18 +44,5 @@
         <tbody></tbody>
       </table>
     </div>
-  </section>
-
-</div>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-<script src="firebase.js"></script>
-
-<!-- Student Logic -->
-<script src="student.js"></script>
-
-</body>
+  </section></div><!-- Firebase --><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script><script src="firebase.js"></script><!-- Student Logic --><script src="student.js"></script></body>
 </html>
