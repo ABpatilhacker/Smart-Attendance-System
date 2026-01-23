@@ -73,6 +73,24 @@
         <tbody></tbody>
       </table>
     </div>
+    <!-- SUBJECT SELECT -->
+<select id="subjectSelect" onchange="loadSubjectAttendance()">
+  <option value="">Select Subject</option>
+</select>
+
+<!-- SUBJECT SUMMARY TABLE -->
+<table id="attendanceTable">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="attendanceTableBody"></tbody>
+</table>
+
+<!-- CHART -->
+<canvas id="attendanceChart" style="margin-top:25px;"></canvas>
   </section>
 
 </div>
