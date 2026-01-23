@@ -38,23 +38,23 @@ function logout() {
 }
 
 /***********************
- 📊 DASHBOARD COUNTS
+ 📊 DASHBOARD
 ************************/
 function loadDashboard() {
-  db.ref("classes").on("value", snap => {
-    document.getElementById("classCount").innerText = snap.numChildren();
+  db.ref("classes").on("value", s => {
+    classCount.innerText = s.numChildren();
   });
 
-  db.ref("users").on("value", snap => {
-    let teachers = 0, students = 0;
-    snap.forEach(u => {
+  db.ref("users").on("value", s => {
+    let t = 0, st = 0;
+    s.forEach(u => {
       if (u.val().approved) {
-        if (u.val().role === "teacher") teachers++;
-        if (u.val().role === "student") students++;
+        if (u.val().role === "teacher") t++;
+        if (u.val().role === "student") st++;
       }
     });
-    document.getElementById("teacherCount").innerText = teachers;
-    document.getElementById("studentCount").innerText = students;
+    teacherCount.innerText = t;
+    studentCount.innerText = st;
   });
 }
 
@@ -62,34 +62,30 @@ function loadDashboard() {
  🟡 APPROVALS
 ************************/
 function loadApprovals() {
-  const list = document.getElementById("pendingList");
-  if (!list) return;
+  if (!pendingList) return;
 
   db.ref("users").on("value", snap => {
-    list.innerHTML = "";
-    let hasPending = false;
+    pendingList.innerHTML = "";
+    let found = false;
 
-    snap.forEach(child => {
-      const u = child.val();
-      const uid = child.key;
-
-      if (u.approved === false) {
-        hasPending = true;
-        const li = document.createElement("li");
-        li.className = "approval-card";
-
-        li.innerHTML = `
-          <strong>${u.name}</strong><br>
-          <small>${u.email}</small><br>
-          <span class="badge">${u.role.toUpperCase()}</span><br><br>
-          <button class="approve-btn" onclick="approveUser('${uid}')">Approve</button>
-          <button class="reject-btn" onclick="rejectUser('${uid}')">Reject</button>
-        `;
-        list.appendChild(li);
+    snap.forEach(u => {
+      const d = u.val();
+      if (d.approved === false) {
+        found = true;
+        pendingList.innerHTML += `
+          <li class="approval-card">
+            <strong>${d.name}</strong>
+            <small>${d.email}</small>
+            <span class="badge">${d.role}</span>
+            <div class="actions">
+              <button onclick="approveUser('${u.key}')">Approve</button>
+              <button class="danger" onclick="rejectUser('${u.key}')">Reject</button>
+            </div>
+          </li>`;
       }
     });
 
-    if (!hasPending) list.innerHTML = "<p class='muted'>No pending approvals 🎉</p>";
+    if (!found) pendingList.innerHTML = "<p class='muted'>No pending approvals 🎉</p>";
   });
 }
 
@@ -99,183 +95,85 @@ function approveUser(uid) {
 }
 
 function rejectUser(uid) {
-  if (!confirm("Reject this user?")) return;
-  db.ref("users/" + uid).remove()
-    .then(() => toast("User rejected ❌"));
+  confirmModal("Reject User", "Reject this user?", () => {
+    db.ref("users/" + uid).remove()
+      .then(() => toast("User rejected ❌"));
+  });
 }
 
 /***********************
  🏫 CLASSES
 ************************/
 function loadClasses() {
-  const list = document.getElementById("classList");
-  const select = document.getElementById("studentClass");
-  if (select) select.innerHTML = "";
+  if (!classList) return;
+
+  classList.innerHTML = "";
 
   db.ref("classes").on("value", snap => {
-    list.innerHTML = "";
-    snap.forEach(c => {
-      const li = document.createElement("li");
-      li.className = "class-card";
-      li.innerHTML = `
-        <strong>${c.val().name}</strong>
-        <div class="actions">
-          <button onclick="openClassDetails('${c.key}')">View</button>
-          <button onclick="editClass('${c.key}','${c.val().name}')">✏️</button>
-          <button onclick="deleteClass('${c.key}')">🗑️</button>
-        </div>
-      `;
-      list.appendChild(li);
+    classList.innerHTML = "";
 
-      if (select) {
-        const opt = document.createElement("option");
-        opt.value = c.key;
-        opt.textContent = c.val().name;
-        select.appendChild(opt);
-      }
+    snap.forEach(c => {
+      classList.innerHTML += `
+        <li class="class-card">
+          <strong>${c.val().name}</strong>
+          <div class="actions">
+            <button onclick="openClassDetails('${c.key}')">View</button>
+            <button onclick="editClass('${c.key}','${c.val().name}')">✏️</button>
+            <button class="danger" onclick="deleteClass('${c.key}')">🗑️</button>
+          </div>
+        </li>`;
     });
   });
 }
 
 function addClass() {
-  const name = document.getElementById("className").value.trim();
+  const name = className.value.trim();
   if (!name) return toast("Enter class name");
 
   const id = name.toLowerCase().replace(/\s+/g, "");
-  db.ref("classes/" + id).set({ name, subjects: {}, students: {} })
-    .then(() => {
-      document.getElementById("className").value = "";
-      toast("Class added ✅");
-    });
+  db.ref("classes/" + id).set({
+    name,
+    subjects: {},
+    students: {}
+  }).then(() => {
+    className.value = "";
+    toast("Class added ✅");
+  });
 }
-function openClassDetails(classId) {
-  db.ref("classes/" + classId).once("value").then(snap => {
+
+function openClassDetails(id) {
+  db.ref("classes/" + id).once("value").then(snap => {
     const c = snap.val();
-    const panel = document.getElementById("classPanel");
 
-    db.ref("users").once("value").then(usersSnap => {
-      let subjectsHTML = "";
+    db.ref("users").once("value").then(users => {
+      let subjects = "";
       if (c.subjects) {
-        for (let sub in c.subjects) {
-          const teacherId = c.subjects[sub].teacherId;
-          const teacher = usersSnap.val()[teacherId];
-          subjectsHTML += `
-            <li class="fancy-row">
-              <span>${c.subjects[sub].name}</span>
-              <small>${teacher ? teacher.name : "Unassigned"}</small>
-            </li>`;
-        }
+        Object.values(c.subjects).forEach(s => {
+          const t = users.val()[s.teacherId];
+          subjects += `<li>${s.name} <small>${t ? t.name : "Unassigned"}</small></li>`;
+        });
       }
 
-      let studentsHTML = "";
-      for (let uid in c.students || {}) {
-        const s = usersSnap.val()[uid];
-        if (s) {
-          studentsHTML += `
-            <li class="fancy-row">
-              <span>${s.roll}</span>
-              <strong>${s.name}</strong>
-            </li>`;
-        }
-      }
+      let students = "";
+      Object.keys(c.students || {}).forEach(uid => {
+        const st = users.val()[uid];
+        if (st) students += `<li>${st.roll} - ${st.name}</li>`;
+      });
 
-      panel.innerHTML = `
-        <div class="panel-header">
-          <h2>${c.name}</h2>
-          <button class="close-btn" onclick="closePanel('classPanel')">✕</button>
-        </div>
-
-        <div class="panel-section">
-          <h4>📘 Subjects</h4>
-          <ul>${subjectsHTML || "<li class='muted'>No subjects</li>"}</ul>
-        </div>
-
-        <div class="panel-section">
-          <h4>🎓 Students</h4>
-          <ul>${studentsHTML || "<li class='muted'>No students</li>"}</ul>
-        </div>
+      classPanel.innerHTML = `
+        <h2>${c.name}</h2>
+        <h4>Subjects</h4>
+        <ul>${subjects || "<li>No subjects</li>"}</ul>
+        <h4>Students</h4>
+        <ul>${students || "<li>No students</li>"}</ul>
+        <button onclick="closePanel('classPanel')">Close</button>
       `;
 
-      openPanel("classPanel"); // 🔥 THIS WAS MISSING
+      openPanel("classPanel");
     });
   });
 }
 
-/***********************
- 👨‍🏫 TEACHERS
-************************/
-function loadTeachers() {
-  const list = document.getElementById("teacherList");
-  if (!list) return;
-
-  db.ref("users").on("value", snap => {
-    list.innerHTML = "";
-    snap.forEach(u => {
-      const d = u.val();
-      if (d.role === "teacher" && d.approved) {
-        const li = document.createElement("li");
-        li.className = "teacher-card";
-        li.innerHTML = `
-          <span>${d.email}</span>
-          <div class="actions">
-            <button onclick="openTeacherProfile('${u.key}')">View</button>
-            <button onclick="editTeacher('${u.key}','${d.name}','${d.email}')">✏️</button>
-            <button onclick="deleteTeacher('${u.key}')">🗑️</button>
-          </div>
-        `;
-        list.appendChild(li);
-      }
-    });
-  });
-}
-
-function addTeacher() {
-  const name = document.getElementById("teacherName").value.trim();
-  const email = document.getElementById("teacherEmail").value.trim();
-  if (!name || !email) return toast("Fill all fields");
-
-  const uid = db.ref("users").push().key;
-  db.ref("users/" + uid).set({
-    name, email, role: "teacher", approved: true
-  }).then(() => toast("Teacher added ✅"));
-}
-
-/***********************
- 🎓 STUDENTS
-************************/
-function addStudent() {
-  const name = document.getElementById("studentName").value.trim();
-  const roll = document.getElementById("studentRoll").value.trim();
-  const email = document.getElementById("studentEmail").value.trim();
-  const classId = document.getElementById("studentClass").value;
-
-  if (!name || !roll || !email || !classId) return toast("Fill all fields");
-
-  const uid = db.ref("users").push().key;
-  db.ref("users/" + uid).set({
-    name, roll: Number(roll), email, role: "student", classId, approved: true
-  }).then(() => toast("Student added ✅"));
-}
-
-/***********************
- ⚙️ SETTINGS
-************************/
-function loadSettings() {
-  db.ref("settings/minAttendance").once("value", snap => {
-    if (snap.exists()) document.getElementById("minAttendance").value = snap.val();
-  });
-}
-
-function saveSettings() {
-  const val = document.getElementById("minAttendance").value;
-  if (!val) return toast("Enter value");
-  db.ref("settings").update({ minAttendance: Number(val) })
-    .then(() => toast("Settings saved ✅"));
-}
-
-/***********************
- ✏️ EDIT & DELETE
-************************/
 function editClass(id, oldName) {
   const name = prompt("Edit class name:", oldName);
   if (!name) return;
@@ -284,9 +182,64 @@ function editClass(id, oldName) {
 }
 
 function deleteClass(id) {
-  if (!confirm("Delete class?")) return;
-  db.ref("classes/" + id).remove()
-    .then(() => toast("Class deleted"));
+  confirmModal("Delete Class", "Are you sure?", () => {
+    db.ref("classes/" + id).remove()
+      .then(() => toast("Class deleted"));
+  });
+}
+
+/***********************
+ 👨‍🏫 TEACHERS
+************************/
+function loadTeachers() {
+  if (!teacherList) return;
+
+  teacherList.innerHTML = "";
+
+  db.ref("users").on("value", snap => {
+    teacherList.innerHTML = "";
+
+    snap.forEach(u => {
+      const d = u.val();
+      if (d.role === "teacher" && d.approved) {
+        teacherList.innerHTML += `
+          <li class="teacher-card">
+            <span>${d.email}</span>
+            <div class="actions">
+              <button onclick="openTeacherProfile('${u.key}')">View</button>
+              <button onclick="editTeacher('${u.key}','${d.name}','${d.email}')">✏️</button>
+              <button class="danger" onclick="deleteTeacher('${u.key}')">🗑️</button>
+            </div>
+          </li>`;
+      }
+    });
+  });
+}
+
+function addTeacher() {
+  const name = teacherName.value.trim();
+  const email = teacherEmail.value.trim();
+  if (!name || !email) return toast("Fill all fields");
+
+  const uid = db.ref("users").push().key;
+  db.ref("users/" + uid).set({
+    name,
+    email,
+    role: "teacher",
+    approved: true
+  }).then(() => toast("Teacher added ✅"));
+}
+
+function openTeacherProfile(uid) {
+  db.ref("users/" + uid).once("value").then(s => {
+    const t = s.val();
+    teacherProfile.innerHTML = `
+      <h2>${t.name}</h2>
+      <p>${t.email}</p>
+      <button onclick="closePanel('teacherProfile')">Close</button>
+    `;
+    openPanel("teacherProfile");
+  });
 }
 
 function editTeacher(uid, oldName, oldEmail) {
@@ -298,43 +251,52 @@ function editTeacher(uid, oldName, oldEmail) {
 }
 
 function deleteTeacher(uid) {
-  if (!confirm("Delete teacher?")) return;
-  db.ref("users/" + uid).remove()
-    .then(() => toast("Teacher deleted"));
-}
-
-function editStudent(uid, oldName, oldRoll, oldEmail) {
-  const name = prompt("Edit name:", oldName);
-  const roll = prompt("Edit roll:", oldRoll);
-  const email = prompt("Edit email:", oldEmail);
-  if (!name || !roll || !email) return;
-  db.ref("users/" + uid).update({ name, roll: Number(roll), email })
-    .then(() => toast("Student updated"));
-}
-
-function deleteStudent(uid) {
-  if (!confirm("Delete student?")) return;
-  db.ref("users/" + uid).remove()
-    .then(() => toast("Student deleted"));
+  confirmModal("Delete Teacher", "Are you sure?", () => {
+    db.ref("users/" + uid).remove()
+      .then(() => toast("Teacher deleted"));
+  });
 }
 
 /***********************
- 🌟 TOAST
+ ⚙️ SETTINGS
 ************************/
-function toast(msg) {
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.innerText = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.classList.add("show"), 100);
-  setTimeout(() => t.remove(), 3500);
-           }
+function loadSettings() {
+  db.ref("settings/minAttendance").once("value", s => {
+    if (s.exists()) minAttendance.value = s.val();
+  });
+}
+
+function saveSettings() {
+  const val = minAttendance.value;
+  if (!val) return toast("Enter value");
+  db.ref("settings").update({ minAttendance: Number(val) })
+    .then(() => toast("Settings saved ✅"));
+}
+
+/***********************
+ 🌟 UI HELPERS
+************************/
+function toggleSidebar() {
+  document.body.classList.toggle("sidebar-open");
+}
+
+function closeSidebar() {
+  document.body.classList.remove("sidebar-open");
+}
+
+function nav(id) {
+  showPage(id);
+  closeSidebar();
+}
+
 function showPage(id) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
-/* ===== PANEL HELPERS ===== */
+/***********************
+ 📦 PANEL
+************************/
 function openPanel(id) {
   document.getElementById(id).classList.add("active-panel");
   document.body.classList.add("panel-open");
@@ -345,116 +307,31 @@ function closePanel(id) {
   document.body.classList.remove("panel-open");
 }
 
-/* ===== CONFIRM MODAL ===== */
+/***********************
+ ❓ MODAL
+************************/
 function confirmModal(title, text, onConfirm) {
-  document.getElementById("modalTitle").innerText = title;
-  document.getElementById("modalText").innerText = text;
-  document.getElementById("modal").classList.add("show");
-
-  document.getElementById("modalOk").onclick = () => {
+  modalTitle.innerText = title;
+  modalText.innerText = text;
+  modal.classList.add("show");
+  modalOk.onclick = () => {
     closeModal();
     onConfirm();
   };
 }
 
 function closeModal() {
-  document.getElementById("modal").classList.remove("show");
+  modal.classList.remove("show");
 }
 
-/* ===== OVERRIDES (SAFE) ===== */
-function deleteClass(id) {
-  confirmModal("Delete Class", "Are you sure?", () => {
-    db.ref("classes/" + id).remove().then(() => toast("Class deleted"));
-  });
+/***********************
+ 🔔 TOAST
+************************/
+function toast(msg) {
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.innerText = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add("show"), 100);
+  setTimeout(() => t.remove(), 3500);
 }
-
-function deleteTeacher(uid) {
-  confirmModal("Delete Teacher", "Are you sure?", () => {
-    db.ref("users/" + uid).remove().then(() => toast("Teacher deleted"));
-  });
-}
-
-function rejectUser(uid) {
-  confirmModal("Reject User", "Reject this user?", () => {
-    db.ref("users/" + uid).remove().then(() => toast("User rejected"));
-  });
-}
-
-/* ===== PANEL OPEN FIX ===== */
-function openTeacherProfile(uid) {
-  db.ref("users/" + uid).once("value").then(snap => {
-    const t = snap.val();
-    const panel = document.getElementById("teacherProfile");
-    panel.innerHTML = `
-      <h3>${t.name}</h3>
-      <p>${t.email}</p>
-      <button onclick="closePanel('teacherProfile')">Close</button>
-    `;
-    openPanel("teacherProfile");
-  });
-}
-
-/* ===== UI HELPERS ===== */
-function toggleSidebar(){
-  document.getElementById("sidebar").classList.toggle("open");
-}
-
-function nav(id){
-  showPage(id);
-  document.getElementById("sidebar").classList.remove("open");
-}
-
-/* ===== PAGE SWITCH ===== */
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-/* ===== PANEL ===== */
-function openPanel(id){
-  document.getElementById(id).classList.add("active-panel");
-  document.body.classList.add("panel-open");
-}
-function closePanel(id){
-  document.getElementById(id).classList.remove("active-panel");
-  document.body.classList.remove("panel-open");
-}
-
-/* ===== CONFIRM MODAL ===== */
-function confirmModal(title,text,onConfirm){
-  modalTitle.innerText=title;
-  modalText.innerText=text;
-  modal.classList.add("show");
-  modalOk.onclick=()=>{closeModal();onConfirm();}
-}
-function closeModal(){modal.classList.remove("show");}
-
-/* ===== OVERRIDES ===== */
-function deleteClass(id){
-  confirmModal("Delete Class","Are you sure?",()=>{
-    db.ref("classes/"+id).remove().then(()=>toast("Deleted"));
-  });
-}
-function deleteTeacher(uid){
-  confirmModal("Delete Teacher","Are you sure?",()=>{
-    db.ref("users/"+uid).remove().then(()=>toast("Deleted"));
-  });
-}
-
-/* ===== PANEL FIX ===== */
-function openTeacherProfile(uid){
-  db.ref("users/"+uid).once("value").then(s=>{
-    teacherProfile.innerHTML=`
-      <h2>${s.val().name}</h2>
-      <p>${s.val().email}</p>
-      <button onclick="closePanel('teacherProfile')">Close</button>`;
-    openPanel("teacherProfile");
-  });
-}
-function toggleSidebar() {
-  document.body.classList.toggle("sidebar-open");
-}
-
-function closeSidebar() {
-  document.body.classList.remove("sidebar-open");
-    }
