@@ -1,36 +1,36 @@
-/********************************
- 🌍 GLOBAL STATE
-*********************************/
 let currentUser = null;
 let currentClassId = "";
 let selectedSubjectId = "";
 let attendanceChart = null;
 
-/********************************
- 🔐 AUTH CHECK (FIXED)
-*********************************/
+/* ================= AUTH ================= */
 auth.onAuthStateChanged(user => {
-  if (!user) return location.href = "index.html";
+  if (!user) {
+    location.href = "index.html";
+    return;
+  }
 
+  currentUser = user;
+
+  // ✅ CORRECT PATH (users, not students)
   db.ref("users/" + user.uid).once("value").then(snap => {
-    if (!snap.exists() || snap.val().role !== "student") {
-      alert("Access denied");
-      return logout();
-    }
+    if (!snap.exists()) return logout();
 
-    currentUser = user;
-    currentClassId = snap.val().classId;
+    const data = snap.val();
 
-    document.getElementById("dashName").innerText = snap.val().name;
+    // ✅ Role check
+    if (data.role !== "student") return logout();
+
+    currentClassId = data.classId;
+
+    document.getElementById("dashName").innerText = data.name;
 
     loadDashboard();
     loadSubjects();
   });
 });
 
-/********************************
- 📊 DASHBOARD
-*********************************/
+/* ================= DASHBOARD ================= */
 function loadDashboard() {
   db.ref("classes/" + currentClassId).once("value").then(snap => {
     const subjects = snap.val().subjects || {};
@@ -39,14 +39,12 @@ function loadDashboard() {
   });
 }
 
-/********************************
- 📚 SUBJECTS (CLASSES PAGE)
-*********************************/
+/* ================= SUBJECTS ================= */
 function loadSubjects() {
   const select = document.getElementById("subjectSelect");
   const classList = document.getElementById("classList");
 
-  if (select) select.innerHTML = `<option value="">Select Subject</option>`;
+  select.innerHTML = `<option value="">Select Subject</option>`;
   classList.innerHTML = "";
 
   db.ref(`classes/${currentClassId}/subjects`).once("value").then(snap => {
@@ -54,9 +52,7 @@ function loadSubjects() {
       const id = sub.key;
       const name = sub.val().name;
 
-      if (select) {
-        select.innerHTML += `<option value="${id}">${name}</option>`;
-      }
+      select.innerHTML += `<option value="${id}">${name}</option>`;
 
       classList.innerHTML += `
         <div class="card" onclick="openSubject('${id}')">
@@ -67,24 +63,17 @@ function loadSubjects() {
   });
 }
 
-/********************************
- 🔎 OPEN SUBJECT
-*********************************/
 function openSubject(id) {
   selectedSubjectId = id;
-  const select = document.getElementById("subjectSelect");
-  if (select) select.value = id;
-
+  document.getElementById("subjectSelect").value = id;
   showSection("attendance");
   loadSubjectAttendance();
 }
 
-/********************************
- 📝 ATTENDANCE (DATE + %)
-*********************************/
+/* ================= ATTENDANCE ================= */
 function loadSubjectAttendance() {
   selectedSubjectId =
-    document.getElementById("subjectSelect")?.value || selectedSubjectId;
+    selectedSubjectId || document.getElementById("subjectSelect").value;
 
   if (!selectedSubjectId) return;
 
@@ -96,15 +85,10 @@ function loadSubjectAttendance() {
     .then(snap => {
       body.innerHTML = "";
 
-      let present = 0, total = 0;
-      let labels = [], values = [];
-
-      if (!snap.exists()) {
-        body.innerHTML = `<tr><td colspan="2">No records</td></tr>`;
-        document.getElementById("attendancePercent").innerText = "0%";
-        drawChart([], []);
-        return;
-      }
+      let present = 0;
+      let total = 0;
+      let labels = [];
+      let values = [];
 
       snap.forEach(dateSnap => {
         const status = dateSnap.val()[currentUser.uid] || "-";
@@ -123,7 +107,7 @@ function loadSubjectAttendance() {
           </tr>`;
 
         labels.push(dateSnap.key);
-        values.push(status === "P" ? 1 : 0);
+        values.push(status === "P" ? 100 : 0);
       });
 
       const percent = total ? ((present / total) * 100).toFixed(1) : 0;
@@ -133,13 +117,9 @@ function loadSubjectAttendance() {
     });
 }
 
-/********************************
- 📈 ATTENDANCE CHART
-*********************************/
+/* ================= CHART ================= */
 function drawChart(labels, data) {
   const ctx = document.getElementById("attendanceChart");
-  if (!ctx) return;
-
   if (attendanceChart) attendanceChart.destroy();
 
   attendanceChart = new Chart(ctx, {
@@ -147,7 +127,7 @@ function drawChart(labels, data) {
     data: {
       labels,
       datasets: [{
-        label: "Attendance",
+        label: "Attendance %",
         data,
         borderColor: "#2563eb",
         backgroundColor: "rgba(37,99,235,0.25)",
@@ -159,22 +139,15 @@ function drawChart(labels, data) {
       scales: {
         y: {
           min: 0,
-          max: 1,
-          ticks: {
-            callback: v => v === 1 ? "Present" : "Absent"
-          }
+          max: 100,
+          ticks: { callback: v => v + "%" }
         }
-      },
-      plugins: {
-        legend: { display: false }
       }
     }
   });
 }
 
-/********************************
- 🧭 UI
-*********************************/
+/* ================= UI ================= */
 function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("open");
 }
@@ -186,9 +159,7 @@ function showSection(id) {
   document.getElementById(id).classList.add("active");
 }
 
-/********************************
- 🚪 LOGOUT
-*********************************/
+/* ================= LOGOUT ================= */
 function logout() {
   auth.signOut().then(() => location.href = "index.html");
 }
