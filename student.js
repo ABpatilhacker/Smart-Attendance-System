@@ -1,46 +1,63 @@
+/********************************
+ 🌍 GLOBAL STATE
+*********************************/
 let currentUser = null;
 let currentClassId = "";
 let selectedSubjectId = "";
 let attendanceChart = null;
 
-/* ================= AUTH ================= */
+/********************************
+ 🔐 AUTH CHECK (FIXED)
+*********************************/
 auth.onAuthStateChanged(user => {
   if (!user) return location.href = "index.html";
-  currentUser = user;
 
-  db.ref("students/" + user.uid).once("value").then(snap => {
-    if (!snap.exists()) return logout();
+  db.ref("users/" + user.uid).once("value").then(snap => {
+    if (!snap.exists() || snap.val().role !== "student") {
+      alert("Access denied");
+      return logout();
+    }
 
+    currentUser = user;
     currentClassId = snap.val().classId;
+
+    document.getElementById("dashName").innerText = snap.val().name;
+
     loadDashboard();
     loadSubjects();
   });
 });
 
-/* ================= DASHBOARD ================= */
+/********************************
+ 📊 DASHBOARD
+*********************************/
 function loadDashboard() {
   db.ref("classes/" + currentClassId).once("value").then(snap => {
-    document.getElementById("classCount").innerText = Object.keys(snap.val().subjects || {}).length;
+    const subjects = snap.val().subjects || {};
+    document.getElementById("classCount").innerText =
+      Object.keys(subjects).length;
   });
 }
 
-/* ================= SUBJECTS ================= */
+/********************************
+ 📚 SUBJECTS (CLASSES PAGE)
+*********************************/
 function loadSubjects() {
   const select = document.getElementById("subjectSelect");
   const classList = document.getElementById("classList");
 
-  select.innerHTML = `<option value="">Select Subject</option>`;
+  if (select) select.innerHTML = `<option value="">Select Subject</option>`;
   classList.innerHTML = "";
 
-  db.ref("classes/" + currentClassId + "/subjects").once("value").then(snap => {
+  db.ref(`classes/${currentClassId}/subjects`).once("value").then(snap => {
     snap.forEach(sub => {
       const id = sub.key;
       const name = sub.val().name;
 
-      /* dropdown */
-      select.innerHTML += `<option value="${id}">${name}</option>`;
+      if (select) {
+        select.innerHTML += `<option value="${id}">${name}</option>`;
+      }
 
-      /* class card */
       classList.innerHTML += `
         <div class="card" onclick="openSubject('${id}')">
           <h3>${name}</h3>
@@ -50,16 +67,25 @@ function loadSubjects() {
   });
 }
 
+/********************************
+ 🔎 OPEN SUBJECT
+*********************************/
 function openSubject(id) {
   selectedSubjectId = id;
-  document.getElementById("subjectSelect").value = id;
+  const select = document.getElementById("subjectSelect");
+  if (select) select.value = id;
+
   showSection("attendance");
   loadSubjectAttendance();
 }
 
-/* ================= ATTENDANCE ================= */
+/********************************
+ 📝 ATTENDANCE (DATE + %)
+*********************************/
 function loadSubjectAttendance() {
-  selectedSubjectId = document.getElementById("subjectSelect").value;
+  selectedSubjectId =
+    document.getElementById("subjectSelect")?.value || selectedSubjectId;
+
   if (!selectedSubjectId) return;
 
   const body = document.getElementById("attendanceTableBody");
@@ -69,11 +95,20 @@ function loadSubjectAttendance() {
     .once("value")
     .then(snap => {
       body.innerHTML = "";
+
       let present = 0, total = 0;
       let labels = [], values = [];
 
+      if (!snap.exists()) {
+        body.innerHTML = `<tr><td colspan="2">No records</td></tr>`;
+        document.getElementById("attendancePercent").innerText = "0%";
+        drawChart([], []);
+        return;
+      }
+
       snap.forEach(dateSnap => {
         const status = dateSnap.val()[currentUser.uid] || "-";
+
         if (status !== "-") {
           total++;
           if (status === "P") present++;
@@ -82,7 +117,7 @@ function loadSubjectAttendance() {
         body.innerHTML += `
           <tr>
             <td>${dateSnap.key}</td>
-            <td class="${status === 'P' ? 'present' : status === 'A' ? 'absent' : ''}">
+            <td class="${status === "P" ? "present" : status === "A" ? "absent" : ""}">
               ${status}
             </td>
           </tr>`;
@@ -98,9 +133,13 @@ function loadSubjectAttendance() {
     });
 }
 
-/* ================= CHART ================= */
+/********************************
+ 📈 ATTENDANCE CHART
+*********************************/
 function drawChart(labels, data) {
   const ctx = document.getElementById("attendanceChart");
+  if (!ctx) return;
+
   if (attendanceChart) attendanceChart.destroy();
 
   attendanceChart = new Chart(ctx, {
@@ -119,28 +158,37 @@ function drawChart(labels, data) {
     options: {
       scales: {
         y: {
-          ticks: {
-            callback: v => v ? "Present" : "Absent"
-          },
           min: 0,
-          max: 1
+          max: 1,
+          ticks: {
+            callback: v => v === 1 ? "Present" : "Absent"
+          }
         }
+      },
+      plugins: {
+        legend: { display: false }
       }
     }
   });
 }
 
-/* ================= UI ================= */
+/********************************
+ 🧭 UI
+*********************************/
 function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("open");
 }
 
 function showSection(id) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".section").forEach(s =>
+    s.classList.remove("active")
+  );
   document.getElementById(id).classList.add("active");
 }
 
-/* ================= LOGOUT ================= */
+/********************************
+ 🚪 LOGOUT
+*********************************/
 function logout() {
   auth.signOut().then(() => location.href = "index.html");
 }
