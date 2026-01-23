@@ -1,110 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Admin Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css">
 </head>
-<body>
+<body onclick="closeSidebar()">
 
-<!-- OVERLAY (for outside click) -->
-<div class="overlay" onclick="closeSidebar()"></div>
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar" class="sidebar" onclick="event.stopPropagation()">
+  <h2 class="logo">ADMIN PANEL</h2>
 
-<!-- SIDEBAR -->
-<aside id="sidebar" class="sidebar">
-  <h2 class="logo">ADMIN</h2>
-
-  <nav>
-    <button onclick="nav('dashboard')">📊 Dashboard</button>
-    <button onclick="nav('classes')">🏫 Classes</button>
-    <button onclick="nav('teachers')">👨‍🏫 Teachers</button>
-    <button onclick="nav('approvals')">🟡 Approvals</button>
-    <button onclick="nav('settings')">⚙️ Settings</button>
-  </nav>
+  <button onclick="nav('dashboard')">📊 Dashboard</button>
+  <button onclick="nav('classes')">🏫 Classes</button>
+  <button onclick="nav('teachers')">👨‍🏫 Teachers</button>
+  <button onclick="nav('approvals')">🟡 Approvals</button>
+  <button onclick="nav('settings')">⚙️ Settings</button>
 
   <button class="logout" onclick="logout()">🚪 Logout</button>
 </aside>
 
-<!-- MAIN -->
-<main class="main" onclick="closeSidebar()">
+<!-- ===== MAIN ===== -->
+<main class="main">
 
-<header class="topbar">
-  <button class="hamburger" onclick="toggleSidebar()">☰</button>
-  <h1>Admin Dashboard</h1>
-</header>
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="hamburger" onclick="event.stopPropagation(); toggleSidebar()">☰</button>
+    <h1>Admin Dashboard</h1>
+  </header>
 
-<!-- DASHBOARD -->
-<section id="dashboard" class="page active">
-  <div class="cards">
+  <!-- ===== DASHBOARD ===== -->
+  <section id="dashboard" class="page active">
+    <div class="cards">
+      <div class="card" onclick="nav('classes')">
+        <h3>Classes</h3>
+        <span id="classCount">0</span>
+      </div>
+      <div class="card" onclick="nav('teachers')">
+        <h3>Teachers</h3>
+        <span id="teacherCount">0</span>
+      </div>
+      <div class="card">
+        <h3>Students</h3>
+        <span id="studentCount">0</span>
+      </div>
+    </div>
+  </section>
 
-    <div class="stat-card clickable" onclick="nav('classes')">
-      <span id="classCount">0</span>
-      <small>Classes</small>
+  <!-- ===== CLASSES ===== -->
+  <section id="classes" class="page">
+    <h2>Classes</h2>
+
+    <div class="add-box">
+      <input id="className" placeholder="Class name">
+      <button onclick="addClass()">Add Class</button>
     </div>
 
-    <div class="stat-card clickable" onclick="nav('teachers')">
-      <span id="teacherCount">0</span>
-      <small>Teachers</small>
+    <ul id="classList" class="list"></ul>
+  </section>
+
+  <!-- ===== TEACHERS ===== -->
+  <section id="teachers" class="page">
+    <h2>Teachers</h2>
+
+    <div class="add-box">
+      <input id="teacherName" placeholder="Name">
+      <input id="teacherEmail" placeholder="Email">
+      <button onclick="addTeacher()">Add Teacher</button>
     </div>
 
-    <div class="stat-card clickable" onclick="nav('approvals')">
-      <span id="studentCount">0</span>
-      <small>Students</small>
-    </div>
+    <ul id="teacherList" class="list"></ul>
+  </section>
 
-  </div>
-</section>
+  <!-- ===== APPROVALS ===== -->
+  <section id="approvals" class="page">
+    <h2>Pending Approvals</h2>
+    <ul id="pendingList" class="list"></ul>
+  </section>
 
-<!-- CLASSES -->
-<section id="classes" class="page">
-  <h2>Classes</h2>
-  <div class="form-row">
-    <input id="className" placeholder="Class name">
-    <button onclick="addClass()">Add</button>
-  </div>
-  <ul id="classList" class="list"></ul>
-</section>
+  <!-- ===== SETTINGS ===== -->
+  <section id="settings" class="page">
+    <h2>Settings</h2>
 
-<!-- TEACHERS -->
-<section id="teachers" class="page">
-  <h2>Teachers</h2>
-  <ul id="teacherList" class="list"></ul>
-</section>
-
-<!-- APPROVALS -->
-<section id="approvals" class="page">
-  <h2>Approvals</h2>
-  <ul id="pendingList" class="list"></ul>
-</section>
-
-<!-- SETTINGS -->
-<section id="settings" class="page">
-  <h2>Settings</h2>
-  <input id="minAttendance" type="number" placeholder="Minimum attendance %">
-  <button onclick="saveSettings()">Save</button>
-</section>
-
+    <input id="minAttendance" placeholder="Min attendance %">
+    <button onclick="saveSettings()">Save</button>
+  </section>
 </main>
 
-<!-- PANELS -->
+<!-- ===== CLASS PANEL ===== -->
 <div id="classPanel" class="panel"></div>
+
+<!-- ===== TEACHER PANEL ===== -->
 <div id="teacherProfile" class="panel"></div>
 
-<!-- MODAL -->
+<!-- ===== MODAL ===== -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
     <p id="modalText"></p>
     <div class="modal-actions">
       <button onclick="closeModal()">Cancel</button>
-      <button id="modalOk">Confirm</button>
+      <button id="modalOk">OK</button>
     </div>
   </div>
 </div>
