@@ -335,3 +335,25 @@ function toast(msg) {
   setTimeout(() => t.classList.add("show"), 100);
   setTimeout(() => t.remove(), 3500);
 }
+/* =======================
+   SIDEBAR FIX (JS SAFE)
+======================= */
+
+/* Desktop – always visible */
+@media (min-width: 901px) {
+  .sidebar {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Mobile – controlled by body.sidebar-open */
+@media (max-width: 900px) {
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  body.sidebar-open .content {
+    filter: blur(4px);
+    pointer-events: none;
+  }
+}
