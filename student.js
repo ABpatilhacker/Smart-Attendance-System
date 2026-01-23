@@ -1,9 +1,14 @@
+/********************************
+ 🔥 GLOBAL STATE
+*********************************/
 let currentUser = null;
 let currentClassId = "";
 let selectedSubjectId = "";
 let attendanceChart = null;
 
-/* ================= AUTH ================= */
+/********************************
+ 🔐 AUTH (FIXED – NO AUTO LOGOUT)
+*********************************/
 auth.onAuthStateChanged(user => {
   if (!user) {
     location.href = "index.html";
@@ -12,34 +17,34 @@ auth.onAuthStateChanged(user => {
 
   currentUser = user;
 
-  // ✅ CORRECT PATH (users, not students)
-  db.ref("users/" + user.uid).once("value").then(snap => {
-    if (!snap.exists()) return logout();
+  db.ref("students/" + user.uid).once("value").then(snap => {
+    if (!snap.exists()) {
+      logout();
+      return;
+    }
 
-    const data = snap.val();
-
-    // ✅ Role check
-    if (data.role !== "student") return logout();
-
-    currentClassId = data.classId;
-
-    document.getElementById("dashName").innerText = data.name;
+    currentClassId = snap.val().classId;
 
     loadDashboard();
     loadSubjects();
   });
 });
 
-/* ================= DASHBOARD ================= */
+/********************************
+ 📊 DASHBOARD
+*********************************/
 function loadDashboard() {
   db.ref("classes/" + currentClassId).once("value").then(snap => {
-    const subjects = snap.val().subjects || {};
-    document.getElementById("classCount").innerText =
-      Object.keys(subjects).length;
+    const data = snap.val() || {};
+    const subjectCount = Object.keys(data.subjects || {}).length;
+
+    document.getElementById("classCount").innerText = subjectCount;
   });
 }
 
-/* ================= SUBJECTS ================= */
+/********************************
+ 📚 SUBJECTS / CLASSES PAGE
+*********************************/
 function loadSubjects() {
   const select = document.getElementById("subjectSelect");
   const classList = document.getElementById("classList");
@@ -47,18 +52,24 @@ function loadSubjects() {
   select.innerHTML = `<option value="">Select Subject</option>`;
   classList.innerHTML = "";
 
-  db.ref(`classes/${currentClassId}/subjects`).once("value").then(snap => {
+  db.ref("classes/" + currentClassId + "/subjects").once("value").then(snap => {
     snap.forEach(sub => {
       const id = sub.key;
       const name = sub.val().name;
 
+      // dropdown
       select.innerHTML += `<option value="${id}">${name}</option>`;
 
-      classList.innerHTML += `
-        <div class="card" onclick="openSubject('${id}')">
-          <h3>${name}</h3>
-          <p>View Attendance</p>
-        </div>`;
+      // subject card
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h3>${name}</h3>
+        <p>View Attendance</p>
+      `;
+      card.onclick = () => openSubject(id);
+
+      classList.appendChild(card);
     });
   });
 }
@@ -70,11 +81,11 @@ function openSubject(id) {
   loadSubjectAttendance();
 }
 
-/* ================= ATTENDANCE ================= */
+/********************************
+ 📝 ATTENDANCE (DATE WISE + %)
+*********************************/
 function loadSubjectAttendance() {
-  selectedSubjectId =
-    selectedSubjectId || document.getElementById("subjectSelect").value;
-
+  selectedSubjectId = document.getElementById("subjectSelect").value;
   if (!selectedSubjectId) return;
 
   const body = document.getElementById("attendanceTableBody");
@@ -104,10 +115,11 @@ function loadSubjectAttendance() {
             <td class="${status === "P" ? "present" : status === "A" ? "absent" : ""}">
               ${status}
             </td>
-          </tr>`;
+          </tr>
+        `;
 
         labels.push(dateSnap.key);
-        values.push(status === "P" ? 100 : 0);
+        values.push(status === "P" ? 1 : 0);
       });
 
       const percent = total ? ((present / total) * 100).toFixed(1) : 0;
@@ -117,9 +129,13 @@ function loadSubjectAttendance() {
     });
 }
 
-/* ================= CHART ================= */
+/********************************
+ 📈 ATTENDANCE CHART
+*********************************/
 function drawChart(labels, data) {
   const ctx = document.getElementById("attendanceChart");
+  if (!ctx) return;
+
   if (attendanceChart) attendanceChart.destroy();
 
   attendanceChart = new Chart(ctx, {
@@ -127,7 +143,7 @@ function drawChart(labels, data) {
     data: {
       labels,
       datasets: [{
-        label: "Attendance %",
+        label: "Attendance",
         data,
         borderColor: "#2563eb",
         backgroundColor: "rgba(37,99,235,0.25)",
@@ -136,30 +152,73 @@ function drawChart(labels, data) {
       }]
     },
     options: {
+      responsive: true,
       scales: {
         y: {
           min: 0,
-          max: 100,
-          ticks: { callback: v => v + "%" }
+          max: 1,
+          ticks: {
+            stepSize: 1,
+            callback: v => (v === 1 ? "Present" : "Absent")
+          }
         }
+      },
+      plugins: {
+        legend: { display: false }
       }
     }
   });
 }
 
-/* ================= UI ================= */
+/********************************
+ 📂 UI – SIDEBAR (FULL FIX)
+*********************************/
+function openSidebar() {
+  document.getElementById("sidebar").classList.add("open");
+}
+
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("open");
+}
+
 function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("open");
 }
 
+/* Close sidebar on navigation */
 function showSection(id) {
   document.querySelectorAll(".section").forEach(s =>
     s.classList.remove("active")
   );
   document.getElementById(id).classList.add("active");
+
+  closeSidebar();
 }
 
-/* ================= LOGOUT ================= */
+/* Close sidebar on outside click */
+document.addEventListener("click", e => {
+  const sidebar = document.getElementById("sidebar");
+  const menuBtn = document.querySelector(".menu-btn");
+
+  if (
+    sidebar.classList.contains("open") &&
+    !sidebar.contains(e.target) &&
+    !menuBtn.contains(e.target)
+  ) {
+    closeSidebar();
+  }
+});
+
+/* Prevent sidebar self-close */
+document.getElementById("sidebar")?.addEventListener("click", e => {
+  e.stopPropagation();
+});
+
+/********************************
+ 🚪 LOGOUT
+*********************************/
 function logout() {
-  auth.signOut().then(() => location.href = "index.html");
+  auth.signOut().then(() => {
+    location.href = "index.html";
+  });
 }
