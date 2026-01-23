@@ -1,52 +1,26 @@
-/* ===============================
-   🌈 ROOT VARIABLES
-================================ */
-:root {
-  --bg: #f1f5f9;
-  --panel: rgba(255,255,255,0.75);
-  --card: rgba(255,255,255,0.85);
-  --primary: #2563eb;
-  --accent: #06b6d4;
-  --success: #22c55e;
-  --danger: #ef4444;
-  --text: #0f172a;
-  --muted: #64748b;
-  --radius: 16px;
-  --blur: blur(14px);
-  --shadow: 0 20px 40px rgba(0,0,0,0.08);
-}
-
-/* ===============================
-   🌍 RESET
-================================ */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", system-ui, sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 body {
-  background: linear-gradient(135deg, #e0e7ff, #f0f9ff);
-  min-height: 100vh;
-  color: var(--text);
-  overflow-x: hidden;
+  background: #f4f6fb;
+  color: #1f2937;
 }
 
-/* ===============================
-   📌 SIDEBAR
-================================ */
+/* SIDEBAR */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
-  width: 260px;
+  width: 240px;
   height: 100%;
-  background: linear-gradient(180deg, #2563eb, #06b6d4);
+  background: linear-gradient(180deg, #4f46e5, #3b82f6);
   color: #fff;
-  padding: 24px;
-  transform: translateX(-270px);
-  transition: 0.35s ease;
+  transform: translateX(-260px);
+  transition: transform 0.3s ease;
   z-index: 1000;
 }
 
@@ -54,204 +28,132 @@ body {
   transform: translateX(0);
 }
 
-.sidebar .brand {
+.brand {
   text-align: center;
-  margin-bottom: 30px;
-}
-
-.sidebar .brand h2 {
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.sidebar .brand p {
-  font-size: 14px;
-  opacity: 0.85;
+  padding: 20px;
 }
 
 .sidebar nav button {
   width: 100%;
-  padding: 14px 18px;
-  margin-bottom: 12px;
+  padding: 14px 20px;
+  background: none;
   border: none;
-  border-radius: var(--radius);
-  background: rgba(255,255,255,0.15);
   color: #fff;
-  font-size: 15px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
+  text-align: left;
   cursor: pointer;
-  transition: 0.25s;
+  font-size: 15px;
+  transition: background 0.3s;
 }
 
 .sidebar nav button:hover {
-  background: rgba(255,255,255,0.25);
-  transform: translateX(6px);
+  background: rgba(255,255,255,0.15);
 }
 
-/* ===============================
-   🔝 TOPBAR
-================================ */
+/* TOPBAR */
 .topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 64px;
-  background: var(--panel);
-  backdrop-filter: var(--blur);
+  height: 60px;
+  background: #fff;
   display: flex;
   align-items: center;
-  padding: 0 22px;
-  box-shadow: var(--shadow);
+  padding: 0 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  position: fixed;
+  width: 100%;
   z-index: 900;
 }
 
 .menu-btn {
   font-size: 24px;
-  background: none;
   border: none;
+  background: none;
   cursor: pointer;
-  margin-right: 16px;
+  margin-right: 15px;
 }
 
-/* ===============================
-   📦 MAIN
-================================ */
+/* MAIN */
 .main {
-  margin-top: 64px;
-  padding: 28px;
+  margin-top: 70px;
+  padding: 20px;
   transition: margin-left 0.3s;
 }
 
 .sidebar.open ~ .main {
-  margin-left: 260px;
+  margin-left: 240px;
 }
 
-/* ===============================
-   🧩 SECTIONS
-================================ */
+/* SECTIONS */
 .section {
   display: none;
-  animation: fadeUp 0.45s ease;
+  animation: fadeIn 0.4s ease;
 }
 
 .section.active {
   display: block;
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===============================
-   📊 DASHBOARD CARDS
-================================ */
+/* CARDS */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 22px;
-  margin-top: 22px;
+  grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 20px;
 }
 
 .card {
-  background: var(--card);
-  backdrop-filter: var(--blur);
-  border-radius: var(--radius);
-  padding: 24px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 25px;
   text-align: center;
-  box-shadow: var(--shadow);
-  cursor: pointer;
-  transition: 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
-  opacity: 0;
-  transition: 0.3s;
-}
-
-.card:hover::after {
-  opacity: 1;
-}
-
-.card:hover {
-  transform: translateY(-8px) scale(1.02);
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
 .card span {
   display: block;
-  font-size: 32px;
+  font-size: 30px;
   margin-top: 10px;
-  font-weight: 700;
-  color: var(--primary);
+  color: #2563eb;
 }
 
-/* ===============================
-   📋 TABLE
-================================ */
-#attendanceTable {
+/* TABLE */
+table {
   width: 100%;
-  margin-top: 22px;
   border-collapse: collapse;
-  background: var(--panel);
-  backdrop-filter: var(--blur);
-  border-radius: var(--radius);
+  margin-top: 20px;
+  background: #fff;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: var(--shadow);
 }
 
-#attendanceTable th {
-  background: linear-gradient(90deg, #2563eb, #06b6d4);
-  color: #fff;
-  padding: 14px;
-}
-
-#attendanceTable td {
-  padding: 14px;
+th, td {
+  padding: 12px;
   text-align: center;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #eee;
 }
 
-#attendanceTable tr:hover {
-  background: rgba(37,99,235,0.06);
-}
-
-.present {
+th {
+  background: #2563eb;
   color: #fff;
-  background: var(--success);
-  border-radius: 8px;
-  padding: 4px 10px;
 }
 
-.absent {
-  color: #fff;
-  background: var(--danger);
-  border-radius: 8px;
-  padding: 4px 10px;
+td.present {
+  color: #16a34a;
+  font-weight: 600;
 }
 
-/* ===============================
-   📱 RESPONSIVE
-================================ */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 220px;
-  }
-  .sidebar.open ~ .main {
-    margin-left: 220px;
-  }
+td.absent {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+select {
+  padding: 10px;
+  margin-top: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
 }
