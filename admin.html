@@ -141,7 +141,14 @@
     </div>
   </div>
 </div>
-
+<script>
+  // Close sidebar when clicking outside (mobile only)
+  document.getElementById("content").addEventListener("click", () => {
+    if (window.innerWidth <= 900) {
+      closeSidebar();
+    }
+  });
+</script>
 <!-- JS -->
 <script src="admin.js"></script>
 </body>
