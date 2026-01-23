@@ -17,15 +17,19 @@ body, html {
 /* ===== SIDEBAR ===== */
 .sidebar {
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   width: 250px;
   height: 100%;
   background: linear-gradient(180deg, #6a11cb, #2575fc);
   color: #fff;
   transform: translateX(-260px);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s;
   z-index: 1000;
   padding-top: 20px;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+  border-right: 1px solid rgba(255,255,255,0.1);
+  border-top-right-radius: 10px;
 }
 
 .sidebar.open {
@@ -37,18 +41,19 @@ body, html {
   margin-bottom: 30px;
 }
 .sidebar .brand h2 {
-  font-size: 22px;
+  font-size: 24px;
   margin-bottom: 5px;
+  letter-spacing: 1px;
 }
 .sidebar .brand p {
   font-size: 14px;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .sidebar nav button {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
   padding: 15px 20px;
   border: none;
@@ -56,11 +61,14 @@ body, html {
   color: #fff;
   font-size: 16px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  margin: 5px 10px;
 }
 .sidebar nav button:hover {
   background: rgba(255,255,255,0.15);
   transform: translateX(5px);
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
 }
 .sidebar nav button i {
   font-size: 18px;
@@ -79,6 +87,13 @@ body, html {
   padding: 0 20px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   z-index: 900;
+  animation: topbarGradient 5s linear infinite alternate;
+}
+
+@keyframes topbarGradient {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
 }
 
 .menu-btn {
@@ -99,7 +114,7 @@ body, html {
   margin-top: 60px;
   margin-left: 0;
   padding: 20px;
-  transition: margin-left 0.3s;
+  transition: margin-left 0.3s ease;
 }
 .sidebar.open ~ .main {
   margin-left: 250px;
@@ -113,25 +128,27 @@ body, html {
   margin-top: 20px;
 }
 .card {
-  background: linear-gradient(145deg,#fff,#e6e6ff);
-  padding: 20px;
+  background: linear-gradient(145deg,#ffffff,#e6e6ff);
+  padding: 25px;
   border-radius: 15px;
   text-align: center;
   font-weight: 600;
   font-size: 16px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
   cursor: pointer;
 }
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  transform: translateY(-7px);
+  box-shadow: 0 15px 25px rgba(0,0,0,0.15);
+  background: linear-gradient(145deg,#e0e0ff,#c8c8ff);
 }
 .card span {
   display: block;
   font-size: 28px;
   margin-top: 10px;
   color: #2575fc;
+  transition: color 0.3s;
 }
 
 /* ===== SECTIONS ===== */
@@ -148,26 +165,53 @@ body, html {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
 }
 #attendanceTable th, #attendanceTable td {
   border: 1px solid #ddd;
-  padding: 10px;
+  padding: 12px;
   text-align: center;
   font-size: 14px;
 }
 #attendanceTable th {
   background: #2575fc;
   color: #fff;
+  font-weight: 600;
 }
 #attendanceTable td.present {
   background: #2ecc71;
   color: #fff;
   font-weight: 600;
+  transition: background 0.3s;
 }
 #attendanceTable td.absent {
   background: #e74c3c;
   color: #fff;
   font-weight: 600;
+  transition: background 0.3s;
+}
+
+/* ===== TOAST NOTIFICATION ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg,#6a11cb,#2575fc);
+  color: #fff;
+  padding: 15px 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease;
+  z-index: 2000;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ===== RESPONSIVE ===== */
