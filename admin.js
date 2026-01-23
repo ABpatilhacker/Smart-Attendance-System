@@ -335,11 +335,4 @@ function toast(msg) {
   setTimeout(() => t.classList.add("show"), 100);
   setTimeout(() => t.remove(), 3500);
 }
-<script>
-  // Close sidebar when clicking outside (mobile only)
-  document.getElementById("content").addEventListener("click", () => {
-    if (window.innerWidth <= 900) {
-      closeSidebar();
-    }
-  });
-</script>
+
