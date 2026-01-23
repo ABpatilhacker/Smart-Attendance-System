@@ -1,130 +1,193 @@
-/****************************** 🔥 AUTH CHECK ******************************/ auth.onAuthStateChanged(user => { if (!user) { location.href = "index.html"; return; }
+/******************************
+ 🔥 AUTH CHECK
+******************************/
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    location.href = "index.html";
+    return;
+  }
 
-db.ref("users/" + user.uid).once("value").then(snap => { if (!snap.exists() || snap.val().role !== "student") { alert("Access denied"); auth.signOut(); return; }
+  db.ref("users/" + user.uid).once("value").then(snap => {
+    const data = snap.val();
+    if (!data || data.role !== "student") {
+      alert("Access denied");
+      auth.signOut();
+      return;
+    }
 
-const data = snap.val();
-document.getElementById("studentNameTop").innerText = data.name;
-document.getElementById("dashName").innerText = data.name;
+    // Update UI
+    document.getElementById("studentNameTop").innerText = data.name;
+    document.getElementById("dashName").innerText = data.name;
 
-loadDashboard(user.uid);
-loadClasses(user.uid);
+    loadDashboard(user.uid);
+    loadClasses(user.uid);
+  });
+});
 
-}); });
+/******************************
+ 📌 SIDEBAR
+******************************/
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+}
 
-/****************************** 📌 SIDEBAR ******************************/ function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
+document.addEventListener("click", e => {
+  const sidebar = document.getElementById("sidebar");
+  const menuBtn = document.querySelector(".menu-btn");
+  if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+    sidebar.classList.remove("open");
+  }
+});
 
-document.addEventListener("click", e => { const sidebar = document.getElementById("sidebar"); const menuBtn = document.querySelector(".menu-btn"); if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) { sidebar.classList.remove("open"); } });
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("pageTitle").innerText = id.charAt(0).toUpperCase() + id.slice(1);
+}
 
-function showSection(id) { document.querySelectorAll(".section").forEach(s => s.classList.remove("active")); document.getElementById(id).classList.add("active"); document.getElementById("pageTitle").innerText = id.charAt(0).toUpperCase() + id.slice(1); }
+/******************************
+ 🚪 LOGOUT
+******************************/
+function logout() {
+  auth.signOut().then(() => location.href = "index.html");
+}
 
-/****************************** 🚪 LOGOUT ******************************/ function logout() { auth.signOut().then(() => location.href = "index.html"); }
+/******************************
+ 📊 DASHBOARD
+******************************/
+function loadDashboard(uid) {
+  db.ref("users/" + uid).once("value").then(userSnap => {
+    const student = userSnap.val();
+    const classId = student.classId;
+    if (!classId) return;
 
-/****************************** 📊 DASHBOARD ******************************/ function loadDashboard(uid) { db.ref("users/" + uid).once("value").then(userSnap => { const student = userSnap.val(); const classId = student.classId; if (!classId) return;
+    db.ref("classes/" + classId).once("value").then(clsSnap => {
+      const cls = clsSnap.val();
+      if (!cls) return;
 
-db.ref("classes/" + classId).once("value").then(clsSnap => {
-  const cls = clsSnap.val();
-  if (!cls) return;
+      document.getElementById("classCount").innerText = Object.keys(cls.subjects || {}).length;
 
-  document.getElementById("classCount").innerText = Object.keys(cls.subjects || {}).length;
+      let present = 0, total = 0;
 
-  let present = 0, total = 0;
-  db.ref("attendance/" + classId).once("value").then(attSnap => {
-    attSnap.forEach(subjectSnap => {
-      subjectSnap.forEach(dateSnap => {
-        const status = dateSnap.val()[uid];
-        if (status) {
-          total++;
-          if (status === "P") present++;
-        }
+      db.ref("attendance/" + classId).once("value").then(attSnap => {
+        attSnap.forEach(subjectSnap => {
+          subjectSnap.forEach(dateSnap => {
+            const status = dateSnap.val()[uid];
+            if (status) {
+              total++;
+              if (status === "P") present++;
+            }
+          });
+        });
+
+        const percent = total ? ((present / total) * 100).toFixed(1) : 0;
+        document.getElementById("attendancePercent").innerText = percent + "%";
+        document.getElementById("defaulterCount").innerText = total - present;
+
+        renderAttendanceChart(uid, classId);
+      });
+    });
+  });
+}
+
+/******************************
+ 📊 ATTENDANCE CHART
+******************************/
+function renderAttendanceChart(uid, classId) {
+  db.ref("classes/" + classId + "/subjects").once("value").then(subSnap => {
+    const labels = [];
+    const dataPoints = [];
+    const subjects = subSnap.val() || {};
+
+    const promises = Object.keys(subjects).map(subId => {
+      return db.ref(`attendance/${classId}/${subId}`).once("value").then(attSnap => {
+        attSnap.forEach(dateSnap => {
+          const status = dateSnap.val()[uid];
+          if (status) {
+            labels.push(`${subjects[subId].name} (${dateSnap.key})`);
+            dataPoints.push(status === "P" ? 1 : 0);
+          }
+        });
       });
     });
 
-    const percent = total ? ((present / total) * 100).toFixed(1) : 0;
-    document.getElementById("attendancePercent").innerText = percent + "%";
-    document.getElementById("defaulterCount").innerText = total - present;
-
-    renderAttendanceChart(uid, classId);
-  });
-});
-
-}); }
-
-/****************************** 📊 ATTENDANCE CHART ******************************/ function renderAttendanceChart(uid, classId) { db.ref("classes/" + classId + "/subjects").once("value").then(subSnap => { const labels = []; const dataPoints = []; const subjects = subSnap.val() || {};
-
-const promises = Object.keys(subjects).map(subId => {
-  return db.ref(`attendance/${classId}/${subId}`).once("value").then(attSnap => {
-    attSnap.forEach(dateSnap => {
-      const status = dateSnap.val()[uid];
-      if (status) {
-        labels.push(`${subjects[subId].name} (${dateSnap.key})`);
-        dataPoints.push(status === "P" ? 1 : 0);
-      }
+    Promise.all(promises).then(() => {
+      const ctx = document.getElementById("attendanceChart").getContext("2d");
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Attendance (1=Present,0=Absent)',
+            data: dataPoints,
+            backgroundColor: '#2575fc'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, max: 1 }
+          }
+        }
+      });
     });
   });
-});
+}
 
-Promise.all(promises).then(() => {
-  const ctx = document.getElementById("attendanceChart").getContext("2d");
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Attendance (1=Present,0=Absent)',
-        data: dataPoints,
-        backgroundColor: '#2575fc'
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: { beginAtZero: true, max: 1 }
-      }
+/******************************
+ 🏫 CLASSES
+******************************/
+function loadClasses(uid) {
+  db.ref("users/" + uid).once("value").then(userSnap => {
+    const classId = userSnap.val().classId;
+    if (!classId) return;
+
+    db.ref("classes/" + classId).once("value").then(clsSnap => {
+      const cls = clsSnap.val();
+      const container = document.getElementById("classList");
+      container.innerHTML = "";
+
+      Object.keys(cls.subjects || {}).forEach(subId => {
+        const sub = cls.subjects[subId];
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `<h3>${sub.name}</h3><p>Subject</p>`;
+
+        card.onclick = () => {
+          showSection("attendance");
+          document.getElementById("attendanceSubjectName").innerText = sub.name;
+          loadAttendance(uid, classId, subId);
+        };
+
+        container.appendChild(card);
+      });
+    });
+  });
+}
+
+/******************************
+ 📅 ATTENDANCE
+******************************/
+function loadAttendance(uid, classId, subjectId) {
+  const body = document.querySelector("#attendanceTable tbody");
+  body.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
+
+  db.ref(`attendance/${classId}/${subjectId}`).once("value").then(attSnap => {
+    if (!attSnap.exists()) {
+      body.innerHTML = "<tr><td colspan='3'>No attendance records</td></tr>";
+      return;
     }
+
+    body.innerHTML = "";
+    attSnap.forEach(dateSnap => {
+      const status = dateSnap.val()[uid] || "-";
+      body.innerHTML += `
+        <tr>
+          <td>${dateSnap.key}</td>
+          <td>${subjectId}</td>
+          <td class="${status === "P" ? "present" : status === "A" ? "absent" : ""}">${status}</td>
+        </tr>
+      `;
+    });
   });
-});
-
-}); }
-
-/****************************** 🏫 CLASSES ******************************/ function loadClasses(uid) { db.ref("users/" + uid).once("value").then(userSnap => { const classId = userSnap.val().classId; if (!classId) return;
-
-db.ref("classes/" + classId).once("value").then(clsSnap => {
-  const cls = clsSnap.val();
-  const container = document.getElementById("classList");
-  container.innerHTML = "";
-
-  Object.keys(cls.subjects || {}).forEach(subId => {
-    const sub = cls.subjects[subId];
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `<h3>${sub.name}</h3><p>Subject</p>`;
-
-    card.onclick = () => {
-      showSection("attendance");
-      document.getElementById("attendanceSubjectName").innerText = sub.name;
-      loadAttendance(uid, classId, subId);
-    };
-
-    container.appendChild(card);
-  });
-});
-
-}); }
-
-/****************************** 📅 ATTENDANCE ******************************/ function loadAttendance(uid, classId, subjectId) { const body = document.querySelector("#attendanceTable tbody"); body.innerHTML = "<tr><td colspan='3'>Loading...</td></tr>";
-
-db.ref(attendance/${classId}/${subjectId}).once("value").then(attSnap => { if (!attSnap.exists()) { body.innerHTML = "<tr><td colspan='3'>No attendance records</td></tr>"; return; }
-
-body.innerHTML = "";
-attSnap.forEach(dateSnap => {
-  const status = dateSnap.val()[uid] || "-";
-  body.innerHTML += `
-    <tr>
-      <td>${dateSnap.key}</td>
-      <td>${subjectId}</td>
-      <td class='${status === "P" ? "present" : status === "A" ? "absent" : ""}'>${status}</td>
-    </tr>
-  `;
-});
-
-}); }
+}
