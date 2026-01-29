@@ -8,30 +8,39 @@ let attendanceChart = null;
 
 /*********************************
 /*********************************
- 🔐 AUTH (FINAL – SAFE & STABLE)
+ 🔐 AUTH – FINAL & STABLE
 **********************************/
+
+// 🔥 REQUIRED: persist login across refresh / mobile / hosting
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .catch(err => console.error("Auth persistence error:", err));
+
 auth.onAuthStateChanged(user => {
+  // ❌ Not logged in → go to login
   if (!user) {
-    location.href = "index.html";
+    location.replace("index.html");
     return;
   }
 
+  // ✅ Logged in
   currentUser = user;
 
-  // ✅ CORRECT PATH + ONCE
-  db.ref("users/" + user.uid).once("value").then(snap => {
-    if (!snap.exists() || snap.val().role !== "student") {
-      logout();
+  // 🔐 Verify student record ONCE (no logout loop)
+  db.ref("students/" + user.uid).once("value").then(snap => {
+    if (!snap.exists()) {
+      // User exists in auth but not in DB
+      auth.signOut();
+      location.replace("index.html");
       return;
     }
 
+    // ✅ Safe to proceed
     currentClassId = snap.val().classId;
 
     loadDashboard();
     loadSubjects();
   });
 });
-
 /*********************************
  📊 DASHBOARD (REALTIME)
 **********************************/
