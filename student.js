@@ -8,38 +8,63 @@ let attendanceChart = null;
 
 /*********************************
 /*********************************
- 🔐 AUTH – FINAL & STABLE
+ 🔐 AUTH – FINAL (JSON VERIFIED)
 **********************************/
 
-// 🔥 REQUIRED: persist login across refresh / mobile / hosting
 firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .catch(err => console.error("Auth persistence error:", err));
 
 auth.onAuthStateChanged(user => {
-  // ❌ Not logged in → go to login
   if (!user) {
     location.replace("index.html");
     return;
   }
 
-  // ✅ Logged in
   currentUser = user;
 
-  // 🔐 Verify student record ONCE (no logout loop)
-  db.ref("students/" + user.uid).once("value").then(snap => {
-    if (!snap.exists()) {
-      // User exists in auth but not in DB
+  // ✅ CORRECT PATH: users/{uid}
+  db.ref("users/" + user.uid).once("value")
+    .then(snap => {
+
+      // ❌ No user record → logout
+      if (!snap.exists()) {
+        auth.signOut();
+        location.replace("index.html");
+        return;
+      }
+
+      const userData = snap.val();
+
+      // ❌ Not approved
+      if (userData.approved !== true) {
+        alert("Your account is not approved yet");
+        auth.signOut();
+        location.replace("index.html");
+        return;
+      }
+
+      // ✅ ROLE HANDLING
+      if (userData.role === "student") {
+        currentClassId = userData.classId;
+        loadDashboard();
+        loadSubjects();
+      }
+
+      else if (userData.role === "teacher") {
+        // redirect if needed
+        // location.href = "teacher.html";
+      }
+
+      else if (userData.role === "admin") {
+        // location.href = "admin.html";
+      }
+
+    })
+    .catch(err => {
+      console.error("Auth DB error:", err);
       auth.signOut();
       location.replace("index.html");
-      return;
-    }
-
-    // ✅ Safe to proceed
-    currentClassId = snap.val().classId;
-
-    loadDashboard();
-    loadSubjects();
-  });
+    });
 });
 /*********************************
  📊 DASHBOARD (REALTIME)
