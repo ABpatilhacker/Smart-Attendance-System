@@ -7,7 +7,8 @@ let selectedSubjectId = "";
 let attendanceChart = null;
 
 /*********************************
- 🔐 AUTH (FIXED – NO AUTO LOGOUT)
+/*********************************
+ 🔐 AUTH (FINAL – SAFE & STABLE)
 **********************************/
 auth.onAuthStateChanged(user => {
   if (!user) {
@@ -17,8 +18,9 @@ auth.onAuthStateChanged(user => {
 
   currentUser = user;
 
-  db.ref("students/" + user.uid).on("value", snap => {
-    if (!snap.exists()) {
+  // ✅ CORRECT PATH + ONCE
+  db.ref("users/" + user.uid).once("value").then(snap => {
+    if (!snap.exists() || snap.val().role !== "student") {
       logout();
       return;
     }
