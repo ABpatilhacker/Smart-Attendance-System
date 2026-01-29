@@ -5,62 +5,65 @@
   <title>Student Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Fonts -->
+  <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>
 
   <!-- CSS -->
   <link rel="stylesheet" href="student.css">
+
+  <!-- Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
+<div class="sidebar" id="sidebar">
   <h2>🎓 Student</h2>
-  <button onclick="showSection('dashboard')">Dashboard</button>
-  <button onclick="showSection('classes')">Subjects</button>
-  <button onclick="showSection('attendance')">Attendance</button>
-  <button onclick="logout()">Logout</button>
-</aside>
+  <nav>
+    <button onclick="showSection('dashboard')">🏠 Dashboard</button>
+    <button onclick="showSection('classes')">📚 Subjects</button>
+    <button onclick="showSection('attendance')">📊 Attendance</button>
+    <button onclick="logout()">🚪 Logout</button>
+  </nav>
+</div>
 
 <!-- TOPBAR -->
-<header class="topbar">
+<div class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <h1>Student Dashboard</h1>
-</header>
+</div>
 
 <!-- MAIN -->
-<main class="main">
+<div class="main" onclick="closeSidebar()">
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="section active">
-    <div class="cards">
-      <div class="card glass">
-        <h3>📚 Subjects</h3>
-        <span id="subjectCount">0</span>
+    <div class="card-grid">
+      <div class="card">
+        📘 Subjects
+        <span id="classCount">0</span>
       </div>
-      <div class="card glass">
-        <h3>✅ Attendance</h3>
+      <div class="card">
+        ✅ Attendance
         <span id="attendancePercent">0%</span>
       </div>
     </div>
 
-    <div class="chart-card glass">
+    <div class="chart-box">
       <canvas id="attendanceChart"></canvas>
     </div>
   </section>
 
   <!-- SUBJECTS -->
   <section id="classes" class="section">
-    <h2>My Subjects</h2>
-    <div id="classList" class="cards"></div>
+    <h2>Your Subjects</h2>
+    <div id="classList" class="card-grid"></div>
   </section>
 
   <!-- ATTENDANCE -->
   <section id="attendance" class="section">
-    <h2>Attendance Details</h2>
+    <h2>Attendance Record</h2>
 
     <select id="subjectSelect" onchange="loadSubjectAttendance()">
       <option value="">Select Subject</option>
@@ -77,7 +80,7 @@
     </table>
   </section>
 
-</main>
+</div>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
