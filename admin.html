@@ -18,6 +18,7 @@
 </head>
 <body>
 
+<!-- MOBILE MENU -->
 <button class="menu-btn" onclick="toggleSidebar()">
   <span class="material-icons">menu</span>
 </button>
@@ -25,48 +26,68 @@
 <div class="layout">
 
   <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <h2 class="logo">Admin Panel</h2>
+  <aside class="sidebar">
+    <h2 class="logo">Admin</h2>
+
     <nav>
-      <button onclick="nav('dashboard')"><span class="material-icons">dashboard</span>Dashboard</button>
-      <button onclick="nav('classes')"><span class="material-icons">school</span>Classes</button>
-      <button onclick="nav('teachers')"><span class="material-icons">person</span>Teachers</button>
-      <button onclick="nav('approvals')"><span class="material-icons">pending</span>Approvals</button>
-      <button onclick="nav('settings')"><span class="material-icons">settings</span>Settings</button>
-      <button class="logout" onclick="logout()"><span class="material-icons">logout</span>Logout</button>
+      <button onclick="nav('dashboard')">
+        <span class="material-icons">dashboard</span> Dashboard
+      </button>
+      <button onclick="nav('classes')">
+        <span class="material-icons">school</span> Classes
+      </button>
+      <button onclick="nav('teachers')">
+        <span class="material-icons">person</span> Teachers
+      </button>
+      <button onclick="nav('approvals')">
+        <span class="material-icons">pending</span> Approvals
+      </button>
+      <button onclick="nav('settings')">
+        <span class="material-icons">settings</span> Settings
+      </button>
+      <button class="logout" onclick="logout()">
+        <span class="material-icons">logout</span> Logout
+      </button>
     </nav>
   </aside>
 
-  <!-- MAIN -->
-  <main class="content" onclick="closeSidebar()">
+  <!-- MAIN CONTENT -->
+  <main class="content">
 
     <!-- DASHBOARD -->
     <section id="dashboard" class="page active">
-      <h1>Dashboard Overview</h1>
+      <h1>Dashboard</h1>
       <div class="cards">
-        <div class="card"><h3>Classes</h3><span id="classCount">0</span></div>
-        <div class="card"><h3>Teachers</h3><span id="teacherCount">0</span></div>
-        <div class="card"><h3>Students</h3><span id="studentCount">0</span></div>
+        <div class="card">
+          <h3>Classes</h3>
+          <span id="classCount">0</span>
+        </div>
+        <div class="card">
+          <h3>Teachers</h3>
+          <span id="teacherCount">0</span>
+        </div>
+        <div class="card">
+          <h3>Students</h3>
+          <span id="studentCount">0</span>
+        </div>
       </div>
     </section>
 
     <!-- CLASSES -->
     <section id="classes" class="page">
-      <h1>Manage Classes</h1>
+      <h1>Classes</h1>
       <div class="form-row">
-        <input id="className" placeholder="New class name">
-        <button onclick="addClass()">Add Class</button>
+        <input id="className" placeholder="Class name">
+        <button onclick="addClass()">Add</button>
       </div>
       <ul id="classList" class="list"></ul>
     </section>
 
     <!-- TEACHERS -->
     <section id="teachers" class="page">
-      <h1>Manage Teachers</h1>
+      <h1>Teachers</h1>
       <div class="form-row">
-        <input id="teacherName" placeholder="Teacher name">
-        <input id="teacherEmail" placeholder="Teacher email">
-        <button onclick="addTeacher()">Add Teacher</button>
+        <button onclick="addTeacher()">+ Add Teacher</button>
       </div>
       <ul id="teacherList" class="list"></ul>
     </section>
@@ -79,24 +100,26 @@
 
     <!-- SETTINGS -->
     <section id="settings" class="page">
-      <h1>Attendance Settings</h1>
-      <p class="info">
-        Minimum attendance % required for students to be eligible for exams.
-      </p>
-      <div class="form-row">
+      <h1>Settings</h1>
+
+      <div class="card">
+        <label>Minimum Attendance %</label>
         <input id="minAttendance" type="number" min="0" max="100">
-        <button onclick="saveSettings()">Save</button>
+        <p class="muted">
+          Students below this percentage will be flagged as defaulters.
+        </p>
+        <button onclick="saveSettings()">Save Settings</button>
       </div>
     </section>
 
   </main>
 </div>
 
-<!-- PANELS -->
+<!-- SLIDE PANELS -->
 <div id="classPanel" class="panel"></div>
 <div id="teacherProfile" class="panel"></div>
 
-<!-- MODAL -->
+<!-- CONFIRM MODAL -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
@@ -108,6 +131,7 @@
   </div>
 </div>
 
+<!-- JS -->
 <script src="admin.js"></script>
 </body>
 </html>
