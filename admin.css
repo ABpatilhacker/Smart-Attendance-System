@@ -354,3 +354,31 @@ button:hover {
     pointer-events: none;
   }
 }
+/* Panel headings */
+.panel h2 {
+  margin-top: 0;
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+/* Section labels */
+.panel label {
+  font-size: 13px;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* Panel inputs spacing */
+.panel .form-row {
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Settings info text */
+.helper-text {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
