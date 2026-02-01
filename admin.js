@@ -2,16 +2,38 @@ firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth();
 const db=firebase.database();
 
-/* AUTH */
-auth.onAuthStateChanged(u=>{
-  if(!u)location.href="login.html";
-  else{
+/***********************
+ 🔐 AUTH CHECK (FIXED)
+************************/
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  // Check user role from DB
+  db.ref("users/" + user.uid).once("value").then(snap => {
+    if (!snap.exists()) {
+      auth.signOut();
+      return;
+    }
+
+    const data = snap.val();
+
+    // 🔒 Only admin allowed
+    if (data.role !== "admin" || data.approved !== true) {
+      alert("Access denied");
+      auth.signOut();
+      return;
+    }
+
+    // ✅ ADMIN VERIFIED → LOAD DATA
     loadDashboard();
     loadApprovals();
     loadClasses();
     loadTeachers();
     loadSettings();
-  }
+  });
 });
 
 /* LOGOUT */
