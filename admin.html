@@ -16,10 +16,9 @@
   <!-- CSS -->
   <link rel="stylesheet" href="admin.css">
 </head>
-
 <body>
 
-<!-- ☰ MOBILE MENU -->
+<!-- MOBILE MENU -->
 <button class="menu-btn" onclick="toggleSidebar()">
   <span class="material-icons">menu</span>
 </button>
@@ -28,30 +27,30 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
-    <h2 class="logo">Admin Panel</h2>
+    <h2 class="logo">Smart Admin</h2>
 
     <nav>
-      <button onclick="nav('dashboard')">
+      <button onclick="nav('dashboard', this)" class="active">
         <span class="material-icons">dashboard</span> Dashboard
       </button>
 
-      <button onclick="nav('classes')">
+      <button onclick="nav('classes', this)">
         <span class="material-icons">school</span> Classes
       </button>
 
-      <button onclick="nav('teachers')">
+      <button onclick="nav('teachers', this)">
         <span class="material-icons">person</span> Teachers
       </button>
 
-      <button onclick="nav('approvals')">
+      <button onclick="nav('approvals', this)">
         <span class="material-icons">pending</span> Approvals
       </button>
 
-      <button onclick="nav('settings')">
+      <button onclick="nav('settings', this)">
         <span class="material-icons">settings</span> Settings
       </button>
 
-      <button class="logout" onclick="logout()">
+      <button onclick="logout()" class="logout">
         <span class="material-icons">logout</span> Logout
       </button>
     </nav>
@@ -62,11 +61,11 @@
 
     <!-- DASHBOARD -->
     <section id="dashboard" class="page active">
-      <h1>Dashboard</h1>
+      <h1>Dashboard Overview</h1>
 
       <div class="cards">
         <div class="card">
-          <h3>Classes</h3>
+          <h3>Total Classes</h3>
           <span id="classCount">0</span>
         </div>
 
@@ -87,7 +86,7 @@
       <h1>Classes</h1>
 
       <div class="form-row">
-        <input id="className" placeholder="Enter class name">
+        <input id="className" placeholder="Enter class name (e.g. FY BCA)">
         <button onclick="addClass()">Add Class</button>
       </div>
 
@@ -99,7 +98,9 @@
       <h1>Teachers</h1>
 
       <div class="form-row">
-        <button onclick="addTeacher()">➕ Add Teacher</button>
+        <input id="teacherName" placeholder="Teacher Name">
+        <input id="teacherEmail" placeholder="Teacher Email">
+        <button onclick="addTeacher()">Add Teacher</button>
       </div>
 
       <ul id="teacherList" class="list"></ul>
@@ -113,18 +114,19 @@
 
     <!-- SETTINGS -->
     <section id="settings" class="page">
-      <h1>Settings</h1>
+      <h1>Attendance Settings</h1>
 
-      <div class="card">
-        <h3>Minimum Attendance (%)</h3>
+      <div class="form-row">
+        <input id="minAttendance" placeholder="Minimum Attendance %">
+        <button onclick="saveSettings()">Save</button>
+      </div>
+
+      <div class="card" style="margin-top:20px">
+        <h3>What does this mean?</h3>
         <p class="muted">
           Students below this percentage will be marked as defaulters.
+          This value is used across student dashboards and reports.
         </p>
-
-        <div class="form-row">
-          <input id="minAttendance" type="number" min="0" max="100">
-          <button onclick="saveSettings()">Save</button>
-        </div>
       </div>
     </section>
 
@@ -147,8 +149,6 @@
   </div>
 </div>
 
-<!-- JS -->
 <script src="admin.js"></script>
-
 </body>
 </html>
