@@ -19,7 +19,7 @@
 
 <body>
 
-<!-- ☰ MOBILE TOGGLE -->
+<!-- ☰ MOBILE MENU -->
 <button class="menu-btn" onclick="toggleSidebar()">
   <span class="material-icons">menu</span>
 </button>
@@ -28,7 +28,7 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
-    <h2 class="logo">Admin</h2>
+    <h2 class="logo">Admin Panel</h2>
 
     <nav>
       <button onclick="nav('dashboard')">
@@ -51,13 +51,13 @@
         <span class="material-icons">settings</span> Settings
       </button>
 
-      <button onclick="logout()" class="logout">
+      <button class="logout" onclick="logout()">
         <span class="material-icons">logout</span> Logout
       </button>
     </nav>
   </aside>
 
-  <!-- MAIN -->
+  <!-- MAIN CONTENT -->
   <main class="content" onclick="closeSidebar()">
 
     <!-- DASHBOARD -->
@@ -87,8 +87,8 @@
       <h1>Classes</h1>
 
       <div class="form-row">
-        <input id="className" placeholder="Class name">
-        <button onclick="addClass()">Add</button>
+        <input id="className" placeholder="Enter class name">
+        <button onclick="addClass()">Add Class</button>
       </div>
 
       <ul id="classList" class="list"></ul>
@@ -99,9 +99,7 @@
       <h1>Teachers</h1>
 
       <div class="form-row">
-        <input id="teacherName" placeholder="Name">
-        <input id="teacherEmail" placeholder="Email">
-        <button onclick="addTeacher()">Add</button>
+        <button onclick="addTeacher()">➕ Add Teacher</button>
       </div>
 
       <ul id="teacherList" class="list"></ul>
@@ -117,20 +115,27 @@
     <section id="settings" class="page">
       <h1>Settings</h1>
 
-      <div class="form-row">
-        <input id="minAttendance" placeholder="Minimum Attendance %">
-        <button onclick="saveSettings()">Save</button>
+      <div class="card">
+        <h3>Minimum Attendance (%)</h3>
+        <p class="muted">
+          Students below this percentage will be marked as defaulters.
+        </p>
+
+        <div class="form-row">
+          <input id="minAttendance" type="number" min="0" max="100">
+          <button onclick="saveSettings()">Save</button>
+        </div>
       </div>
     </section>
 
   </main>
 </div>
 
-<!-- PANELS -->
+<!-- SLIDE PANELS -->
 <div id="classPanel" class="panel"></div>
 <div id="teacherProfile" class="panel"></div>
 
-<!-- MODAL -->
+<!-- CONFIRM MODAL -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
@@ -141,15 +146,9 @@
     </div>
   </div>
 </div>
-<script>
-  // Close sidebar when clicking outside (mobile only)
-  document.getElementById("content").addEventListener("click", () => {
-    if (window.innerWidth <= 900) {
-      closeSidebar();
-    }
-  });
-</script>
+
 <!-- JS -->
 <script src="admin.js"></script>
+
 </body>
 </html>
