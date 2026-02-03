@@ -1,35 +1,13 @@
-/***********************
+/*************************
  🔥 FIREBASE INIT
-************************/
+**************************/
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-/***********************
- 🧩 DOM BINDS (REQUIRED)
-************************/
-const classCount = document.getElementById("classCount");
-const teacherCount = document.getElementById("teacherCount");
-const studentCount = document.getElementById("studentCount");
-
-const classList = document.getElementById("classList");
-const teacherList = document.getElementById("teacherList");
-const pendingList = document.getElementById("pendingList");
-
-const className = document.getElementById("className");
-const minAttendance = document.getElementById("minAttendance");
-
-const classPanel = document.getElementById("classPanel");
-const teacherProfile = document.getElementById("teacherProfile");
-
-const modal = document.getElementById("modal");
-const modalTitle = document.getElementById("modalTitle");
-const modalText = document.getElementById("modalText");
-const modalOk = document.getElementById("modalOk");
-
-/***********************
- 🔐 AUTH CHECK (SAFE)
-************************/
+/*************************
+ 🔐 AUTH GUARD
+**************************/
 auth.onAuthStateChanged(user => {
   if (!user) {
     location.href = "login.html";
@@ -38,338 +16,171 @@ auth.onAuthStateChanged(user => {
 
   db.ref("users/" + user.uid).once("value").then(snap => {
     if (!snap.exists() || snap.val().role !== "admin") {
-      alert("Access denied");
+      alert("Admin access only");
       auth.signOut();
       return;
     }
 
     loadDashboard();
-    loadApprovals();
-    loadClasses();
     loadTeachers();
+    loadClasses();
     loadSettings();
   });
 });
 
-/***********************
- 🚪 LOGOUT
-************************/
+/*************************
+ 🚪 LOGOUT (FIXED)
+**************************/
 function logout() {
-  auth.signOut().then(() => location.href = "login.html");
+  auth.signOut().then(() => {
+    location.href = "login.html";
+  });
 }
 
-/***********************
- 📊 DASHBOARD
-************************/
+/*************************
+ 📊 DASHBOARD COUNTS
+**************************/
 function loadDashboard() {
-  db.ref("classes").on("value", s => {
-    classCount.innerText = s.exists() ? s.numChildren() : 0;
+  // Classes count
+  db.ref("classes").on("value", snap => {
+    document.getElementById("classCount").innerText =
+      snap.exists() ? snap.numChildren() : 0;
   });
 
-  db.ref("users").on("value", s => {
-    let t = 0, st = 0;
-    s.forEach(u => {
-      if (u.val().approved) {
-        if (u.val().role === "teacher") t++;
-        if (u.val().role === "student") st++;
-      }
-    });
-    teacherCount.innerText = t;
-    studentCount.innerText = st;
-  });
-}
-
-/***********************
- 🟡 APPROVALS
-************************/
-function loadApprovals() {
-  if (!pendingList) return;
-
+  // Teachers + Students count
   db.ref("users").on("value", snap => {
-    pendingList.innerHTML = "";
-    let found = false;
+    let teachers = 0;
+    let students = 0;
 
     snap.forEach(u => {
       const d = u.val();
-      if (d.approved === false) {
-        found = true;
-        pendingList.innerHTML += `
+      if (d.role === "teacher" && d.approved) teachers++;
+      if (d.role === "student" && d.approved) students++;
+    });
+
+    document.getElementById("teacherCount").innerText = teachers;
+    document.getElementById("studentCount").innerText = students;
+  });
+}
+
+/*************************
+ 👨‍🏫 TEACHERS PANEL
+**************************/
+function loadTeachers() {
+  const list = document.getElementById("teacherList");
+  if (!list) return;
+
+  db.ref("users").on("value", snap => {
+    list.innerHTML = "";
+
+    snap.forEach(u => {
+      const d = u.val();
+      if (d.role === "teacher") {
+        list.innerHTML += `
           <li>
             <strong>${d.name}</strong>
             <small>${d.email}</small>
-            <div class="actions">
-              <button onclick="approveUser('${u.key}')">Approve</button>
-              <button class="danger" onclick="rejectUser('${u.key}')">Reject</button>
-            </div>
-          </li>`;
+            <span class="badge">${d.department || "—"}</span>
+          </li>
+        `;
       }
     });
-
-    if (!found) {
-      pendingList.innerHTML = "<p class='muted'>No pending approvals 🎉</p>";
-    }
   });
 }
 
-function approveUser(uid) {
-  db.ref("users/" + uid).update({ approved: true })
-    .then(() => toast("Approved ✅"));
-}
-
-function rejectUser(uid) {
-  confirmModal("Reject User", "Reject this user?", () => {
-    db.ref("users/" + uid).remove()
-      .then(() => toast("Rejected ❌"));
-  });
-}
-
-/***********************
- 🏫 CLASSES
-************************/
+/*************************
+ 🏫 CLASSES PANEL
+**************************/
 function loadClasses() {
-  if (!classList) return;
+  const list = document.getElementById("classList");
+  if (!list) return;
 
   db.ref("classes").on("value", snap => {
-    classList.innerHTML = "";
+    list.innerHTML = "";
+
     snap.forEach(c => {
-      classList.innerHTML += `
+      const cls = c.val();
+      const studentCount = cls.students ? Object.keys(cls.students).length : 0;
+      const subjectCount = cls.subjects ? Object.keys(cls.subjects).length : 0;
+
+      list.innerHTML += `
         <li>
-          <strong>${c.val().name}</strong>
-          <div class="actions">
-            <button onclick="openClassPanel('${c.key}')">View</button>
-            <button onclick="editClassPanel('${c.key}')">✏️</button>
-            <button class="danger" onclick="deleteClass('${c.key}')">🗑️</button>
+          <strong>${cls.name}</strong>
+          <div class="meta">
+            <span>👨‍🎓 ${studentCount} Students</span>
+            <span>📘 ${subjectCount} Subjects</span>
           </div>
-        </li>`;
+          <button onclick="viewClass('${c.key}')">View</button>
+        </li>
+      `;
     });
   });
 }
 
-function addClass() {
-  const name = className.value.trim();
-  if (!name) return toast("Enter class name");
+/*************************
+ 📘 VIEW CLASS DETAILS
+**************************/
+function viewClass(classId) {
+  db.ref("classes/" + classId).once("value").then(snap => {
+    const cls = snap.val();
+    let html = `<h2>${cls.name}</h2>`;
 
-  const id = name.toLowerCase().replace(/\s+/g, "");
-  db.ref("classes/" + id).set({
-    name,
-    subjects: {},
-    students: {}
-  }).then(() => {
-    className.value = "";
-    toast("Class added ✅");
-  });
-}
+    // Subjects
+    html += `<h3>Subjects</h3><ul>`;
+    for (let s in cls.subjects) {
+      html += `<li>${cls.subjects[s].name}</li>`;
+    }
+    html += `</ul>`;
 
-function openClassPanel(id) {
-  db.ref("classes/" + id).once("value").then(snap => {
-    classPanel.innerHTML = `
-      <h2>${snap.val().name}</h2>
-      <pre>${JSON.stringify(snap.val(), null, 2)}</pre>
-      <button onclick="closePanel('classPanel')">Close</button>
-    `;
+    // Students
+    html += `<h3>Students</h3><ul>`;
+    for (let st in cls.students) {
+      html += `<li>${cls.students[st].roll}. ${cls.students[st].name}</li>`;
+    }
+    html += `</ul>`;
+
+    document.getElementById("classPanel").innerHTML =
+      html + `<button onclick="closePanel('classPanel')">Close</button>`;
+
     openPanel("classPanel");
   });
 }
 
-function editClassPanel(id) {
-  db.ref("classes/" + id).once("value").then(snap => {
-    classPanel.innerHTML = `
-      <h2>Edit Class</h2>
-      <input id="editClassName" value="${snap.val().name}">
-      <button onclick="saveClassEdit('${id}')">Save</button>
-    `;
-    openPanel("classPanel");
-  });
-}
-
-function saveClassEdit(id) {
-  const name = document.getElementById("editClassName").value.trim();
-  if (!name) return toast("Invalid name");
-
-  db.ref("classes/" + id).update({ name })
-    .then(() => {
-      toast("Class updated");
-      closePanel("classPanel");
-    });
-}
-
-function deleteClass(id) {
-  confirmModal("Delete Class", "Are you sure?", () => {
-    db.ref("classes/" + id).remove()
-      .then(() => toast("Class deleted"));
-  });
-}
-
-/***********************
- 👨‍🏫 TEACHERS
-************************/
-function loadTeachers() {
-  if (!teacherList) return;
-
-  db.ref("users").on("value", snap => {
-    teacherList.innerHTML = "";
-    snap.forEach(u => {
-      const d = u.val();
-      if (d.role === "teacher" && d.approved) {
-        teacherList.innerHTML += `
-          <li>
-            <span>${d.name}<br><small>${d.email}</small></span>
-            <div class="actions">
-              <button onclick="openTeacherPanel('${u.key}')">View</button>
-              <button onclick="editTeacherPanel('${u.key}')">✏️</button>
-              <button class="danger" onclick="deleteTeacher('${u.key}')">🗑️</button>
-            </div>
-          </li>`;
-      }
-    });
-  });
-}
-
-function addTeacher() {
-  teacherProfile.innerHTML = `
-    <h2>Add Teacher</h2>
-    <input id="tName" placeholder="Name">
-    <input id="tEmail" placeholder="Email">
-    <input id="tPass" type="password" placeholder="Password">
-    <button onclick="createTeacher()">Create</button>
-  `;
-  openPanel("teacherProfile");
-}
-
-function createTeacher() {
-  const name = tName.value.trim();
-  const email = tEmail.value.trim();
-  const pass = tPass.value;
-
-  if (!name || !email || pass.length < 6)
-    return toast("Fill all fields");
-
-  auth.createUserWithEmailAndPassword(email, pass)
-    .then(res => {
-      return db.ref("users/" + res.user.uid).set({
-        name,
-        email,
-        role: "teacher",
-        approved: true,
-        assignments: {}
-      });
-    })
-    .then(() => {
-      toast("Teacher created ✅");
-      closePanel("teacherProfile");
-    })
-    .catch(e => toast(e.message));
-}
-
-function openTeacherPanel(uid) {
-  db.ref("users/" + uid).once("value").then(s => {
-    teacherProfile.innerHTML = `
-      <h2>${s.val().name}</h2>
-      <p>${s.val().email}</p>
-      <button onclick="closePanel('teacherProfile')">Close</button>
-    `;
-    openPanel("teacherProfile");
-  });
-}
-
-function editTeacherPanel(uid) {
-  db.ref("users/" + uid).once("value").then(s => {
-    teacherProfile.innerHTML = `
-      <h2>Edit Teacher</h2>
-      <input id="etName" value="${s.val().name}">
-      <input id="etEmail" value="${s.val().email}">
-      <button onclick="saveTeacherEdit('${uid}')">Save</button>
-    `;
-    openPanel("teacherProfile");
-  });
-}
-
-function saveTeacherEdit(uid) {
-  const name = etName.value.trim();
-  const email = etEmail.value.trim();
-  if (!name || !email) return toast("Invalid input");
-
-  db.ref("users/" + uid).update({ name, email })
-    .then(() => {
-      toast("Teacher updated");
-      closePanel("teacherProfile");
-    });
-}
-
-function deleteTeacher(uid) {
-  confirmModal("Delete Teacher", "Are you sure?", () => {
-    db.ref("users/" + uid).remove()
-      .then(() => toast("Teacher deleted"));
-  });
-}
-
-/***********************
+/*************************
  ⚙️ SETTINGS
-************************/
+**************************/
 function loadSettings() {
-  db.ref("settings/minAttendance").once("value", s => {
-    minAttendance.value = s.exists() ? s.val() : 75;
+  db.ref("settings/minAttendance").once("value", snap => {
+    document.getElementById("minAttendance").value =
+      snap.exists() ? snap.val() : 75;
   });
 }
 
 function saveSettings() {
-  const val = Number(minAttendance.value);
-  if (val < 0 || val > 100) return toast("Invalid percentage");
+  const v = Number(document.getElementById("minAttendance").value);
+  if (v < 0 || v > 100) {
+    alert("Attendance must be between 0–100");
+    return;
+  }
 
-  db.ref("settings").update({ minAttendance: val })
-    .then(() => toast("Settings saved"));
+  db.ref("settings").update({ minAttendance: v })
+    .then(() => alert("Settings saved"));
 }
 
-/***********************
+/*************************
  🧭 UI HELPERS
-************************/
-function toggleSidebar() {
-  document.body.classList.toggle("sidebar-open");
-}
-function closeSidebar() {
-  document.body.classList.remove("sidebar-open");
-}
+**************************/
 function nav(id) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(p =>
+    p.classList.remove("active")
+  );
   document.getElementById(id).classList.add("active");
-  closeSidebar();
 }
 
-/***********************
- 📦 PANEL
-************************/
 function openPanel(id) {
   document.getElementById(id).classList.add("active-panel");
-  document.body.classList.add("panel-open");
 }
+
 function closePanel(id) {
   document.getElementById(id).classList.remove("active-panel");
-  document.body.classList.remove("panel-open");
-}
-
-/***********************
- ❓ MODAL
-************************/
-function confirmModal(title, text, onConfirm) {
-  modalTitle.innerText = title;
-  modalText.innerText = text;
-  modal.classList.add("show");
-  modalOk.onclick = () => {
-    closeModal();
-    onConfirm();
-  };
-}
-function closeModal() {
-  modal.classList.remove("show");
-}
-
-/***********************
- 🔔 TOAST
-************************/
-function toast(msg) {
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.innerText = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
-}
+   }
