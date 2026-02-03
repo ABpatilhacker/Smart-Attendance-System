@@ -108,3 +108,75 @@ body {
   .menu-btn { display:block }
   .content { margin-left:0 }
 }
+/* ===== MOBILE FIXES (VERY IMPORTANT) ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Fix content width on mobile */
+.content {
+  width: 100%;
+  padding: 20px 14px;
+}
+
+/* Cards grid fix */
+.cards {
+  grid-template-columns: 1fr;
+}
+
+/* Card overflow fix */
+.card {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Text scaling */
+.card h3 {
+  font-size: 18px;
+}
+
+.card span {
+  font-size: 28px;
+}
+
+/* Sidebar mobile behavior */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    z-index: 1500;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .menu-btn {
+    display: block;
+  }
+}
+
+/* Panel mobile fix */
+.panel {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Toast mobile safe */
+.toast {
+  right: 50%;
+  transform: translateX(50%);
+  max-width: 90%;
+}
