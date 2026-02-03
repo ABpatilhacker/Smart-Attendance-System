@@ -1,53 +1,159 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Firebase v8 (required by your JS) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <!-- Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- CSS -->
   <link rel="stylesheet" href="admin.css">
 </head>
+
 <body>
 
-<button id="menuBtn" onclick="toggleSidebar()">☰</button>
+<!-- MOBILE MENU BUTTON -->
+<button class="menu-btn" onclick="toggleSidebar()">
+  <span class="material-icons">menu</span>
+</button>
 
-<aside id="sidebar" class="sidebar">
-  <a onclick="nav('dashboard')">Dashboard</a>
-  <a onclick="nav('teachers')">Teachers</a>
-  <a onclick="nav('classes')">Classes</a>
-  <a onclick="nav('settings')">Settings</a>
-  <button onclick="logout()">Logout</button>
-</aside>
+<div class="layout">
 
-<main>
-  <section id="dashboard" class="page active">
-    <h2>Dashboard</h2>
-    <p>Teachers: <b id="teacherCount">0</b></p>
-    <p>Students: <b id="studentCount">0</b></p>
-    <p>Classes: <b id="classCount">0</b></p>
-  </section>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2 class="logo">Admin Panel</h2>
 
-  <section id="teachers" class="page">
-    <h2>Teachers</h2>
-    <ul id="teacherList"></ul>
-  </section>
+    <nav>
+      <button onclick="nav('dashboard')">
+        <span class="material-icons">dashboard</span>
+        Dashboard
+      </button>
 
-  <section id="classes" class="page">
-    <h2>Classes</h2>
-    <ul id="classList"></ul>
-  </section>
+      <button onclick="nav('classes')">
+        <span class="material-icons">school</span>
+        Classes
+      </button>
 
-  <section id="settings" class="page">
-    <h2>Settings</h2>
-    <label>Minimum Attendance %</label>
-    <input id="minAttendance" type="number">
-    <button onclick="saveSettings()">Save</button>
-  </section>
-</main>
+      <button onclick="nav('teachers')">
+        <span class="material-icons">person</span>
+        Teachers
+      </button>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+      <button onclick="nav('approvals')">
+        <span class="material-icons">pending_actions</span>
+        Approvals
+      </button>
 
-<script src="firebaseConfig.js"></script>
+      <button onclick="nav('settings')">
+        <span class="material-icons">settings</span>
+        Settings
+      </button>
+
+      <button class="logout" onclick="logout()">
+        <span class="material-icons">logout</span>
+        Logout
+      </button>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content" onclick="closeSidebar()">
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page active">
+      <h1>Dashboard</h1>
+
+      <div class="cards">
+        <div class="card">
+          <h3>Classes</h3>
+          <span id="classCount">0</span>
+        </div>
+
+        <div class="card">
+          <h3>Teachers</h3>
+          <span id="teacherCount">0</span>
+        </div>
+
+        <div class="card">
+          <h3>Students</h3>
+          <span id="studentCount">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLASSES -->
+    <section id="classes" class="page">
+      <h1>Classes</h1>
+
+      <div class="form-row">
+        <input id="className" placeholder="Enter class name">
+        <button onclick="addClass()">Add Class</button>
+      </div>
+
+      <ul id="classList" class="list"></ul>
+    </section>
+
+    <!-- TEACHERS -->
+    <section id="teachers" class="page">
+      <h1>Teachers</h1>
+
+      <div class="form-row">
+        <button onclick="addTeacher()">➕ Add Teacher</button>
+      </div>
+
+      <ul id="teacherList" class="list"></ul>
+    </section>
+
+    <!-- APPROVALS -->
+    <section id="approvals" class="page">
+      <h1>Pending Approvals</h1>
+      <ul id="pendingList" class="list"></ul>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="settings" class="page">
+      <h1>Settings</h1>
+
+      <div class="card">
+        <h3>Minimum Attendance (%)</h3>
+        <p class="muted">
+          Students below this percentage will be marked as low attendance.
+        </p>
+
+        <div class="form-row">
+          <input id="minAttendance" type="number" min="0" max="100">
+          <button onclick="saveSettings()">Save</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- SLIDE PANELS -->
+<div id="classPanel" class="panel"></div>
+<div id="teacherProfile" class="panel"></div>
+
+<!-- CONFIRM MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+    <p id="modalText"></p>
+    <div class="modal-actions">
+      <button onclick="closeModal()">Cancel</button>
+      <button id="modalOk" class="danger">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- JS -->
 <script src="admin.js"></script>
-
 </body>
 </html>
