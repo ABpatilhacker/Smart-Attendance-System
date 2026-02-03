@@ -1,109 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-  <!-- Icons -->
+  <!-- Google Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <!-- CSS -->
   <link rel="stylesheet" href="admin.css">
 </head>
-
 <body>
 
-<button class="menu-btn" onclick="toggleSidebar()">
-  <span class="material-icons">menu</span>
-</button>
+<!-- ================= SIDEBAR ================= -->
+<div class="sidebar">
+  <h2>Admin Panel</h2>
 
-<div class="layout">
+  <a href="#" onclick="nav('dashboard')">Dashboard</a>
+  <a href="#" onclick="nav('approvals')">Approvals</a>
+  <a href="#" onclick="nav('classes')">Classes</a>
+  <a href="#" onclick="nav('teachers')">Teachers</a>
+  <a href="#" onclick="nav('settings')">Settings</a>
 
-  <aside class="sidebar" id="sidebar">
-    <h2 class="logo">Admin</h2>
-
-    <nav>
-      <button onclick="nav('dashboard')"><span class="material-icons">dashboard</span>Dashboard</button>
-      <button onclick="nav('classes')"><span class="material-icons">school</span>Classes</button>
-      <button onclick="nav('teachers')"><span class="material-icons">person</span>Teachers</button>
-      <button onclick="nav('approvals')"><span class="material-icons">pending</span>Approvals</button>
-      <button onclick="nav('settings')"><span class="material-icons">settings</span>Settings</button>
-      <button class="logout" onclick="logout()"><span class="material-icons">logout</span>Logout</button>
-    </nav>
-  </aside>
-
-  <main class="content">
-
-    <!-- DASHBOARD -->
-    <section id="dashboard" class="page active">
-      <h1>Dashboard</h1>
-      <div class="cards">
-        <div class="card"><h3>Classes</h3><span id="classCount">0</span></div>
-        <div class="card"><h3>Teachers</h3><span id="teacherCount">0</span></div>
-        <div class="card"><h3>Students</h3><span id="studentCount">0</span></div>
-      </div>
-    </section>
-
-    <!-- CLASSES -->
-    <section id="classes" class="page">
-      <h1>Classes</h1>
-      <div class="form-row">
-        <input id="className" placeholder="Class name">
-        <button onclick="addClass()">Add</button>
-      </div>
-      <ul id="classList" class="list"></ul>
-    </section>
-
-    <!-- TEACHERS -->
-    <section id="teachers" class="page">
-      <h1>Teachers</h1>
-      <button onclick="addTeacher()">➕ Add Teacher</button>
-      <ul id="teacherList" class="list"></ul>
-    </section>
-
-    <!-- APPROVALS -->
-    <section id="approvals" class="page">
-      <h1>Pending Approvals</h1>
-      <ul id="pendingList" class="list"></ul>
-    </section>
-
-    <!-- SETTINGS -->
-    <section id="settings" class="page">
-      <h1>Settings</h1>
-      <label>Minimum Attendance %</label>
-      <input id="minAttendance" type="number">
-      <button onclick="saveSettings()">Save</button>
-    </section>
-
-  </main>
+  <a href="#" class="danger" onclick="logout()">Logout</a>
 </div>
 
-<!-- PANELS -->
-<div id="classPanel" class="panel"></div>
-<div id="teacherProfile" class="panel"></div>
+<!-- ================= MAIN ================= -->
+<div class="main">
 
-<!-- PANEL OVERLAY -->
-<div class="panel-overlay" id="panelOverlay" onclick="closeAllPanels()"></div>
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="page active">
+    <h2>Dashboard</h2>
 
-<!-- MODAL -->
-<div id="modal" class="modal">
+    <div class="stats">
+      <div class="card stat">
+        <h3 id="classCount">0</h3>
+        <p>Classes</p>
+      </div>
+      <div class="card stat">
+        <h3 id="teacherCount">0</h3>
+        <p>Teachers</p>
+      </div>
+      <div class="card stat">
+        <h3 id="studentCount">0</h3>
+        <p>Students</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- APPROVALS -->
+  <section id="approvals" class="page">
+    <h2>Pending Approvals</h2>
+    <ul class="list" id="pendingList"></ul>
+  </section>
+
+  <!-- CLASSES -->
+  <section id="classes" class="page">
+    <h2>Classes</h2>
+
+    <div style="display:flex; gap:10px; margin-bottom:15px;">
+      <input id="className" placeholder="Enter class name">
+      <button onclick="addClass()">Add</button>
+    </div>
+
+    <ul class="list" id="classList"></ul>
+  </section>
+
+  <!-- TEACHERS -->
+  <section id="teachers" class="page">
+    <h2>Teachers</h2>
+
+    <button onclick="addTeacher()" style="margin-bottom:15px;">Add Teacher</button>
+
+    <ul class="list" id="teacherList"></ul>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="page">
+    <h2>Settings</h2>
+
+    <label>Minimum Attendance (%)</label>
+    <input id="minAttendance" type="number">
+
+    <button onclick="saveSettings()">Save</button>
+  </section>
+
+</div>
+
+<!-- ================= PANELS ================= -->
+<div class="panel" id="classPanel"></div>
+<div class="panel" id="teacherProfile"></div>
+<div class="panel-overlay" onclick="closePanel('classPanel'); closePanel('teacherProfile')"></div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal" id="modal">
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
-    <p id="modalText"></p>
-    <div class="modal-actions">
+    <p id="modalText" class="muted"></p>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
       <button onclick="closeModal()">Cancel</button>
-      <button id="modalOk" class="danger">Confirm</button>
+      <button class="danger" id="modalOk">Confirm</button>
     </div>
   </div>
 </div>
 
-<!-- FIREBASE CONFIG -->
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
@@ -116,6 +123,8 @@
   };
 </script>
 
+<!-- JS -->
 <script src="admin.js"></script>
+
 </body>
-  </html>
+</html>
