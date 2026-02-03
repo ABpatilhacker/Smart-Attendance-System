@@ -2,16 +2,11 @@
  🔥 FIREBASE INIT
 ************************/
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.database();
 
-// 🔐 Secondary auth (CRITICAL FIX)
-const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
-const secondaryAuth = secondaryApp.auth();
-
 /***********************
- 🧩 DOM ELEMENT BINDS (CRITICAL FIX)
+ 🧩 DOM BINDS (REQUIRED)
 ************************/
 const classCount = document.getElementById("classCount");
 const teacherCount = document.getElementById("teacherCount");
@@ -33,51 +28,34 @@ const modalText = document.getElementById("modalText");
 const modalOk = document.getElementById("modalOk");
 
 /***********************
- 🔐 AUTH CHECK (FINAL + SAFE)
+ 🔐 AUTH CHECK (SAFE)
 ************************/
 auth.onAuthStateChanged(user => {
   if (!user) {
-    window.location.href = "index.html";
+    location.href = "login.html";
     return;
   }
 
-  db.ref("users/" + user.uid).once("value")
-    .then(snap => {
-      if (!snap.exists()) {
-        auth.signOut();
-        window.location.href = "index.html";
-        return;
-      }
-
-      const u = snap.val();
-
-      if (u.role !== "admin" || u.approved !== true) {
-        alert("Admin access only");
-        auth.signOut();
-        window.location.href = "index.html";
-        return;
-      }
-
-      // ✅ SAFE LOAD
-      loadDashboard();
-      loadApprovals();
-      loadClasses();
-      loadTeachers();
-      loadSettings();
-    })
-    .catch(() => {
+  db.ref("users/" + user.uid).once("value").then(snap => {
+    if (!snap.exists() || snap.val().role !== "admin") {
+      alert("Access denied");
       auth.signOut();
-      window.location.href = "index.html";
-    });
+      return;
+    }
+
+    loadDashboard();
+    loadApprovals();
+    loadClasses();
+    loadTeachers();
+    loadSettings();
+  });
 });
 
 /***********************
- 🚪 LOGOUT (FIXED)
+ 🚪 LOGOUT
 ************************/
 function logout() {
-  auth.signOut().then(() => {
-    window.location.href = "index.html";
-  });
+  auth.signOut().then(() => location.href = "login.html");
 }
 
 /***********************
@@ -91,10 +69,9 @@ function loadDashboard() {
   db.ref("users").on("value", s => {
     let t = 0, st = 0;
     s.forEach(u => {
-      const d = u.val();
-      if (d.approved) {
-        if (d.role === "teacher") t++;
-        if (d.role === "student") st++;
+      if (u.val().approved) {
+        if (u.val().role === "teacher") t++;
+        if (u.val().role === "student") st++;
       }
     });
     teacherCount.innerText = t;
@@ -128,8 +105,9 @@ function loadApprovals() {
       }
     });
 
-    if (!found)
+    if (!found) {
       pendingList.innerHTML = "<p class='muted'>No pending approvals 🎉</p>";
+    }
   });
 }
 
@@ -184,10 +162,9 @@ function addClass() {
 
 function openClassPanel(id) {
   db.ref("classes/" + id).once("value").then(snap => {
-    const c = snap.val();
     classPanel.innerHTML = `
-      <h2>${c.name}</h2>
-      <pre>${JSON.stringify(c, null, 2)}</pre>
+      <h2>${snap.val().name}</h2>
+      <pre>${JSON.stringify(snap.val(), null, 2)}</pre>
       <button onclick="closePanel('classPanel')">Close</button>
     `;
     openPanel("classPanel");
@@ -206,8 +183,9 @@ function editClassPanel(id) {
 }
 
 function saveClassEdit(id) {
-  const name = editClassName.value.trim();
+  const name = document.getElementById("editClassName").value.trim();
   if (!name) return toast("Invalid name");
+
   db.ref("classes/" + id).update({ name })
     .then(() => {
       toast("Class updated");
@@ -223,7 +201,7 @@ function deleteClass(id) {
 }
 
 /***********************
- 👨‍🏫 TEACHERS (SAFE AUTH)
+ 👨‍🏫 TEACHERS
 ************************/
 function loadTeachers() {
   if (!teacherList) return;
@@ -235,8 +213,7 @@ function loadTeachers() {
       if (d.role === "teacher" && d.approved) {
         teacherList.innerHTML += `
           <li>
-            <strong>${d.name}</strong><br>
-            <small>${d.email}</small>
+            <span>${d.name}<br><small>${d.email}</small></span>
             <div class="actions">
               <button onclick="openTeacherPanel('${u.key}')">View</button>
               <button onclick="editTeacherPanel('${u.key}')">✏️</button>
@@ -265,9 +242,9 @@ function createTeacher() {
   const pass = tPass.value;
 
   if (!name || !email || pass.length < 6)
-    return toast("Invalid details");
+    return toast("Fill all fields");
 
-  secondaryAuth.createUserWithEmailAndPassword(email, pass)
+  auth.createUserWithEmailAndPassword(email, pass)
     .then(res => {
       return db.ref("users/" + res.user.uid).set({
         name,
@@ -280,17 +257,15 @@ function createTeacher() {
     .then(() => {
       toast("Teacher created ✅");
       closePanel("teacherProfile");
-      secondaryAuth.signOut();
     })
     .catch(e => toast(e.message));
 }
 
 function openTeacherPanel(uid) {
   db.ref("users/" + uid).once("value").then(s => {
-    const t = s.val();
     teacherProfile.innerHTML = `
-      <h2>${t.name}</h2>
-      <p>${t.email}</p>
+      <h2>${s.val().name}</h2>
+      <p>${s.val().email}</p>
       <button onclick="closePanel('teacherProfile')">Close</button>
     `;
     openPanel("teacherProfile");
@@ -299,11 +274,10 @@ function openTeacherPanel(uid) {
 
 function editTeacherPanel(uid) {
   db.ref("users/" + uid).once("value").then(s => {
-    const t = s.val();
     teacherProfile.innerHTML = `
       <h2>Edit Teacher</h2>
-      <input id="etName" value="${t.name}">
-      <input id="etEmail" value="${t.email}">
+      <input id="etName" value="${s.val().name}">
+      <input id="etEmail" value="${s.val().email}">
       <button onclick="saveTeacherEdit('${uid}')">Save</button>
     `;
     openPanel("teacherProfile");
@@ -311,13 +285,15 @@ function editTeacherPanel(uid) {
 }
 
 function saveTeacherEdit(uid) {
-  db.ref("users/" + uid).update({
-    name: etName.value.trim(),
-    email: etEmail.value.trim()
-  }).then(() => {
-    toast("Teacher updated");
-    closePanel("teacherProfile");
-  });
+  const name = etName.value.trim();
+  const email = etEmail.value.trim();
+  if (!name || !email) return toast("Invalid input");
+
+  db.ref("users/" + uid).update({ name, email })
+    .then(() => {
+      toast("Teacher updated");
+      closePanel("teacherProfile");
+    });
 }
 
 function deleteTeacher(uid) {
@@ -338,7 +314,8 @@ function loadSettings() {
 
 function saveSettings() {
   const val = Number(minAttendance.value);
-  if (val < 0 || val > 100) return toast("Invalid value");
+  if (val < 0 || val > 100) return toast("Invalid percentage");
+
   db.ref("settings").update({ minAttendance: val })
     .then(() => toast("Settings saved"));
 }
@@ -359,7 +336,7 @@ function nav(id) {
 }
 
 /***********************
- 📦 PANELS
+ 📦 PANEL
 ************************/
 function openPanel(id) {
   document.getElementById(id).classList.add("active-panel");
