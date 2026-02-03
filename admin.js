@@ -366,7 +366,8 @@ function saveSettings() {
  🧭 UI HELPERS
 ************************/
 function toggleSidebar() {
-  document.body.classList.toggle("sidebar-open");
+  const sidebar = document.querySelector(".sidebar");
+  sidebar.classList.toggle("active");
 }
 function closeSidebar() {
   document.body.classList.remove("sidebar-open");
