@@ -1,13 +1,13 @@
-/*************************
+/***********************
  🔥 FIREBASE INIT
-**************************/
+************************/
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-/*************************
- 🔐 AUTH GUARD
-**************************/
+/***********************
+ 🔐 AUTH CHECK
+************************/
 auth.onAuthStateChanged(user => {
   if (!user) {
     location.href = "login.html";
@@ -16,7 +16,7 @@ auth.onAuthStateChanged(user => {
 
   db.ref("users/" + user.uid).once("value").then(snap => {
     if (!snap.exists() || snap.val().role !== "admin") {
-      alert("Admin access only");
+      alert("Access denied");
       auth.signOut();
       return;
     }
@@ -28,44 +28,38 @@ auth.onAuthStateChanged(user => {
   });
 });
 
-/*************************
- 🚪 LOGOUT (FIXED)
-**************************/
+/***********************
+ 🚪 LOGOUT
+************************/
 function logout() {
-  auth.signOut().then(() => {
-    location.href = "login.html";
-  });
+  auth.signOut().then(() => location.href = "login.html");
 }
 
-/*************************
- 📊 DASHBOARD COUNTS
-**************************/
+/***********************
+ 📊 DASHBOARD
+************************/
 function loadDashboard() {
-  // Classes count
-  db.ref("classes").on("value", snap => {
-    document.getElementById("classCount").innerText =
-      snap.exists() ? snap.numChildren() : 0;
-  });
-
-  // Teachers + Students count
   db.ref("users").on("value", snap => {
-    let teachers = 0;
-    let students = 0;
+    let teachers = 0, students = 0;
 
     snap.forEach(u => {
-      const d = u.val();
-      if (d.role === "teacher" && d.approved) teachers++;
-      if (d.role === "student" && d.approved) students++;
+      if (!u.val().approved) return;
+      if (u.val().role === "teacher") teachers++;
+      if (u.val().role === "student") students++;
     });
 
     document.getElementById("teacherCount").innerText = teachers;
     document.getElementById("studentCount").innerText = students;
   });
+
+  db.ref("classes").on("value", snap => {
+    document.getElementById("classCount").innerText = snap.numChildren();
+  });
 }
 
-/*************************
- 👨‍🏫 TEACHERS PANEL
-**************************/
+/***********************
+ 👨‍🏫 TEACHERS
+************************/
 function loadTeachers() {
   const list = document.getElementById("teacherList");
   if (!list) return;
@@ -75,12 +69,11 @@ function loadTeachers() {
 
     snap.forEach(u => {
       const d = u.val();
-      if (d.role === "teacher") {
+      if (d.role === "teacher" && d.approved) {
         list.innerHTML += `
           <li>
-            <strong>${d.name}</strong>
+            <b>${d.name}</b>
             <small>${d.email}</small>
-            <span class="badge">${d.department || "—"}</span>
           </li>
         `;
       }
@@ -88,9 +81,9 @@ function loadTeachers() {
   });
 }
 
-/*************************
- 🏫 CLASSES PANEL
-**************************/
+/***********************
+ 🏫 CLASSES
+************************/
 function loadClasses() {
   const list = document.getElementById("classList");
   if (!list) return;
@@ -99,88 +92,64 @@ function loadClasses() {
     list.innerHTML = "";
 
     snap.forEach(c => {
-      const cls = c.val();
-      const studentCount = cls.students ? Object.keys(cls.students).length : 0;
-      const subjectCount = cls.subjects ? Object.keys(cls.subjects).length : 0;
-
       list.innerHTML += `
         <li>
-          <strong>${cls.name}</strong>
-          <div class="meta">
-            <span>👨‍🎓 ${studentCount} Students</span>
-            <span>📘 ${subjectCount} Subjects</span>
-          </div>
-          <button onclick="viewClass('${c.key}')">View</button>
+          <b>${c.val().name}</b>
+          <small>
+            Students: ${c.child("students").numChildren()} |
+            Subjects: ${c.child("subjects").numChildren()}
+          </small>
         </li>
       `;
     });
   });
 }
 
-/*************************
- 📘 VIEW CLASS DETAILS
-**************************/
-function viewClass(classId) {
-  db.ref("classes/" + classId).once("value").then(snap => {
-    const cls = snap.val();
-    let html = `<h2>${cls.name}</h2>`;
-
-    // Subjects
-    html += `<h3>Subjects</h3><ul>`;
-    for (let s in cls.subjects) {
-      html += `<li>${cls.subjects[s].name}</li>`;
-    }
-    html += `</ul>`;
-
-    // Students
-    html += `<h3>Students</h3><ul>`;
-    for (let st in cls.students) {
-      html += `<li>${cls.students[st].roll}. ${cls.students[st].name}</li>`;
-    }
-    html += `</ul>`;
-
-    document.getElementById("classPanel").innerHTML =
-      html + `<button onclick="closePanel('classPanel')">Close</button>`;
-
-    openPanel("classPanel");
-  });
-}
-
-/*************************
+/***********************
  ⚙️ SETTINGS
-**************************/
+************************/
 function loadSettings() {
-  db.ref("settings/minAttendance").once("value", snap => {
-    document.getElementById("minAttendance").value =
-      snap.exists() ? snap.val() : 75;
-  });
+  const input = document.getElementById("minAttendance");
+  if (!input) return;
+
+  db.ref("settings/minAttendance").once("value")
+    .then(s => input.value = s.val() || 75);
 }
 
 function saveSettings() {
-  const v = Number(document.getElementById("minAttendance").value);
-  if (v < 0 || v > 100) {
-    alert("Attendance must be between 0–100");
-    return;
-  }
+  const val = Number(document.getElementById("minAttendance").value);
+  if (val < 0 || val > 100) return alert("Invalid value");
 
-  db.ref("settings").update({ minAttendance: v })
+  db.ref("settings").update({ minAttendance: val })
     .then(() => alert("Settings saved"));
 }
 
-/*************************
- 🧭 UI HELPERS
-**************************/
+/***********************
+ 🧭 SIDEBAR (FIXED)
+************************/
+const sidebar = document.getElementById("sidebar");
+const menuBtn = document.getElementById("menuBtn");
+
+function toggleSidebar() {
+  document.body.classList.toggle("sidebar-open");
+}
+
+function closeSidebar() {
+  document.body.classList.remove("sidebar-open");
+}
+
+document.addEventListener("click", e => {
+  if (!document.body.classList.contains("sidebar-open")) return;
+  if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+    closeSidebar();
+  }
+});
+
+/***********************
+ 🧭 NAV
+************************/
 function nav(id) {
-  document.querySelectorAll(".page").forEach(p =>
-    p.classList.remove("active")
-  );
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-}
-
-function openPanel(id) {
-  document.getElementById(id).classList.add("active-panel");
-}
-
-function closePanel(id) {
-  document.getElementById(id).classList.remove("active-panel");
-   }
+  closeSidebar();
+     }
