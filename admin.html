@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -15,48 +15,22 @@
 
   <link rel="stylesheet" href="admin.css">
 </head>
-
 <body>
 
-<!-- MOBILE MENU -->
-<button class="menu-btn" onclick="toggleSidebar()">
-  <span class="material-icons">menu</span>
-</button>
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
 <div class="layout">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <h2 class="logo">Admin</h2>
-
-    <nav>
-      <button onclick="nav('dashboard')">
-        <span class="material-icons">dashboard</span> Dashboard
-      </button>
-
-      <button onclick="nav('classes')">
-        <span class="material-icons">school</span> Classes
-      </button>
-
-      <button onclick="nav('teachers')">
-        <span class="material-icons">person</span> Teachers
-      </button>
-
-      <button onclick="nav('approvals')">
-        <span class="material-icons">pending</span> Approvals
-      </button>
-
-      <button onclick="nav('settings')">
-        <span class="material-icons">settings</span> Settings
-      </button>
-
-      <button class="logout" onclick="logout()">
-        <span class="material-icons">logout</span> Logout
-      </button>
-    </nav>
+    <button onclick="nav('dashboard')">Dashboard</button>
+    <button onclick="nav('classes')">Classes</button>
+    <button onclick="nav('teachers')">Teachers</button>
+    <button onclick="nav('approvals')">Approvals</button>
+    <button onclick="nav('settings')">Settings</button>
+    <button class="logout" onclick="logout()">Logout</button>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <main class="content">
 
     <!-- DASHBOARD -->
@@ -64,19 +38,12 @@
       <h1>Dashboard</h1>
 
       <div class="cards">
-        <div class="card">
-          <h3>Classes</h3>
-          <span id="classCount">0</span>
-        </div>
-
-        <div class="card">
-          <h3>Teachers</h3>
-          <span id="teacherCount">0</span>
-        </div>
-
-        <div class="card">
-          <h3>Students</h3>
-          <span id="studentCount">0</span>
+        <div class="card"><h3>Classes</h3><span id="classCount">0</span></div>
+        <div class="card"><h3>Teachers</h3><span id="teacherCount">0</span></div>
+        <div class="card"><h3>Students</h3><span id="studentCount">0</span></div>
+        <div class="card analytics">
+          <h3>Attendance Rule</h3>
+          <span><span id="attendancePercent">75</span>%</span>
         </div>
       </div>
     </section>
@@ -84,21 +51,17 @@
     <!-- CLASSES -->
     <section id="classes" class="page">
       <h1>Classes</h1>
-
       <div class="form-row">
-        <input id="className" placeholder="Class name (eg. FY BCA)">
-        <button onclick="addClass()">Add Class</button>
+        <input id="className" placeholder="Class name">
+        <button onclick="addClass()">Add</button>
       </div>
-
       <ul id="classList" class="list"></ul>
     </section>
 
     <!-- TEACHERS -->
     <section id="teachers" class="page">
       <h1>Teachers</h1>
-
-      <button onclick="addTeacher()">➕ Add Teacher</button>
-
+      <button onclick="addTeacher()">+ Add Teacher</button>
       <ul id="teacherList" class="list"></ul>
     </section>
 
@@ -111,11 +74,9 @@
     <!-- SETTINGS -->
     <section id="settings" class="page">
       <h1>Settings</h1>
-
-      <div class="form-row">
-        <input id="minAttendance" type="number" placeholder="Minimum Attendance %">
-        <button onclick="saveSettings()">Save</button>
-      </div>
+      <label>Minimum Attendance (%)</label>
+      <input id="minAttendance" type="number">
+      <button onclick="saveSettings()">Save</button>
     </section>
 
   </main>
@@ -139,15 +100,15 @@
 
 <!-- FIREBASE CONFIG -->
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-    authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-    databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-    projectId: "smart-attendance-system-17e89",
-    storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
-    messagingSenderId: "168700970246",
-    appId: "1:168700970246:web:392156387db81e92544a87"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
+  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
+  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
+  projectId: "smart-attendance-system-17e89",
+  storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
+  messagingSenderId: "168700970246",
+  appId: "1:168700970246:web:392156387db81e92544a87"
+};
 </script>
 
 <script src="admin.js"></script>
