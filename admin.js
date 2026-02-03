@@ -138,15 +138,80 @@ function addClass() {
 }
 
 function openClassPanel(id) {
-  db.ref("classes/" + id).once("value").then(snap => {
-    const c = snap.val();
-    classPanel.innerHTML = `
-      <h2>${c.name}</h2>
-      <p class="muted">Subjects & Students overview</p>
-      <pre>${JSON.stringify(c, null, 2)}</pre>
-      <button onclick="closePanel('classPanel')">Close</button>
-    `;
-    openPanel("classPanel");
+  db.ref("classes/" + id).once("value").then(classSnap => {
+    const c = classSnap.val();
+
+    db.ref("users").once("value").then(userSnap => {
+      const users = userSnap.val() || {};
+
+      /* SUBJECTS */
+      let subjectRows = "";
+      if (c.subjects) {
+        Object.values(c.subjects).forEach(s => {
+          const teacher = users[s.teacherId];
+          subjectRows += `
+            <tr>
+              <td>${s.name}</td>
+              <td>${teacher ? teacher.name : "Unassigned"}</td>
+            </tr>`;
+        });
+      } else {
+        subjectRows = `<tr><td colspan="2">No subjects</td></tr>`;
+      }
+
+      /* STUDENTS */
+      let studentRows = "";
+      if (c.students) {
+        Object.values(c.students).forEach(st => {
+          studentRows += `
+            <tr>
+              <td>${st.roll}</td>
+              <td>${st.name}</td>
+            </tr>`;
+        });
+      } else {
+        studentRows = `<tr><td colspan="2">No students</td></tr>`;
+      }
+
+      classPanel.innerHTML = `
+        <div class="panel-header">
+          <h2>${c.name}</h2>
+          <button class="close-btn" onclick="closePanel('classPanel')">✕</button>
+        </div>
+
+        <div class="panel-section">
+          <h3>📘 Subjects</h3>
+          <table class="panel-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Teacher</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${subjectRows}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel-section">
+          <h3>👨‍🎓 Students</h3>
+          <table class="panel-table">
+            <thead>
+              <tr>
+                <th>Roll</th>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${studentRows}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      openPanel("classPanel");
+    });
   });
 }
 
