@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase v8 (required by your JS) -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -19,95 +19,51 @@
 
 <body>
 
-<!-- MOBILE MENU BUTTON -->
 <button class="menu-btn" onclick="toggleSidebar()">
   <span class="material-icons">menu</span>
 </button>
 
 <div class="layout">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <h2 class="logo">Admin Panel</h2>
+  <aside class="sidebar" id="sidebar">
+    <h2 class="logo">Admin</h2>
 
     <nav>
-      <button onclick="nav('dashboard')">
-        <span class="material-icons">dashboard</span>
-        Dashboard
-      </button>
-
-      <button onclick="nav('classes')">
-        <span class="material-icons">school</span>
-        Classes
-      </button>
-
-      <button onclick="nav('teachers')">
-        <span class="material-icons">person</span>
-        Teachers
-      </button>
-
-      <button onclick="nav('approvals')">
-        <span class="material-icons">pending_actions</span>
-        Approvals
-      </button>
-
-      <button onclick="nav('settings')">
-        <span class="material-icons">settings</span>
-        Settings
-      </button>
-
-      <button class="logout" onclick="logout()">
-        <span class="material-icons">logout</span>
-        Logout
-      </button>
+      <button onclick="nav('dashboard')"><span class="material-icons">dashboard</span>Dashboard</button>
+      <button onclick="nav('classes')"><span class="material-icons">school</span>Classes</button>
+      <button onclick="nav('teachers')"><span class="material-icons">person</span>Teachers</button>
+      <button onclick="nav('approvals')"><span class="material-icons">pending</span>Approvals</button>
+      <button onclick="nav('settings')"><span class="material-icons">settings</span>Settings</button>
+      <button class="logout" onclick="logout()"><span class="material-icons">logout</span>Logout</button>
     </nav>
   </aside>
 
-  <!-- MAIN CONTENT -->
-  <main class="content" onclick="closeSidebar()">
+  <main class="content">
 
     <!-- DASHBOARD -->
     <section id="dashboard" class="page active">
       <h1>Dashboard</h1>
-
       <div class="cards">
-        <div class="card">
-          <h3>Classes</h3>
-          <span id="classCount">0</span>
-        </div>
-
-        <div class="card">
-          <h3>Teachers</h3>
-          <span id="teacherCount">0</span>
-        </div>
-
-        <div class="card">
-          <h3>Students</h3>
-          <span id="studentCount">0</span>
-        </div>
+        <div class="card"><h3>Classes</h3><span id="classCount">0</span></div>
+        <div class="card"><h3>Teachers</h3><span id="teacherCount">0</span></div>
+        <div class="card"><h3>Students</h3><span id="studentCount">0</span></div>
       </div>
     </section>
 
     <!-- CLASSES -->
     <section id="classes" class="page">
       <h1>Classes</h1>
-
       <div class="form-row">
-        <input id="className" placeholder="Enter class name">
-        <button onclick="addClass()">Add Class</button>
+        <input id="className" placeholder="Class name">
+        <button onclick="addClass()">Add</button>
       </div>
-
       <ul id="classList" class="list"></ul>
     </section>
 
     <!-- TEACHERS -->
     <section id="teachers" class="page">
       <h1>Teachers</h1>
-
-      <div class="form-row">
-        <button onclick="addTeacher()">➕ Add Teacher</button>
-      </div>
-
+      <button onclick="addTeacher()">➕ Add Teacher</button>
       <ul id="teacherList" class="list"></ul>
     </section>
 
@@ -120,28 +76,22 @@
     <!-- SETTINGS -->
     <section id="settings" class="page">
       <h1>Settings</h1>
-
-      <div class="card">
-        <h3>Minimum Attendance (%)</h3>
-        <p class="muted">
-          Students below this percentage will be marked as low attendance.
-        </p>
-
-        <div class="form-row">
-          <input id="minAttendance" type="number" min="0" max="100">
-          <button onclick="saveSettings()">Save</button>
-        </div>
-      </div>
+      <label>Minimum Attendance %</label>
+      <input id="minAttendance" type="number">
+      <button onclick="saveSettings()">Save</button>
     </section>
 
   </main>
 </div>
 
-<!-- SLIDE PANELS -->
+<!-- PANELS -->
 <div id="classPanel" class="panel"></div>
 <div id="teacherProfile" class="panel"></div>
 
-<!-- CONFIRM MODAL -->
+<!-- PANEL OVERLAY -->
+<div class="panel-overlay" id="panelOverlay" onclick="closeAllPanels()"></div>
+
+<!-- MODAL -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
@@ -153,8 +103,8 @@
   </div>
 </div>
 
-<!-- JS -->
-  <script>
+<!-- FIREBASE CONFIG -->
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
     authDomain: "smart-attendance-system-17e89.firebaseapp.com",
@@ -168,4 +118,4 @@
 
 <script src="admin.js"></script>
 </body>
-</html>
+  </html>
