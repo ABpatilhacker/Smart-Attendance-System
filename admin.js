@@ -136,82 +136,51 @@ function addClass() {
     toast("Class added ✅");
   });
 }
+function openClassPanel(classId) {
+  Promise.all([
+    db.ref("classes/" + classId).once("value"),
+    db.ref("users").once("value")
+  ]).then(([classSnap, userSnap]) => {
 
-function openClassPanel(id) {
-  db.ref("classes/" + id).once("value").then(classSnap => {
-    const c = classSnap.val();
+    const cls = classSnap.val();
+    const users = userSnap.val();
 
-    db.ref("users").once("value").then(userSnap => {
-      const users = userSnap.val() || {};
+    // teachers list
+    const teachers = Object.entries(users)
+      .filter(([_, u]) => u.role === "teacher" && u.approved);
 
-      /* SUBJECTS */
-      let subjectRows = "";
-      if (c.subjects) {
-        Object.values(c.subjects).forEach(s => {
-          const teacher = users[s.teacherId];
-          subjectRows += `
-            <tr>
-              <td>${s.name}</td>
-              <td>${teacher ? teacher.name : "Unassigned"}</td>
-            </tr>`;
-        });
-      } else {
-        subjectRows = `<tr><td colspan="2">No subjects</td></tr>`;
-      }
+    let subjectHTML = "";
 
-      /* STUDENTS */
-      let studentRows = "";
-      if (c.students) {
-        Object.values(c.students).forEach(st => {
-          studentRows += `
-            <tr>
-              <td>${st.roll}</td>
-              <td>${st.name}</td>
-            </tr>`;
-        });
-      } else {
-        studentRows = `<tr><td colspan="2">No students</td></tr>`;
-      }
+    Object.entries(cls.subjects || {}).forEach(([subKey, sub]) => {
+      let options = `<option value="">Unassigned</option>`;
 
-      classPanel.innerHTML = `
-        <div class="panel-header">
-          <h2>${c.name}</h2>
-          <button class="close-btn" onclick="closePanel('classPanel')">✕</button>
-        </div>
+      teachers.forEach(([tid, t]) => {
+        options += `
+          <option value="${tid}" ${sub.teacherId === tid ? "selected" : ""}>
+            ${t.name}
+          </option>`;
+      });
 
-        <div class="panel-section">
-          <h3>📘 Subjects</h3>
-          <table class="panel-table">
-            <thead>
-              <tr>
-                <th>Subject</th>
-                <th>Teacher</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${subjectRows}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="panel-section">
-          <h3>👨‍🎓 Students</h3>
-          <table class="panel-table">
-            <thead>
-              <tr>
-                <th>Roll</th>
-                <th>Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${studentRows}
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      openPanel("classPanel");
+      subjectHTML += `
+        <div class="subject-card">
+          <h4>${sub.name}</h4>
+          <select id="assign-${subKey}">
+            ${options}
+          </select>
+          <button onclick="assignSubject('${classId}','${subKey}')">
+            Assign Teacher
+          </button>
+        </div>`;
     });
+
+    classPanel.innerHTML = `
+      <h2>${cls.name}</h2>
+      <p class="muted">Assign subjects to teachers</p>
+      ${subjectHTML || "<p>No subjects found</p>"}
+      <button onclick="closePanel('classPanel')">Close</button>
+    `;
+
+    openPanel("classPanel");
   });
 }
 
