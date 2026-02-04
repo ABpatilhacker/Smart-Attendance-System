@@ -385,3 +385,10 @@ function toast(msg) {
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3000);
 }
+function assignSubject(classId, subjectKey) {
+  const teacherId = document.getElementById("assign-" + subjectKey).value;
+
+  db.ref(`classes/${classId}/subjects/${subjectKey}`)
+    .update({ teacherId })
+    .then(() => toast("Subject assigned ✅"));
+}
