@@ -1,288 +1,288 @@
 /* ===============================
-   🌈 ROOT VARIABLES
+   ROOT & RESET
 ================================ */
 :root {
-  --bg1: #020617;
-  --bg2: #0f172a;
-  --glass: rgba(255,255,255,0.12);
-  --border: rgba(255,255,255,0.25);
-  --accent: #38bdf8;
-  --accent2: #22c55e;
+  --bg-dark: #020617;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --accent: #22d3ee;
+  --accent-2: #22c55e;
   --danger: #ef4444;
-  --text: #e5e7eb;
-  --muted: #94a3b8;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --blur: blur(14px);
 }
 
-/* ===============================
-   🔄 RESET
-================================ */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", system-ui;
+  font-family: "Poppins", system-ui, sans-serif;
 }
 
 body {
+  background: radial-gradient(circle at top, #020617, #000);
+  color: var(--text-main);
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--bg1), var(--bg2));
-  color: var(--text);
   overflow-x: hidden;
 }
 
 /* ===============================
-   🍔 HAMBURGER ICON
+   TOP BAR
+================================ */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: linear-gradient(90deg, #020617, #020617aa);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.topbar h1 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* ===============================
+   HAMBURGER
 ================================ */
 .hamburger {
-  width: 36px;
+  width: 34px;
   height: 26px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
-  z-index: 1200;
 }
+
 .hamburger span {
   height: 4px;
   width: 100%;
-  background: var(--text);
-  border-radius: 6px;
-  transition: 0.4s ease;
+  background: white;
+  border-radius: 10px;
+  transition: 0.3s;
 }
 
-.sidebar.active ~ .topbar .hamburger span:nth-child(1) {
-  transform: rotate(45deg) translate(7px,7px);
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translateY(11px);
 }
-.sidebar.active ~ .topbar .hamburger span:nth-child(2) {
+
+.hamburger.active span:nth-child(2) {
   opacity: 0;
 }
-.sidebar.active ~ .topbar .hamburger span:nth-child(3) {
-  transform: rotate(-45deg) translate(7px,-7px);
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translateY(-11px);
 }
 
 /* ===============================
-   🧊 SIDEBAR (GLASS)
+   SIDEBAR
 ================================ */
 .sidebar {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 260px;
-  height: 100%;
-  background: var(--glass);
-  backdrop-filter: blur(18px);
-  border-right: 1px solid var(--border);
+  inset: 0 auto 0 0;
+  width: 250px;
+  background: rgba(2, 6, 23, 0.95);
+  backdrop-filter: var(--blur);
+  border-right: 1px solid var(--glass-border);
   padding: 20px;
   transform: translateX(-100%);
-  transition: 0.45s ease;
-  z-index: 1000;
+  transition: 0.35s ease;
+  z-index: 999;
 }
+
 .sidebar.active {
   transform: translateX(0);
 }
 
-.sidebar h2 {
-  font-size: 22px;
-  margin-bottom: 25px;
-}
-
 .sidebar button {
   width: 100%;
-  margin-bottom: 12px;
   padding: 12px;
+  margin-bottom: 10px;
   background: transparent;
-  border: none;
-  color: var(--text);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
   border-radius: 14px;
   cursor: pointer;
-  text-align: left;
-  transition: 0.3s;
+  transition: 0.25s;
 }
+
 .sidebar button:hover {
-  background: rgba(255,255,255,0.18);
+  background: var(--glass-bg);
+  transform: translateX(6px);
 }
 
 /* ===============================
-   🔝 TOP BAR
-================================ */
-.topbar {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0 20px;
-}
-
-/* ===============================
-   📄 MAIN CONTENT
+   MAIN CONTENT
 ================================ */
 .main {
   padding: 20px;
-  animation: fadeIn 0.6s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity:0; transform: translateY(12px); }
-  to { opacity:1; transform: translateY(0); }
 }
 
 /* ===============================
-   📊 DASHBOARD STATS
+   GLASS CARD
+================================ */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* ===============================
+   STATS
 ================================ */
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
-  gap: 18px;
-  margin-bottom: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .stat {
-  background: var(--glass);
-  backdrop-filter: blur(18px);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 20px;
   transition: 0.3s;
 }
+
 .stat:hover {
-  transform: translateY(-6px);
+  transform: translateY(-6px) scale(1.02);
 }
 
 .stat h3 {
-  font-size: 14px;
-  color: var(--muted);
+  color: var(--text-muted);
+  font-size: 15px;
 }
+
 .stat span {
-  font-size: 32px;
-  font-weight: bold;
+  font-size: 36px;
+  font-weight: 700;
 }
 
 /* ===============================
-   📊 ATTENDANCE CHART
+   ATTENDANCE BAR
 ================================ */
-.chart-container {
-  background: var(--glass);
-  backdrop-filter: blur(18px);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 20px;
-  margin-bottom: 25px;
+.attendance h3 {
+  margin-bottom: 12px;
+}
+
+.chart-bg {
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  height: 14px;
+  overflow: hidden;
 }
 
 .chart-bar {
-  height: 16px;
-  border-radius: 12px;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  animation: chartGrow 1.2s ease forwards;
-  width: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  animation: fillBar 1.5s ease forwards;
 }
 
-@keyframes chartGrow {
-  to { width: 100%; }
+@keyframes fillBar {
+  to { width: 78%; }
 }
 
 /* ===============================
-   📋 LISTS
+   CLASSES
 ================================ */
-ul {
-  list-style: none;
+.section-title {
+  margin: 26px 0 14px;
+  font-size: 22px;
 }
-li {
-  background: var(--glass);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 14px;
-  margin-bottom: 12px;
+
+.class-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.class-form input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  outline: none;
+}
+
+.class-form button {
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: none;
+  background: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.class-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
 }
 
-/* ===============================
-   🎯 BUTTONS
-================================ */
-button {
-  padding: 10px 16px;
-  border-radius: 14px;
+.actions button {
+  margin-left: 6px;
+  padding: 8px 14px;
+  border-radius: 12px;
   border: none;
-  background: linear-gradient(135deg, var(--accent), #0ea5e9);
-  color: #000;
   cursor: pointer;
-  transition: 0.3s;
-}
-button:hover {
-  transform: scale(1.06);
+  font-size: 14px;
 }
 
-button.danger {
-  background: linear-gradient(135deg, var(--danger), #dc2626);
-  color: #fff;
+.actions .view {
+  background: var(--accent);
 }
 
-/* ===============================
-   🧊 PANELS / MODALS
-================================ */
-.panel {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.4s;
-  z-index: 2000;
-}
-.panel.active-panel {
-  opacity: 1;
-  pointer-events: auto;
+.actions .edit {
+  background: #38bdf8;
 }
 
-.panel > div {
-  width: 92%;
-  max-width: 420px;
-  background: var(--glass);
-  backdrop-filter: blur(22px);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 22px;
-  animation: pop 0.4s ease;
-}
-
-@keyframes pop {
-  from { transform: scale(0.85); opacity:0; }
-  to { transform: scale(1); opacity:1; }
+.actions .delete {
+  background: var(--danger);
 }
 
 /* ===============================
-   🔔 TOAST
+   TOAST
 ================================ */
 .toast {
   position: fixed;
-  bottom: 22px;
-  right: 22px;
-  background: linear-gradient(135deg, var(--accent2), #16a34a);
-  color: #000;
-  padding: 14px 22px;
-  border-radius: 18px;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 20px;
+  background: rgba(15,23,42,0.95);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
   animation: toastIn 0.4s ease;
-  z-index: 3000;
+  z-index: 9999;
 }
 
 @keyframes toastIn {
-  from { transform: translateY(20px); opacity:0; }
-  to { transform: translateY(0); opacity:1; }
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* ===============================
-   📱 RESPONSIVE
+   MOBILE OPTIMIZATION
 ================================ */
-@media (min-width: 768px) {
-  .sidebar {
-    transform: translateX(0);
+@media (max-width: 768px) {
+  .stat span {
+    font-size: 28px;
   }
-  body {
-    padding-left: 260px;
+
+  .glass {
+    padding: 16px;
   }
-     }
+
+  .actions button {
+    padding: 7px 12px;
+  }
+}
