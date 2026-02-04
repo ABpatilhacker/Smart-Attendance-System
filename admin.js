@@ -392,3 +392,16 @@ function assignSubject(classId, subjectKey) {
     .update({ teacherId })
     .then(() => toast("Subject assigned ✅"));
 }
+function closeAnyPanel(){
+  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active-panel"));
+  document.body.classList.remove("panel-open");
+}
+
+/* enhanced toast */
+function toast(msg){
+  const t=document.createElement("div");
+  t.className="toast";
+  t.innerText=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
