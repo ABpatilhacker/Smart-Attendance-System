@@ -5,103 +5,115 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard</title>
 
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <!-- CSS -->
   <link rel="stylesheet" href="admin.css" />
-
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<!-- ================= TOP BAR ================= -->
-<div class="topbar">
-  <div class="hamburger" onclick="toggleSidebar(this)">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-  <h1>Admin Dashboard</h1>
-</div>
-
 <!-- ================= SIDEBAR ================= -->
-<div class="sidebar">
-  <button onclick="showSection('dashboard')">🏠 Dashboard</button>
-  <button onclick="showSection('classes')">🏫 Classes</button>
-  <button onclick="showSection('assign')">🎯 Assign Subject</button>
-  <button onclick="logout()">🚪 Logout</button>
-</div>
+<aside class="sidebar">
+  <h2 class="logo">Admin</h2>
+
+  <nav>
+    <button onclick="nav('dashboard')">Dashboard</button>
+    <button onclick="nav('classes')">Classes</button>
+    <button onclick="nav('teachers')">Teachers</button>
+    <button onclick="nav('approvals')">Approvals</button>
+    <button onclick="nav('settings')">Settings</button>
+    <button class="danger" onclick="logout()">Logout</button>
+  </nav>
+</aside>
+
+<!-- ================= TOP BAR ================= -->
+<header class="topbar">
+  <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  <h1>Admin Dashboard</h1>
+</header>
 
 <!-- ================= MAIN ================= -->
-<div class="main">
+<main class="content">
 
   <!-- ===== DASHBOARD ===== -->
-  <section id="dashboard">
-
+  <section id="dashboard" class="page active">
     <div class="stats">
-      <div class="glass stat">
+      <div class="card">
         <h3>Classes</h3>
-        <span id="classCount">0</span>
+        <p id="classCount">0</p>
       </div>
-
-      <div class="glass stat">
+      <div class="card">
         <h3>Teachers</h3>
-        <span id="teacherCount">0</span>
+        <p id="teacherCount">0</p>
       </div>
-
-      <div class="glass stat">
+      <div class="card">
         <h3>Students</h3>
-        <span id="studentCount">0</span>
+        <p id="studentCount">0</p>
+      </div>
+      <div class="card">
+        <h3>Attendance Overview</h3>
+        <div class="progress">
+          <div class="bar"></div>
+        </div>
       </div>
     </div>
-
-    <div class="glass attendance">
-      <h3>Attendance Overview</h3>
-      <div class="chart-bg">
-        <div class="chart-bar" id="attendanceBar"></div>
-      </div>
-    </div>
-
   </section>
 
   <!-- ===== CLASSES ===== -->
-  <section id="classes" style="display:none">
+  <section id="classes" class="page">
+    <h2>Classes</h2>
 
-    <h2 class="section-title">Classes</h2>
-
-    <div class="class-form">
-      <input type="text" id="classNameInput" placeholder="Enter class name" />
+    <div class="add-row">
+      <input id="className" placeholder="Enter class name" />
       <button onclick="addClass()">Add Class</button>
     </div>
 
-    <div id="classList">
-      <!-- Class cards added dynamically -->
-    </div>
-
+    <ul id="classList" class="list"></ul>
   </section>
 
-  <!-- ===== SUBJECT → TEACHER ASSIGN ===== -->
-  <section id="assign" style="display:none">
-
-    <h2 class="section-title">Assign Subject → Teacher</h2>
-
-    <div class="glass">
-      <div class="class-form">
-        <input type="text" id="subjectInput" placeholder="Subject name">
-        <input type="text" id="teacherInput" placeholder="Teacher name">
-        <button onclick="assignSubject()">Assign</button>
-      </div>
-
-      <div id="assignmentList">
-        <!-- Assignment rows -->
-      </div>
-    </div>
-
+  <!-- ===== TEACHERS ===== -->
+  <section id="teachers" class="page">
+    <h2>Teachers</h2>
+    <button onclick="addTeacher()">+ Add Teacher</button>
+    <ul id="teacherList" class="list"></ul>
   </section>
 
+  <!-- ===== APPROVALS ===== -->
+  <section id="approvals" class="page">
+    <h2>Pending Approvals</h2>
+    <ul id="pendingList" class="list"></ul>
+  </section>
+
+  <!-- ===== SETTINGS ===== -->
+  <section id="settings" class="page">
+    <h2>Settings</h2>
+
+    <label>Minimum Attendance (%)</label>
+    <input id="minAttendance" type="number" min="0" max="100" />
+    <button onclick="saveSettings()">Save</button>
+  </section>
+
+</main>
+
+<!-- ================= PANELS ================= -->
+<div id="classPanel" class="panel"></div>
+<div id="teacherProfile" class="panel"></div>
+
+<!-- ================= MODAL ================= -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+    <p id="modalText"></p>
+    <div class="actions">
+      <button id="modalOk">Confirm</button>
+      <button onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
 </div>
-
-<!-- ================= TOAST ================= -->
-<div id="toastContainer"></div>
 
 <!-- ================= FIREBASE CONFIG ================= -->
 <script>
@@ -116,23 +128,8 @@
   };
 </script>
 
-<!-- ================= JS ================= -->
+<!-- JS -->
 <script src="admin.js"></script>
-
-<!-- ================= UI JS ================= -->
-<script>
-  function toggleSidebar(el) {
-    document.querySelector(".sidebar").classList.toggle("active");
-    el.classList.toggle("active");
-  }
-
-  function showSection(id) {
-    document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
-    document.getElementById(id).style.display = "block";
-    document.querySelector(".sidebar").classList.remove("active");
-    document.querySelector(".hamburger").classList.remove("active");
-  }
-</script>
 
 </body>
 </html>
