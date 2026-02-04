@@ -1,54 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-  <!-- Icons -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
-  <link rel="stylesheet" href="admin.css">
-</head>
-<body>
-
-<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+<button class="menu-btn" onclick="toggleSidebar()">
+  <span class="material-icons">menu</span>
+</button>
 
 <div class="layout">
 
   <aside class="sidebar">
     <h2 class="logo">Admin</h2>
-    <button onclick="nav('dashboard')">Dashboard</button>
-    <button onclick="nav('classes')">Classes</button>
-    <button onclick="nav('teachers')">Teachers</button>
-    <button onclick="nav('approvals')">Approvals</button>
-    <button onclick="nav('settings')">Settings</button>
-    <button class="logout" onclick="logout()">Logout</button>
+    <nav>
+      <button onclick="nav('dashboard')">📊 Dashboard</button>
+      <button onclick="nav('classes')">🏫 Classes</button>
+      <button onclick="nav('teachers')">👨‍🏫 Teachers</button>
+      <button onclick="nav('approvals')">⏳ Approvals</button>
+      <button onclick="nav('settings')">⚙️ Settings</button>
+      <button class="logout" onclick="logout()">🚪 Logout</button>
+    </nav>
   </aside>
 
-  <main class="content">
+  <main class="content" onclick="closeSidebar()">
 
-    <!-- DASHBOARD -->
     <section id="dashboard" class="page active">
       <h1>Dashboard</h1>
-
       <div class="cards">
         <div class="card"><h3>Classes</h3><span id="classCount">0</span></div>
         <div class="card"><h3>Teachers</h3><span id="teacherCount">0</span></div>
         <div class="card"><h3>Students</h3><span id="studentCount">0</span></div>
-        <div class="card analytics">
-          <h3>Attendance Rule</h3>
-          <span><span id="attendancePercent">75</span>%</span>
-        </div>
       </div>
     </section>
 
-    <!-- CLASSES -->
     <section id="classes" class="page">
       <h1>Classes</h1>
       <div class="form-row">
@@ -58,59 +36,26 @@
       <ul id="classList" class="list"></ul>
     </section>
 
-    <!-- TEACHERS -->
     <section id="teachers" class="page">
       <h1>Teachers</h1>
       <button onclick="addTeacher()">+ Add Teacher</button>
       <ul id="teacherList" class="list"></ul>
     </section>
 
-    <!-- APPROVALS -->
     <section id="approvals" class="page">
-      <h1>Pending Approvals</h1>
+      <h1>Approvals</h1>
       <ul id="pendingList" class="list"></ul>
     </section>
 
-    <!-- SETTINGS -->
     <section id="settings" class="page">
       <h1>Settings</h1>
-      <label>Minimum Attendance (%)</label>
-      <input id="minAttendance" type="number">
+      <input id="minAttendance">
       <button onclick="saveSettings()">Save</button>
     </section>
 
   </main>
 </div>
 
-<!-- PANELS -->
+<div class="panel-backdrop" onclick="closeAnyPanel()"></div>
 <div id="classPanel" class="panel"></div>
 <div id="teacherProfile" class="panel"></div>
-
-<!-- MODAL -->
-<div id="modal" class="modal">
-  <div class="modal-box">
-    <h3 id="modalTitle"></h3>
-    <p id="modalText"></p>
-    <div class="modal-actions">
-      <button onclick="closeModal()">Cancel</button>
-      <button id="modalOk" class="danger">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<!-- FIREBASE CONFIG -->
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-  projectId: "smart-attendance-system-17e89",
-  storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
-  messagingSenderId: "168700970246",
-  appId: "1:168700970246:web:392156387db81e92544a87"
-};
-</script>
-
-<script src="admin.js"></script>
-</body>
-</html>
