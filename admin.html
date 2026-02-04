@@ -1,61 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ☰ MOBILE MENU -->
 <button class="menu-btn" onclick="toggleSidebar()">
   <span class="material-icons">menu</span>
 </button>
 
 <div class="layout">
 
+  <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar">
-    <h2 class="logo">Admin</h2>
+    <div class="logo">Admin</div>
+
     <nav>
-      <button onclick="nav('dashboard')">📊 Dashboard</button>
-      <button onclick="nav('classes')">🏫 Classes</button>
-      <button onclick="nav('teachers')">👨‍🏫 Teachers</button>
-      <button onclick="nav('approvals')">⏳ Approvals</button>
-      <button onclick="nav('settings')">⚙️ Settings</button>
-      <button class="logout" onclick="logout()">🚪 Logout</button>
+      <button onclick="nav('dashboard')">
+        <span class="material-icons">dashboard</span> Dashboard
+      </button>
+      <button onclick="nav('classes')">
+        <span class="material-icons">school</span> Classes
+      </button>
+      <button onclick="nav('teachers')">
+        <span class="material-icons">person</span> Teachers
+      </button>
+      <button onclick="nav('approvals')">
+        <span class="material-icons">how_to_reg</span> Approvals
+      </button>
+      <button onclick="nav('settings')">
+        <span class="material-icons">settings</span> Settings
+      </button>
+
+      <button class="logout" onclick="logout()">
+        <span class="material-icons">logout</span> Logout
+      </button>
     </nav>
   </aside>
 
-  <main class="content" onclick="closeSidebar()">
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="content">
 
+    <!-- DASHBOARD -->
     <section id="dashboard" class="page active">
       <h1>Dashboard</h1>
+
       <div class="cards">
-        <div class="card"><h3>Classes</h3><span id="classCount">0</span></div>
-        <div class="card"><h3>Teachers</h3><span id="teacherCount">0</span></div>
-        <div class="card"><h3>Students</h3><span id="studentCount">0</span></div>
+        <div class="card">
+          <h3>Classes</h3>
+          <span id="classCount">0</span>
+        </div>
+        <div class="card">
+          <h3>Teachers</h3>
+          <span id="teacherCount">0</span>
+        </div>
+        <div class="card">
+          <h3>Students</h3>
+          <span id="studentCount">0</span>
+        </div>
       </div>
     </section>
 
+    <!-- CLASSES -->
     <section id="classes" class="page">
       <h1>Classes</h1>
+
       <div class="form-row">
         <input id="className" placeholder="Class name">
         <button onclick="addClass()">Add</button>
       </div>
+
       <ul id="classList" class="list"></ul>
     </section>
 
+    <!-- TEACHERS -->
     <section id="teachers" class="page">
       <h1>Teachers</h1>
       <button onclick="addTeacher()">+ Add Teacher</button>
+
       <ul id="teacherList" class="list"></ul>
     </section>
 
+    <!-- APPROVALS -->
     <section id="approvals" class="page">
       <h1>Approvals</h1>
       <ul id="pendingList" class="list"></ul>
     </section>
 
+    <!-- SETTINGS -->
     <section id="settings" class="page">
       <h1>Settings</h1>
-      <input id="minAttendance">
-      <button onclick="saveSettings()">Save</button>
+
+      <div class="form-row">
+        <input id="minAttendance" type="number" min="0" max="100">
+        <button onclick="saveSettings()">Save</button>
+      </div>
     </section>
 
   </main>
 </div>
 
-<div class="panel-backdrop" onclick="closeAnyPanel()"></div>
+<!-- ===== PANELS ===== -->
 <div id="classPanel" class="panel"></div>
 <div id="teacherProfile" class="panel"></div>
+
+<!-- ===== MODAL ===== -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle"></h3>
+    <p id="modalText"></p>
+    <div class="modal-actions">
+      <button onclick="closeModal()">Cancel</button>
+      <button id="modalOk" class="danger">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FIREBASE ===== -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
+    authDomain: "smart-attendance-system-17e89.firebaseapp.com",
+    databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
+    projectId: "smart-attendance-system-17e89",
+    storageBucket: "smart-attendance-system-17e89.appspot.com",
+    messagingSenderId: "168700970246",
+    appId: "1:168700970246:web:392156387db81e92544a87"
+  };
+</script>
+
+<!-- MAIN JS -->
+<script src="admin.js"></script>
+
+</body>
+</html>
