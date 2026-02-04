@@ -180,3 +180,40 @@ body {
   transform: translateX(50%);
   max-width: 90%;
 }
+/* 🎯 SUBJECT ASSIGN CARD */
+.subject-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(14px);
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.subject-card h4 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.subject-card select {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: rgba(255,255,255,0.9);
+  font-size: 14px;
+}
+
+.subject-card button {
+  align-self: flex-end;
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg,#6a5cff,#9f8bff);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+}
