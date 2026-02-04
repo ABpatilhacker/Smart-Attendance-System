@@ -36,24 +36,21 @@ function logout() {
 /***********************
  📊 DASHBOARD
 ************************/
-function loadDashboard() {
-  db.ref("classes").on("value", s => {
-    classCount.innerText = s.numChildren();
-  });
+db.ref("classes").on("value", s => {
+  animateCount(classCount, s.numChildren());
+});
 
-  db.ref("users").on("value", s => {
-    let t = 0, st = 0;
-    s.forEach(u => {
-      if (u.val().approved) {
-        if (u.val().role === "teacher") t++;
-        if (u.val().role === "student") st++;
-      }
-    });
-    teacherCount.innerText = t;
-    studentCount.innerText = st;
+db.ref("users").on("value", s => {
+  let t = 0, st = 0;
+  s.forEach(u => {
+    if (u.val().approved) {
+      if (u.val().role === "teacher") t++;
+      if (u.val().role === "student") st++;
+    }
   });
-}
-
+  animateCount(teacherCount, t);
+  animateCount(studentCount, st);
+});
 /***********************
  🟡 APPROVALS
 ************************/
@@ -323,4 +320,19 @@ function toast(msg) {
   t.innerText = msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3200);
+}
+function animateCount(el, target) {
+  let start = 0;
+  const duration = 800;
+  const step = Math.max(1, Math.floor(target / 40));
+
+  const timer = setInterval(() => {
+    start += step;
+    if (start >= target) {
+      el.innerText = target;
+      clearInterval(timer);
+    } else {
+      el.innerText = start;
+    }
+  }, duration / (target / step));
 }
