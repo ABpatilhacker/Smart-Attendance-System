@@ -2,125 +2,106 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-  <!-- Icons -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <title>Admin Dashboard</title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="admin.css">
-</head>
+  <link rel="stylesheet" href="admin.css" />
 
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
 <body>
 
 <!-- ================= TOP BAR ================= -->
 <div class="topbar">
-  <div class="hamburger" onclick="toggleSidebar()">
+  <div class="hamburger" onclick="toggleSidebar(this)">
     <span></span>
     <span></span>
     <span></span>
   </div>
-  <h2>Admin Dashboard</h2>
+  <h1>Admin Dashboard</h1>
 </div>
 
 <!-- ================= SIDEBAR ================= -->
 <div class="sidebar">
-  <h2>Admin</h2>
-  <button onclick="nav('dashboard')">📊 Dashboard</button>
-  <button onclick="nav('classes')">🏫 Classes</button>
-  <button onclick="nav('teachers')">👨‍🏫 Teachers</button>
-  <button onclick="nav('approvals')">🟡 Approvals</button>
-  <button onclick="nav('settings')">⚙️ Settings</button>
-  <button class="danger" onclick="logout()">🚪 Logout</button>
+  <button onclick="showSection('dashboard')">🏠 Dashboard</button>
+  <button onclick="showSection('classes')">🏫 Classes</button>
+  <button onclick="showSection('assign')">🎯 Assign Subject</button>
+  <button onclick="logout()">🚪 Logout</button>
 </div>
 
 <!-- ================= MAIN ================= -->
 <div class="main">
 
   <!-- ===== DASHBOARD ===== -->
-  <section id="dashboard" class="page active">
+  <section id="dashboard">
+
     <div class="stats">
-      <div class="stat">
+      <div class="glass stat">
         <h3>Classes</h3>
         <span id="classCount">0</span>
       </div>
-      <div class="stat">
+
+      <div class="glass stat">
         <h3>Teachers</h3>
         <span id="teacherCount">0</span>
       </div>
-      <div class="stat">
+
+      <div class="glass stat">
         <h3>Students</h3>
         <span id="studentCount">0</span>
       </div>
     </div>
 
-    <!-- Attendance Chart -->
-    <div class="chart-container">
+    <div class="glass attendance">
       <h3>Attendance Overview</h3>
-      <div class="chart-bar"></div>
+      <div class="chart-bg">
+        <div class="chart-bar" id="attendanceBar"></div>
+      </div>
     </div>
+
   </section>
 
   <!-- ===== CLASSES ===== -->
-  <section id="classes" class="page">
-    <h2>Classes</h2>
+  <section id="classes" style="display:none">
 
-    <div class="form-row">
-      <input id="className" placeholder="Enter class name">
+    <h2 class="section-title">Classes</h2>
+
+    <div class="class-form">
+      <input type="text" id="classNameInput" placeholder="Enter class name" />
       <button onclick="addClass()">Add Class</button>
     </div>
 
-    <ul id="classList"></ul>
-  </section>
-
-  <!-- ===== TEACHERS ===== -->
-  <section id="teachers" class="page">
-    <h2>Teachers</h2>
-
-    <button onclick="addTeacher()">➕ Add Teacher</button>
-
-    <ul id="teacherList"></ul>
-  </section>
-
-  <!-- ===== APPROVALS ===== -->
-  <section id="approvals" class="page">
-    <h2>Pending Approvals</h2>
-    <ul id="pendingList"></ul>
-  </section>
-
-  <!-- ===== SETTINGS ===== -->
-  <section id="settings" class="page">
-    <h2>Settings</h2>
-
-    <label>Minimum Attendance %</label>
-    <input id="minAttendance" type="number" min="0" max="100">
-
-    <button onclick="saveSettings()">Save Settings</button>
-  </section>
-
-</div>
-
-<!-- ================= PANELS ================= -->
-<div id="classPanel" class="panel"></div>
-<div id="teacherProfile" class="panel"></div>
-
-<!-- ================= MODAL ================= -->
-<div id="modal" class="panel">
-  <div>
-    <h3 id="modalTitle"></h3>
-    <p id="modalText"></p>
-    <div style="margin-top:15px;display:flex;gap:10px">
-      <button onclick="closeModal()">Cancel</button>
-      <button id="modalOk" class="danger">Confirm</button>
+    <div id="classList">
+      <!-- Class cards added dynamically -->
     </div>
-  </div>
+
+  </section>
+
+  <!-- ===== SUBJECT → TEACHER ASSIGN ===== -->
+  <section id="assign" style="display:none">
+
+    <h2 class="section-title">Assign Subject → Teacher</h2>
+
+    <div class="glass">
+      <div class="class-form">
+        <input type="text" id="subjectInput" placeholder="Subject name">
+        <input type="text" id="teacherInput" placeholder="Teacher name">
+        <button onclick="assignSubject()">Assign</button>
+      </div>
+
+      <div id="assignmentList">
+        <!-- Assignment rows -->
+      </div>
+    </div>
+
+  </section>
+
 </div>
+
+<!-- ================= TOAST ================= -->
+<div id="toastContainer"></div>
 
 <!-- ================= FIREBASE CONFIG ================= -->
 <script>
@@ -137,6 +118,21 @@
 
 <!-- ================= JS ================= -->
 <script src="admin.js"></script>
+
+<!-- ================= UI JS ================= -->
+<script>
+  function toggleSidebar(el) {
+    document.querySelector(".sidebar").classList.toggle("active");
+    el.classList.toggle("active");
+  }
+
+  function showSection(id) {
+    document.querySelectorAll("section").forEach(sec => sec.style.display = "none");
+    document.getElementById(id).style.display = "block";
+    document.querySelector(".sidebar").classList.remove("active");
+    document.querySelector(".hamburger").classList.remove("active");
+  }
+</script>
 
 </body>
 </html>
