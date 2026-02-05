@@ -253,22 +253,38 @@ input, select {
 }
 
 /* =========================
-   SIDE PANELS (CRITICAL)
+   SIDE PANELS (CLASS / TEACHER)
 ========================= */
 .side-panel {
   position: fixed;
   top: 60px;
-  right: 0;
-  width: 320px;
+  right: -100%;
+  width: 340px;
   max-width: 90%;
   height: calc(100% - 60px);
-  background: #fff;
-  padding: 16px;
-  box-shadow: var(--shadow-lg);
-  transform: translateX(100%);
-  transition: transform .35s ease;
-  z-index: 1001;
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  border-left: 1px solid var(--glass-border);
+  padding: 18px;
+  z-index: 950;
   overflow-y: auto;
+  transition: right 0.35s ease;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+}
+
+.side-panel.active-panel {
+  right: 0;
+}
+
+/* panel headings */
+.side-panel h2,
+.side-panel h3 {
+  margin-bottom: 12px;
+}
+
+.side-panel button {
+  width: 100%;
+  margin-top: 12px;
 }
 
 /* SUPPORT BOTH JS CLASSES */
@@ -297,12 +313,19 @@ input, select {
    SUBJECT CARDS
 ========================= */
 .subject-card {
-  background: #f1f5f9;
+  background: rgba(255,255,255,0.75);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
   padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
+.subject-card h4,
+.subject-card label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  display: block;
+}
 /* =========================
    MODAL
 ========================= */
