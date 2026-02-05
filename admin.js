@@ -320,3 +320,25 @@ function animateCount(el, target) {
     } else el.innerText = start;
   }, 20);
 }
+function editClassPanel(classId) {
+  db.ref("classes/" + classId).once("value").then(snap => {
+    if (!snap.exists()) {
+      toast("Class not found");
+      return;
+    }
+
+    classPanel.innerHTML = `
+      <h2>Edit Class</h2>
+
+      <label>Class Name</label>
+      <input id="editClassName" value="${snap.val().name}">
+
+      <div style="margin-top:16px;display:flex;gap:10px;">
+        <button onclick="saveClassEdit('${classId}')">Save</button>
+        <button class="danger" onclick="closePanel('classPanel')">Cancel</button>
+      </div>
+    `;
+
+    openPanel("classPanel");
+  });
+}
