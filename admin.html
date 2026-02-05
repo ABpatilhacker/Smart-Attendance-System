@@ -13,30 +13,31 @@
   <!-- CSS -->
   <link rel="stylesheet" href="admin.css">
 </head>
+
 <body>
 
 <!-- 🍔 HAMBURGER -->
 <button class="hamburger" onclick="toggleSidebar()">☰</button>
 
-<!-- 📌 SIDEBAR -->
+<!-- 🟣 SIDEBAR -->
 <aside class="sidebar">
-  <h2 class="logo">Smart Attendance</h2>
+  <h2>Admin</h2>
   <nav>
-    <button onclick="nav('dashboard')">📊 Dashboard</button>
-    <button onclick="nav('classes')">🏫 Classes</button>
-    <button onclick="nav('teachers')">👨‍🏫 Teachers</button>
-    <button onclick="nav('approvals')">🟡 Approvals</button>
-    <button onclick="nav('settings')">⚙️ Settings</button>
-    <button class="danger" onclick="logout()">🚪 Logout</button>
+    <button onclick="nav('dashboard')">Dashboard</button>
+    <button onclick="nav('approvals')">Approvals</button>
+    <button onclick="nav('classes')">Classes</button>
+    <button onclick="nav('teachers')">Teachers</button>
+    <button onclick="nav('settings')">Settings</button>
+    <button onclick="logout()" class="danger">Logout</button>
   </nav>
 </aside>
 
-<!-- 📦 MAIN CONTENT -->
+<!-- 🟢 MAIN -->
 <main class="content">
 
   <!-- 📊 DASHBOARD -->
   <section id="dashboard" class="page active">
-    <h1>Admin Dashboard</h1>
+    <h1>Smart Attendance – Admin Dashboard</h1>
 
     <div class="cards">
       <div class="card">
@@ -54,12 +55,18 @@
     </div>
   </section>
 
+  <!-- 🟡 APPROVALS -->
+  <section id="approvals" class="page">
+    <h2>Pending Approvals</h2>
+    <ul id="pendingList" class="list"></ul>
+  </section>
+
   <!-- 🏫 CLASSES -->
   <section id="classes" class="page">
-    <h1>Classes</h1>
+    <h2>Classes</h2>
 
-    <div class="add-bar">
-      <input id="className" placeholder="New class name">
+    <div class="add-box">
+      <input id="className" placeholder="Class name">
       <button onclick="addClass()">Add Class</button>
     </div>
 
@@ -68,47 +75,39 @@
 
   <!-- 👨‍🏫 TEACHERS -->
   <section id="teachers" class="page">
-    <h1>Teachers</h1>
-    <button onclick="addTeacher()">➕ Add Teacher</button>
+    <h2>Teachers</h2>
+    <button onclick="addTeacher()">+ Add Teacher</button>
     <ul id="teacherList" class="list"></ul>
-  </section>
-
-  <!-- 🟡 APPROVALS -->
-  <section id="approvals" class="page">
-    <h1>Pending Approvals</h1>
-    <ul id="pendingList" class="list"></ul>
   </section>
 
   <!-- ⚙️ SETTINGS -->
   <section id="settings" class="page">
-    <h1>Settings</h1>
-
+    <h2>Settings</h2>
     <label>Minimum Attendance (%)</label>
-    <input id="minAttendance" type="number" min="0" max="100">
-    <p class="muted">
-      Students below this percentage will be marked as defaulters.
-    </p>
-
-    <button onclick="saveSettings()">Save Settings</button>
+    <input id="minAttendance" type="number">
+    <button onclick="saveSettings()">Save</button>
   </section>
 
 </main>
 
-<!-- 📦 PANELS -->
+<!-- 📦 CLASS PANEL -->
 <div id="classPanel" class="panel"></div>
+
+<!-- 📦 TEACHER PANEL -->
 <div id="teacherProfile" class="panel"></div>
 
-<!-- ❓ CONFIRM MODAL -->
+<!-- ❓ MODAL -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
     <p id="modalText"></p>
-    <div class="actions">
-      <button id="modalOk">Confirm</button>
-      <button onclick="modal.classList.remove('show')">Cancel</button>
-    </div>
+    <button id="modalOk">Confirm</button>
+    <button onclick="modal.classList.remove('show')">Cancel</button>
   </div>
 </div>
+
+<!-- 🔔 TOAST CONTAINER -->
+<!-- Toasts are injected dynamically -->
 
 <!-- 🔥 FIREBASE CONFIG -->
 <script>
@@ -116,14 +115,11 @@
     apiKey: "YOUR_KEY",
     authDomain: "YOUR_DOMAIN",
     databaseURL: "YOUR_DB_URL",
-    projectId: "YOUR_ID",
-    storageBucket: "YOUR_BUCKET",
-    messagingSenderId: "YOUR_SENDER",
-    appId: "YOUR_APP_ID"
+    projectId: "YOUR_PROJECT_ID"
   };
 </script>
 
-<!-- JS -->
+<!-- 🧠 ADMIN LOGIC -->
 <script src="admin.js"></script>
 
 </body>
