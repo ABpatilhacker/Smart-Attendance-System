@@ -1,19 +1,15 @@
-/* =========================================================
-   🌈 GLOBAL THEME VARIABLES
-========================================================= */
 :root {
-  --bg-gradient: linear-gradient(135deg, #2b1055, #7597de);
-  --glass-bg: rgba(255, 255, 255, 0.15);
-  --glass-border: rgba(255, 255, 255, 0.25);
-  --text-light: #ffffff;
-  --accent: #7f5cff;
-  --danger: #ff5c5c;
-  --blur: blur(14px);
+  --bg-main: radial-gradient(circle at top, #1a0033, #05000d);
+  --glass: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.18);
+  --neon: #9d6cff;
+  --neon-soft: rgba(157, 108, 255, 0.35);
+  --danger: #ff4d6d;
+  --text: #ffffff;
+  --blur: blur(18px);
 }
 
-/* =========================================================
-   🔧 RESET
-========================================================= */
+/* RESET */
 * {
   margin: 0;
   padding: 0;
@@ -22,73 +18,60 @@
 }
 
 body {
+  background: var(--bg-main);
+  color: var(--text);
   min-height: 100vh;
-  background: var(--bg-gradient);
-  color: var(--text-light);
   overflow-x: hidden;
 }
 
-/* =========================================================
-   🔝 TOPBAR
-========================================================= */
+/* TOPBAR */
 .topbar {
   position: fixed;
   top: 0;
-  left: 0;
   width: 100%;
   height: 64px;
-  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--glass-bg);
+  padding: 0 16px;
+  background: var(--glass);
   backdrop-filter: var(--blur);
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--border);
   z-index: 2000;
 }
 
 .topbar h1 {
   font-size: 1rem;
   font-weight: 600;
+  text-shadow: 0 0 12px var(--neon-soft);
 }
 
 .topbar button {
-  background: var(--accent);
-  color: #fff;
+  background: linear-gradient(135deg, var(--neon), #5f3dc4);
   border: none;
+  color: #fff;
   padding: 8px 14px;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
-  transition: transform 0.2s, opacity 0.2s;
+  box-shadow: 0 0 18px var(--neon-soft);
 }
 
-.topbar button:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
-}
-
-.hamburger {
-  font-size: 1.4rem;
-}
-
-/* =========================================================
-   📂 SIDEBAR
-========================================================= */
+/* SIDEBAR */
 .sidebar {
   position: fixed;
   top: 64px;
   left: -260px;
   width: 260px;
   height: calc(100vh - 64px);
-  background: var(--glass-bg);
+  background: var(--glass);
   backdrop-filter: var(--blur);
-  border-right: 1px solid var(--glass-border);
+  border-right: 1px solid var(--border);
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   transition: left 0.35s ease;
-  z-index: 1500; /* 🔥 FIX */
+  z-index: 1500;
 }
 
 .sidebar.active {
@@ -97,96 +80,76 @@ body {
 
 .sidebar button {
   background: transparent;
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
   color: #fff;
   padding: 12px;
-  border-radius: 14px;
-  text-align: left;
+  border-radius: 16px;
   cursor: pointer;
-  transition: background 0.25s, transform 0.2s;
+  transition: all 0.25s ease;
 }
 
 .sidebar button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--neon-soft);
+  box-shadow: 0 0 20px var(--neon-soft);
   transform: translateX(6px);
 }
 
-/* =========================================================
-   📦 CONTENT AREA
-========================================================= */
+/* CONTENT */
 .content {
   padding: 96px 16px 24px;
-  position: relative;
-  z-index: 1;
 }
 
-/* =========================================================
-   📄 PAGES
-========================================================= */
+/* PAGE SWITCH ANIMATION */
 .page {
   display: none;
-  animation: fadeIn 0.35s ease;
+  animation: cyberFade 0.45s ease;
 }
 
 .page.active {
   display: block;
 }
 
-@keyframes fadeIn {
+@keyframes cyberFade {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px) scale(0.97);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-/* =========================================================
-   📊 DASHBOARD CARDS
-========================================================= */
+/* DASHBOARD CARDS */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  gap: 18px;
 }
 
 .card {
-  background: var(--glass-bg);
+  background: var(--glass);
   backdrop-filter: var(--blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  padding: 28px 20px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 32px 20px;
   text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-  transition: transform 0.25s;
-}
-
-.card:hover {
-  transform: translateY(-6px);
+  box-shadow: 0 0 40px rgba(157,108,255,0.15);
 }
 
 .card span {
   display: block;
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 2.8rem;
   margin-top: 10px;
+  text-shadow: 0 0 18px var(--neon);
 }
 
-/* =========================================================
-   🏫 LISTS (CLASSES / TEACHERS / APPROVALS)
-========================================================= */
-ul {
-  list-style: none;
-  margin-top: 16px;
-}
-
+/* LIST ITEMS */
 li {
-  background: var(--glass-bg);
+  background: var(--glass);
   backdrop-filter: var(--blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
   padding: 14px;
   margin-bottom: 12px;
   display: flex;
@@ -194,41 +157,36 @@ li {
   align-items: center;
 }
 
-.actions button {
-  margin-left: 6px;
-  padding: 6px 10px;
-  border-radius: 10px;
+/* BUTTONS */
+button {
   border: none;
   cursor: pointer;
-  background: var(--accent);
+}
+
+.actions button {
+  background: linear-gradient(135deg, var(--neon), #5f3dc4);
   color: #fff;
+  padding: 6px 12px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px var(--neon-soft);
 }
 
 .actions .danger {
-  background: var(--danger);
+  background: linear-gradient(135deg, var(--danger), #c9184a);
 }
 
-/* =========================================================
-   🧾 INPUTS & BUTTONS
-========================================================= */
+/* INPUTS */
 input {
   width: 100%;
   padding: 10px 14px;
-  margin: 8px 0;
-  border-radius: 12px;
-  border: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.2);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.12);
   color: #fff;
   outline: none;
 }
 
-input::placeholder {
-  color: rgba(255,255,255,0.7);
-}
-
-/* =========================================================
-   📦 SLIDE PANELS
-========================================================= */
+/* PANELS */
 .panel {
   position: fixed;
   top: 64px;
@@ -236,87 +194,44 @@ input::placeholder {
   width: 100%;
   max-width: 420px;
   height: calc(100vh - 64px);
-  background: var(--glass-bg);
+  background: var(--glass);
   backdrop-filter: var(--blur);
-  border-left: 1px solid var(--glass-border);
-  padding: 20px;
-  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  padding: 22px;
   transition: right 0.35s ease;
   z-index: 1600;
 }
 
-/* 🔥 CRITICAL FIX */
 .panel.active-panel {
   right: 0;
 }
 
-/* =========================================================
-   🧠 MODAL
-========================================================= */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 3000;
-}
-
-.modal.show {
-  display: flex;
-}
-
-.modal > div,
-.modal {
-  background: var(--glass-bg);
-  backdrop-filter: var(--blur);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 24px;
-  text-align: center;
-}
-
-/* =========================================================
-   🔔 TOAST
-========================================================= */
+/* TOAST */
 .toast {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  background: var(--accent);
-  color: #fff;
+  background: linear-gradient(135deg, var(--neon), #5f3dc4);
   padding: 12px 18px;
   border-radius: 14px;
-  animation: slideUp 0.4s ease;
-  z-index: 4000;
+  box-shadow: 0 0 20px var(--neon-soft);
+  animation: toastPop 0.35s ease;
 }
 
-@keyframes slideUp {
+@keyframes toastPop {
   from {
-    transform: translateY(30px);
+    transform: translateY(30px) scale(0.9);
     opacity: 0;
   }
   to {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
   }
 }
 
-/* =========================================================
-   📱 MOBILE FIXES
-========================================================= */
+/* MOBILE */
 @media (max-width: 768px) {
-  .topbar h1 {
-    font-size: 0.9rem;
-  }
-
-  .sidebar {
-    width: 240px;
-  }
-
   .panel {
-    width: 100%;
     max-width: 100%;
   }
 }
