@@ -1,5 +1,5 @@
 /* =========================
-   GLOBAL RESET
+   RESET
 ========================= */
 * {
   margin: 0;
@@ -8,29 +8,45 @@
   font-family: "Poppins", system-ui, sans-serif;
 }
 
+:root {
+  --primary: #6366f1;
+  --secondary: #ec4899;
+  --bg: #f5f7fb;
+  --glass: rgba(255,255,255,0.75);
+  --border: rgba(255,255,255,0.4);
+  --text: #1f2937;
+  --muted: #6b7280;
+  --danger: #ef4444;
+
+  --shadow-sm: 0 8px 20px rgba(0,0,0,.08);
+  --shadow-lg: 0 20px 50px rgba(0,0,0,.15);
+}
+
+/* =========================
+   BODY
+========================= */
 body {
-  background: #f4f6fb;
-  color: #1f2937;
+  min-height: 100vh;
+  background: linear-gradient(135deg,#eef2ff,#fdf2f8);
+  color: var(--text);
   overflow-x: hidden;
 }
 
 /* =========================
-   TOP BAR
+   TOPBAR
 ========================= */
 .topbar {
+  height: 60px;
   position: fixed;
-  top: 0;
-  left: 0;
-  height: 56px;
-  width: 100%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
+  inset: 0 0 auto 0;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  background: linear-gradient(135deg,var(--primary),var(--secondary));
+  color: #fff;
+  box-shadow: var(--shadow-sm);
 }
 
 .topbar h1 {
@@ -40,18 +56,12 @@ body {
 
 .hamburger,
 .logout {
-  background: rgba(255,255,255,.15);
-  border: none;
+  background: rgba(255,255,255,.2);
   color: #fff;
-  padding: 8px 12px;
+  border: none;
+  padding: 8px 14px;
   border-radius: 10px;
   cursor: pointer;
-  transition: .25s;
-}
-
-.hamburger:hover,
-.logout:hover {
-  background: rgba(255,255,255,.25);
 }
 
 /* =========================
@@ -59,75 +69,83 @@ body {
 ========================= */
 .sidebar {
   position: fixed;
-  top: 56px;
+  top: 60px;
   left: 0;
-  width: 250px;
-  height: calc(100vh - 56px);
-  background: #ffffff;
+  width: 230px;
+  height: calc(100% - 60px);
+  background: var(--glass);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid var(--border);
   padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   transform: translateX(-100%);
   transition: transform .35s ease;
-  z-index: 999;
-  box-shadow: 6px 0 20px rgba(0,0,0,.08);
+  z-index: 900;
 }
 
-/* JS TOGGLES THIS */
-.sidebar.active {
+.sidebar.open {
   transform: translateX(0);
 }
 
+/* desktop default open */
+@media (min-width: 769px) {
+  .sidebar {
+    transform: translateX(0);
+  }
+}
+
 .sidebar button {
-  background: transparent;
-  border: none;
-  text-align: left;
+  width: 100%;
+  margin-bottom: 10px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  text-align: left;
   font-size: 15px;
   cursor: pointer;
-  color: #374151;
   transition: .25s;
 }
 
 .sidebar button:hover {
-  background: #eef2ff;
-  color: #4f46e5;
+  background: #e0e7ff;
 }
 
 .sidebar button.active {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg,var(--primary),var(--secondary));
   color: #fff;
-  box-shadow: 0 0 18px rgba(99,102,241,.6);
+  box-shadow: var(--shadow-sm);
 }
 
 /* =========================
    CONTENT
 ========================= */
 .content {
-  padding: 80px 20px 20px;
-  transition: filter .3s ease;
+  margin-top: 70px;
+  padding: 20px;
+  transition: margin-left .35s ease;
 }
 
+@media (min-width: 769px) {
+  .content.sidebar-open {
+    margin-left: 230px;
+  }
+}
+
+/* =========================
+   PAGES
+========================= */
 .page {
   display: none;
-  animation: fadeSlide .35s ease forwards;
+  animation: fade .35s ease;
 }
 
 .page.active {
   display: block;
 }
 
-@keyframes fadeSlide {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
 }
 
 /* =========================
@@ -135,136 +153,177 @@ body {
 ========================= */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 18px;
 }
 
 .card {
-  background: #ffffff;
-  padding: 18px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,.08);
-}
-
-.card h3 {
-  font-size: 14px;
-  color: #6b7280;
+  background: #fff;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
 }
 
 .card span {
-  font-size: 28px;
-  font-weight: 700;
-  color: #4f46e5;
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--primary);
 }
 
 /* =========================
-   LISTS & BOXES
+   LISTS
 ========================= */
-.glass-box {
-  background: #ffffff;
-  padding: 14px;
-  border-radius: 14px;
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-  box-shadow: 0 6px 16px rgba(0,0,0,.08);
-}
-
-.glass-box input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #d1d5db;
-  outline: none;
-}
-
-.glass-box button {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  border: none;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: .25s;
-}
-
-.glass-box button:hover {
-  transform: translateY(-1px);
-}
-
-.list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .list li {
-  background: #ffffff;
+  background: #fff;
+  margin-bottom: 12px;
   padding: 14px;
   border-radius: 14px;
-  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+  box-shadow: var(--shadow-sm);
+}
+
+.actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.actions .danger {
+  background: var(--danger);
+  color: #fff;
 }
 
 /* =========================
-   PANELS (CLASS / TEACHER)
+   INPUTS
 ========================= */
-.panel {
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+/* =========================
+   OVERLAY
+========================= */
+.overlay {
   position: fixed;
-  top: 56px;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: .3s;
+  z-index: 950;
+}
+
+.overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* =========================
+   SIDE PANELS (CRITICAL)
+========================= */
+.side-panel {
+  position: fixed;
+  top: 60px;
   right: 0;
-  width: 360px;
-  max-width: 100%;
-  height: calc(100vh - 56px);
-  background: #ffffff;
+  width: 320px;
+  max-width: 90%;
+  height: calc(100% - 60px);
+  background: #fff;
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
   transform: translateX(100%);
   transition: transform .35s ease;
-  z-index: 1200;
-  box-shadow: -6px 0 20px rgba(0,0,0,.12);
-  padding: 16px;
+  z-index: 1001;
   overflow-y: auto;
 }
 
-/* JS ADDS THIS */
-.panel.active {
+/* SUPPORT BOTH JS CLASSES */
+.side-panel.open,
+.side-panel.active-panel {
   transform: translateX(0);
 }
 
+/* mobile bottom-sheet */
+@media (max-width: 768px) {
+  .side-panel {
+    top: auto;
+    bottom: 0;
+    height: 80vh;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    transform: translateY(100%);
+  }
+  .side-panel.open,
+  .side-panel.active-panel {
+    transform: translateY(0);
+  }
+}
+
 /* =========================
-   MODAL (OK BUTTON BUG FIX)
+   SUBJECT CARDS
+========================= */
+.subject-card {
+  background: #f1f5f9;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+/* =========================
+   MODAL
 ========================= */
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.45);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 1300;
+  background: rgba(0,0,0,.4);
+  z-index: 2000;
 }
 
-.modal.active {
+.modal.show {
   display: flex;
 }
 
 .modal-box {
-  background: #ffffff;
+  background: #fff;
   padding: 20px;
-  border-radius: 16px;
-  max-width: 300px;
-  width: 90%;
-  text-align: center;
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg);
 }
 
 /* =========================
-   MOBILE
+   TOAST
 ========================= */
-@media (max-width: 768px) {
-  .content {
-    padding: 76px 14px;
-  }
-
-  .sidebar {
-    width: 230px;
-  }
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg,var(--primary),var(--secondary));
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  z-index: 3000;
 }
+
+/* =========================
+   MISC
+========================= */
+.muted {
+  color: var(--muted);
+  font-size: 14px;
+   }
