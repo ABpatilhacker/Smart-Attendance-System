@@ -65,7 +65,7 @@ body {
 }
 
 /* =========================
-   SIDEBAR
+   SIDEBAR (FINAL FIXED)
 ========================= */
 .sidebar {
   position: fixed;
@@ -73,47 +73,70 @@ body {
   left: 0;
   width: 230px;
   height: calc(100% - 60px);
-  background: var(--glass);
+
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(18px);
+
   border-right: 1px solid var(--border);
   padding: 14px;
+
   transform: translateX(-100%);
-  transition: transform .35s ease;
-  z-index: 900;
+  transition: transform 0.35s ease;
+
+  z-index: 1200; /* 🔥 ABOVE overlay */
 }
 
+/* OPEN STATE */
 .sidebar.open {
   transform: translateX(0);
 }
 
-/* desktop default open */
+/* DESKTOP: ALWAYS OPEN */
 @media (min-width: 769px) {
   .sidebar {
     transform: translateX(0);
   }
 }
 
+/* SIDEBAR BUTTONS */
 .sidebar button {
   width: 100%;
   margin-bottom: 10px;
   padding: 12px 14px;
+
   border-radius: 14px;
   border: none;
   background: transparent;
+
   text-align: left;
   font-size: 15px;
   cursor: pointer;
-  transition: .25s;
+
+  transition: background 0.25s ease,
+              box-shadow 0.25s ease,
+              transform 0.15s ease;
 }
 
+/* HOVER */
 .sidebar button:hover {
   background: #e0e7ff;
 }
 
+/* ACTIVE BUTTON */
 .sidebar button.active {
-  background: linear-gradient(135deg,var(--primary),var(--secondary));
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--secondary)
+  );
   color: #fff;
-  box-shadow: var(--shadow-sm);
+
+  box-shadow: 0 6px 18px rgba(99,102,241,0.35);
+}
+
+/* CLICK FEEDBACK */
+.sidebar button:active {
+  transform: scale(0.97);
 }
 
 /* =========================
