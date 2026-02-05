@@ -223,13 +223,16 @@ function loadTeachers() {
 
   db.ref("users").on("value", snap => {
     teacherList.innerHTML = "";
+
     snap.forEach(u => {
       const d = u.val();
       if (d.role === "teacher" && d.approved) {
         teacherList.innerHTML += `
           <li>
             <strong>${d.name}</strong>
-            <small>${d.email}</small>
+            <div class="actions">
+              <button class="btn ghost" onclick="openTeacherPanel('${u.key}')">View</button>
+            </div>
           </li>`;
       }
     });
@@ -342,3 +345,36 @@ function editClassPanel(classId) {
     openPanel("classPanel");
   });
 }
+function openTeacherPanel(uid) {
+  Promise.all([
+    db.ref("users/" + uid).once("value"),
+    db.ref("classes").once("value")
+  ]).then(([uSnap, cSnap]) => {
+
+    const teacher = uSnap.val();
+    let assigned = [];
+
+    cSnap.forEach(cls => {
+      const subjects = cls.val().subjects || {};
+      Object.values(subjects).forEach(s => {
+        if (s.teacherId === uid) {
+          assigned.push(`${cls.val().name} – ${s.name}`);
+        }
+      });
+    });
+
+    teacherProfile.innerHTML = `
+      <h2>${teacher.name}</h2>
+      <p class="muted">${teacher.email}</p>
+
+      <h3>Assigned Subjects</h3>
+      ${assigned.length
+        ? `<ul>${assigned.map(a => `<li>${a}</li>`).join("")}</ul>`
+        : `<p class="muted">No assignments yet</p>`}
+
+      <button class="btn ghost" onclick="closePanel('teacherProfile')">Close</button>
+    `;
+
+    openPanel("teacherProfile");
+  });
+            }
