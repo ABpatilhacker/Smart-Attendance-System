@@ -6,17 +6,20 @@
   font-family: 'Poppins', sans-serif;
 }
 
-/* ===== ROOT COLORS ===== */
+/* ===== ROOT COLORS (SOFT PREMIUM) ===== */
 :root {
-  --bg-main: linear-gradient(135deg, #eef2ff, #fdf2f8);
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.4);
+  --bg-main: linear-gradient(135deg, #f5f7ff, #fdf6fb);
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(0, 0, 0, 0.05);
+
   --primary: #6366f1;
   --secondary: #ec4899;
+
   --text-dark: #1f2937;
   --text-light: #6b7280;
-  --shadow-soft: 0 10px 30px rgba(0,0,0,0.08);
-  --shadow-hover: 0 18px 45px rgba(0,0,0,0.12);
+
+  --shadow-soft: 0 8px 24px rgba(0,0,0,0.08);
+  --shadow-hover: 0 16px 40px rgba(0,0,0,0.12);
 }
 
 /* ===== BODY ===== */
@@ -44,10 +47,11 @@ body {
 }
 
 .topbar h1 {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
 }
 
+/* ===== TOPBAR BUTTONS ===== */
 .hamburger,
 .logout {
   border: none;
@@ -56,12 +60,13 @@ body {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #fff;
   cursor: pointer;
+  font-size: 14px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hamburger:hover,
 .logout:hover {
-  transform: scale(1.05);
+  transform: translateY(-1px);
   box-shadow: var(--shadow-hover);
 }
 
@@ -72,28 +77,27 @@ body {
   left: 0;
   width: 230px;
   height: calc(100% - 60px);
+  padding: 16px;
   background: var(--glass-bg);
   backdrop-filter: blur(18px);
   border-right: 1px solid var(--glass-border);
-  padding: 16px;
+  box-shadow: var(--shadow-soft);
   z-index: 50;
   transition: transform 0.35s ease;
-  box-shadow: var(--shadow-soft);
 }
 
-/* desktop = OPEN by default */
+/* Desktop open */
 @media (min-width: 769px) {
   .sidebar {
     transform: translateX(0);
   }
 }
 
-/* mobile = closed by default */
+/* Mobile closed */
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
   }
-
   .sidebar.open {
     transform: translateX(0);
   }
@@ -102,33 +106,28 @@ body {
 /* ===== SIDEBAR BUTTONS ===== */
 .sidebar button {
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   padding: 12px 14px;
   border-radius: 14px;
   border: none;
   background: transparent;
   color: var(--text-dark);
-  font-size: 15px;
+  font-size: 14px;
   text-align: left;
   cursor: pointer;
-  transition: 
-    background 0.25s ease,
-    transform 0.2s ease,
-    box-shadow 0.25s ease;
+  transition: background 0.25s ease, transform 0.2s ease;
 }
 
-/* hover */
 .sidebar button:hover {
-  background: linear-gradient(135deg, #e0e7ff, #fce7f3);
+  background: rgba(99,102,241,0.08);
   transform: translateX(4px);
 }
 
-/* 🔥 ACTIVE BUTTON GLOW */
+/* ACTIVE */
 .sidebar button.active {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #fff;
-  box-shadow: 0 0 0 2px rgba(99,102,241,0.25),
-              0 12px 30px rgba(236,72,153,0.35);
+  box-shadow: 0 10px 26px rgba(99,102,241,0.35);
 }
 
 /* ===== CONTENT ===== */
@@ -144,38 +143,24 @@ body {
   }
 }
 
-/* ===== MOBILE OVERLAY BLUR ===== */
-.panel {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.35);
-  backdrop-filter: blur(8px);
-  display: none;
-  z-index: 45;
-}
-
-.panel.show {
-  display: block;
-}
-
 /* ===== PAGE TRANSITIONS ===== */
 .page {
   display: none;
-  animation: pageFade 0.45s ease;
+  animation: fadeSlide 0.4s ease;
 }
 
 .page.active {
   display: block;
 }
 
-@keyframes pageFade {
+@keyframes fadeSlide {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.98);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -188,27 +173,25 @@ body {
 
 .card {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
   border-radius: 18px;
-  padding: 24px;
-  text-align: center;
+  padding: 22px;
+  border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-soft);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  text-align: center;
+  transition: transform 0.25s ease;
 }
 
 .card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-hover);
+  transform: translateY(-4px);
 }
 
 .card h3 {
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text-light);
 }
 
 .card span {
-  font-size: 38px;
+  font-size: 36px;
   font-weight: 600;
   color: var(--primary);
 }
@@ -218,59 +201,62 @@ body {
   margin: 16px 0;
   padding: 16px;
   background: var(--glass-bg);
-  backdrop-filter: blur(14px);
   border-radius: 16px;
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-soft);
 }
 
-/* ===== INPUTS & BUTTONS ===== */
+/* ===== INPUTS ===== */
 input {
   width: 100%;
   padding: 12px;
   margin-bottom: 12px;
   border-radius: 10px;
   border: 1px solid #d1d5db;
-  outline: none;
   font-size: 14px;
+  outline: none;
 }
 
 input:focus {
   border-color: var(--primary);
 }
 
-button {
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: none;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #fff;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-button:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-hover);
+/* ===== MAIN ACTION BUTTONS ===== */
+.glass-box button,
+.modal-box button {
+  width: 100%;
 }
 
 /* ===== LIST ===== */
 .list li {
   list-style: none;
-  margin-bottom: 10px;
   padding: 14px;
+  margin-bottom: 10px;
   border-radius: 14px;
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-soft);
+}
+
+/* ===== PANEL OVERLAY ===== */
+.panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.35);
+  backdrop-filter: blur(8px);
+  display: none;
+  z-index: 45;
+}
+
+.panel.show {
+  display: block;
 }
 
 /* ===== MODAL ===== */
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(15,23,42,0.45);
   backdrop-filter: blur(10px);
   display: none;
   align-items: center;
@@ -280,12 +266,10 @@ button:hover {
 
 .modal-box {
   background: var(--glass-bg);
-  backdrop-filter: blur(16px);
   padding: 22px;
   border-radius: 18px;
   width: 90%;
   max-width: 320px;
   text-align: center;
-  border: 1px solid var(--glass-border);
   box-shadow: var(--shadow-hover);
 }
