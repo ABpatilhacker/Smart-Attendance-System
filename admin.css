@@ -1,106 +1,327 @@
-* { margin:0; padding:0; box-sizing:border-box; font-family:Poppins,sans-serif }
+/* ===============================
+   🌌 GLOBAL RESET & THEME
+================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", system-ui, sans-serif;
+}
 
 body {
-  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color:#fff;
-  overflow-x:hidden;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #3a7bd5, #1e1e2f 60%);
+  color: #fff;
+  overflow-x: hidden;
 }
 
+/* ===============================
+   🍔 HAMBURGER
+================================ */
 .hamburger {
-  position:fixed; top:15px; left:15px;
-  width:30px; cursor:pointer; z-index:1001;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  width: 34px;
+  height: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 1001;
+  cursor: pointer;
 }
+
 .hamburger span {
-  display:block; height:3px; margin:6px;
-  background:#fff; border-radius:5px;
+  height: 4px;
+  background: #fff;
+  border-radius: 4px;
+  transition: 0.4s;
 }
 
+/* ===============================
+   📌 SIDEBAR (GLASS)
+================================ */
 .sidebar {
-  position:fixed; left:-260px; top:0;
-  width:250px; height:100%;
-  background:rgba(255,255,255,0.12);
-  backdrop-filter:blur(14px);
-  padding:20px;
-  transition:.4s;
-  z-index:1000;
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 260px;
+  height: 100vh;
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 8px 0 30px rgba(0,0,0,0.4);
+  transition: 0.4s ease;
+  z-index: 1000;
 }
-.sidebar.active { left:0 }
-.sidebar h2 { margin-bottom:20px }
+
+.sidebar.active {
+  left: 0;
+}
+
+.sidebar .logo {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
 .sidebar button {
-  width:100%; padding:12px;
-  margin:6px 0;
-  border:none; border-radius:8px;
-  background:rgba(255,255,255,.2);
-  color:#fff; cursor:pointer;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: rgba(255,255,255,0.15);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
 }
-.sidebar .danger { background:#ff4d4d }
 
-.main { padding:80px 20px }
+.sidebar button:hover {
+  background: rgba(255,255,255,0.28);
+  transform: translateX(4px);
+}
 
-.page { display:none; animation:fade .4s }
-.page.active { display:block }
+.sidebar .danger {
+  background: rgba(255,0,0,0.35);
+}
 
+/* ===============================
+   🧠 MAIN CONTENT
+================================ */
+.main {
+  padding: 80px 20px 40px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* ===============================
+   📄 PAGES
+================================ */
+.page {
+  display: none;
+  animation: fadeUp 0.6s ease;
+}
+
+.page.active {
+  display: block;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.info {
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+
+/* ===============================
+   📊 DASHBOARD CARDS
+================================ */
 .cards {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
 }
+
 .card {
-  background:rgba(255,255,255,.15);
-  backdrop-filter:blur(12px);
-  border-radius:15px;
-  padding:20px;
-  text-align:center;
-}
-.card span {
-  font-size:32px;
-  font-weight:bold;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(16px);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  transition: 0.4s;
 }
 
-ul { list-style:none }
-li {
-  background:rgba(255,255,255,.15);
-  padding:12px;
-  border-radius:10px;
-  margin:10px 0;
+.card:hover {
+  transform: translateY(-6px);
 }
 
+.card h3 {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.card p {
+  font-size: 36px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+/* ===============================
+   📋 LISTS
+================================ */
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.list li {
+  background: rgba(255,255,255,0.14);
+  backdrop-filter: blur(14px);
+  padding: 16px;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list li small {
+  opacity: 0.7;
+}
+
+.actions button {
+  margin-left: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  transition: 0.25s;
+}
+
+.actions button:hover {
+  background: rgba(255,255,255,0.4);
+}
+
+.actions .danger {
+  background: rgba(255,0,0,0.4);
+}
+
+/* ===============================
+   ➕ ADD BAR / INPUTS
+================================ */
+.add-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+input::placeholder {
+  color: #ddd;
+}
+
+button {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg,#6dd5ed,#2193b0);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ===============================
+   📦 PANELS
+================================ */
 .panel {
-  position:fixed; inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-.panel.active-panel { display:flex }
-.panel > div {
-  background:#111;
-  padding:20px;
-  border-radius:12px;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
 }
 
-.modal {
-  position:fixed; inset:0;
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-.modal.show { display:flex }
-.modal-box {
-  background:#111;
-  padding:20px;
-  border-radius:10px;
+.panel.active-panel {
+  display: flex;
 }
 
+.panel > * {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(18px);
+  padding: 24px;
+  border-radius: 18px;
+  max-width: 500px;
+  width: 90%;
+}
+
+/* ===============================
+   🔔 TOAST
+================================ */
 .toast {
-  position:fixed;
-  bottom:20px; right:20px;
-  background:#00e676;
-  color:#000;
-  padding:12px 20px;
-  border-radius:8px;
-  animation:slide .4s;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background: rgba(0,0,0,0.75);
+  padding: 12px 20px;
+  border-radius: 20px;
+  color: #fff;
+  animation: toastPop 0.4s ease forwards;
+  z-index: 3000;
 }
 
-@keyframes fade { from{opacity:0} to{opacity:1} }
-@keyframes slide { from{transform:translateY(20px)} to{transform:none} }
+@keyframes toastPop {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.8); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+
+/* ===============================
+   ❓ MODAL
+================================ */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2500;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-box {
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(20px);
+  padding: 24px;
+  border-radius: 18px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* ===============================
+   📱 MOBILE
+================================ */
+@media (min-width: 900px) {
+  .sidebar {
+    left: 0;
+  }
+
+  .hamburger {
+    display: none;
+  }
+
+  .main {
+    margin-left: 260px;
+  }
+}
