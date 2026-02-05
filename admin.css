@@ -1,152 +1,118 @@
-/* ===== RESET ===== */
+/* =========================
+   GLOBAL RESET
+========================= */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", system-ui, sans-serif;
 }
 
-/* ===== ROOT COLORS (SOFT PREMIUM) ===== */
-:root {
-  --bg-main: linear-gradient(135deg, #f5f7ff, #fdf6fb);
-  --glass-bg: rgba(255, 255, 255, 0.78);
-  --glass-border: rgba(0, 0, 0, 0.05);
-
-  --primary: #6366f1;
-  --secondary: #ec4899;
-
-  --text-dark: #1f2937;
-  --text-light: #6b7280;
-
-  --shadow-soft: 0 8px 24px rgba(0,0,0,0.08);
-  --shadow-hover: 0 16px 40px rgba(0,0,0,0.12);
-}
-
-/* ===== BODY ===== */
 body {
-  min-height: 100vh;
-  background: var(--bg-main);
-  color: var(--text-dark);
+  background: #f4f6fb;
+  color: #1f2937;
   overflow-x: hidden;
 }
 
-/* ===== TOPBAR ===== */
+/* =========================
+   TOP BAR
+========================= */
 .topbar {
-  height: 60px;
   position: fixed;
-  inset: 0 0 auto 0;
-  z-index: 60;
+  top: 0;
+  left: 0;
+  height: 56px;
+  width: 100%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-soft);
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
 }
 
 .topbar h1 {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
 }
 
-/* ===== TOPBAR BUTTONS ===== */
 .hamburger,
 .logout {
+  background: rgba(255,255,255,.15);
   border: none;
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #fff;
+  padding: 8px 12px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 14px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: .25s;
 }
 
 .hamburger:hover,
 .logout:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-hover);
+  background: rgba(255,255,255,.25);
 }
 
-/* ===== SIDEBAR ===== */
+/* =========================
+   SIDEBAR
+========================= */
 .sidebar {
   position: fixed;
-  top: 60px;
+  top: 56px;
   left: 0;
-  width: 230px;
-  height: calc(100% - 60px);
-  padding: 16px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(18px);
-  border-right: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-soft);
-  z-index: 50;
-  transition: transform 0.35s ease;
+  width: 250px;
+  height: calc(100vh - 56px);
+  background: #ffffff;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transform: translateX(-100%);
+  transition: transform .35s ease;
+  z-index: 999;
+  box-shadow: 6px 0 20px rgba(0,0,0,.08);
 }
 
-/* Desktop open */
-@media (min-width: 769px) {
-  .sidebar {
-    transform: translateX(0);
-  }
+/* JS TOGGLES THIS */
+.sidebar.active {
+  transform: translateX(0);
 }
 
-/* Mobile closed */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
-}
-
-/* ===== SIDEBAR BUTTONS ===== */
 .sidebar button {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: none;
   background: transparent;
-  color: var(--text-dark);
-  font-size: 14px;
+  border: none;
   text-align: left;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 15px;
   cursor: pointer;
-  transition: background 0.25s ease, transform 0.2s ease;
+  color: #374151;
+  transition: .25s;
 }
 
 .sidebar button:hover {
-  background: rgba(99,102,241,0.08);
-  transform: translateX(4px);
+  background: #eef2ff;
+  color: #4f46e5;
 }
 
-/* ACTIVE */
 .sidebar button.active {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #fff;
-  box-shadow: 0 10px 26px rgba(99,102,241,0.35);
+  box-shadow: 0 0 18px rgba(99,102,241,.6);
 }
 
-/* ===== CONTENT ===== */
+/* =========================
+   CONTENT
+========================= */
 .content {
-  margin-top: 70px;
-  padding: 20px;
-  transition: margin-left 0.35s ease;
+  padding: 80px 20px 20px;
+  transition: filter .3s ease;
 }
 
-@media (min-width: 769px) {
-  .content.sidebar-open {
-    margin-left: 250px;
-  }
-}
-
-/* ===== PAGE TRANSITIONS ===== */
 .page {
   display: none;
-  animation: fadeSlide 0.4s ease;
+  animation: fadeSlide .35s ease forwards;
 }
 
 .page.active {
@@ -164,112 +130,141 @@ body {
   }
 }
 
-/* ===== DASHBOARD CARDS ===== */
+/* =========================
+   DASHBOARD CARDS
+========================= */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
 }
 
 .card {
-  background: var(--glass-bg);
-  border-radius: 18px;
-  padding: 22px;
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-soft);
-  text-align: center;
-  transition: transform 0.25s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
 }
 
 .card h3 {
   font-size: 14px;
-  color: var(--text-light);
+  color: #6b7280;
 }
 
 .card span {
-  font-size: 36px;
-  font-weight: 600;
-  color: var(--primary);
+  font-size: 28px;
+  font-weight: 700;
+  color: #4f46e5;
 }
 
-/* ===== GLASS BOX ===== */
+/* =========================
+   LISTS & BOXES
+========================= */
 .glass-box {
-  margin: 16px 0;
-  padding: 16px;
-  background: var(--glass-bg);
-  border-radius: 16px;
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-soft);
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 14px;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
 }
 
-/* ===== INPUTS ===== */
-input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
+.glass-box input {
+  flex: 1;
+  padding: 10px;
   border-radius: 10px;
   border: 1px solid #d1d5db;
-  font-size: 14px;
   outline: none;
 }
 
-input:focus {
-  border-color: var(--primary);
+.glass-box button {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: .25s;
 }
 
-/* ===== MAIN ACTION BUTTONS ===== */
-.glass-box button,
-.modal-box button {
-  width: 100%;
+.glass-box button:hover {
+  transform: translateY(-1px);
 }
 
-/* ===== LIST ===== */
-.list li {
+.list {
   list-style: none;
-  padding: 14px;
-  margin-bottom: 10px;
-  border-radius: 14px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* ===== PANEL OVERLAY ===== */
+.list li {
+  background: #ffffff;
+  padding: 14px;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+
+/* =========================
+   PANELS (CLASS / TEACHER)
+========================= */
 .panel {
   position: fixed;
-  inset: 0;
-  background: rgba(15,23,42,0.35);
-  backdrop-filter: blur(8px);
-  display: none;
-  z-index: 45;
+  top: 56px;
+  right: 0;
+  width: 360px;
+  max-width: 100%;
+  height: calc(100vh - 56px);
+  background: #ffffff;
+  transform: translateX(100%);
+  transition: transform .35s ease;
+  z-index: 1200;
+  box-shadow: -6px 0 20px rgba(0,0,0,.12);
+  padding: 16px;
+  overflow-y: auto;
 }
 
-.panel.show {
-  display: block;
+/* JS ADDS THIS */
+.panel.active {
+  transform: translateX(0);
 }
 
-/* ===== MODAL ===== */
+/* =========================
+   MODAL (OK BUTTON BUG FIX)
+========================= */
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(15,23,42,0.45);
-  backdrop-filter: blur(10px);
+  background: rgba(0,0,0,.45);
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 120;
+  z-index: 1300;
+}
+
+.modal.active {
+  display: flex;
 }
 
 .modal-box {
-  background: var(--glass-bg);
-  padding: 22px;
-  border-radius: 18px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  max-width: 300px;
   width: 90%;
-  max-width: 320px;
   text-align: center;
-  box-shadow: var(--shadow-hover);
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 768px) {
+  .content {
+    padding: 76px 14px;
+  }
+
+  .sidebar {
+    width: 230px;
+  }
 }
