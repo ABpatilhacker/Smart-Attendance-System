@@ -269,8 +269,13 @@ function nav(id) {
 }
 
 function toggleSidebar() {
-  const sb = document.querySelector(".sidebar");
-  if (sb) sb.classList.toggle("active");
+  const sidebar = document.querySelector('.sidebar');
+  const content = document.querySelector('.content');
+  const overlay = document.getElementById('overlay');
+
+  sidebar.classList.toggle('open');
+  content.classList.toggle('sidebar-open');
+  overlay.classList.toggle('show');
 }
 
 /***********************
