@@ -2,41 +2,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Smart Attendance – Admin</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Smart Attendance – Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- Firebase v8 -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-<link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="admin.css">
 </head>
 
 <body>
 
-<!-- TOP BAR -->
+<!-- ================= TOP BAR ================= -->
 <header class="topbar">
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
   <h1>Smart Attendance</h1>
   <button class="logout" onclick="logout()">Logout</button>
 </header>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <button class="active" onclick="nav('dashboard')">📊 Dashboard</button>
-  <button onclick="nav('classes')">🏫 Classes</button>
-  <button onclick="nav('teachers')">👩‍🏫 Teachers</button>
-  <button onclick="nav('approvals')">✅ Approvals</button>
-  <button onclick="nav('settings')">⚙ Settings</button>
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar" id="sidebar">
+  <button onclick="nav('dashboard', this)">📊 Dashboard</button>
+  <button onclick="nav('classes', this)">🏫 Classes</button>
+  <button onclick="nav('teachers', this)">👩‍🏫 Teachers</button>
+  <button onclick="nav('approvals', this)">✅ Approvals</button>
+  <button onclick="nav('settings', this)">⚙ Settings</button>
 </aside>
 
-<!-- 🔴 REQUIRED OVERLAY (THIS WAS MISSING EARLIER) -->
-<div id="overlay" class="panel" onclick="toggleSidebar()"></div>
-
-<!-- MAIN CONTENT -->
-<main class="content sidebar-open">
+<!-- ================= MAIN CONTENT ================= -->
+<main class="content" id="content">
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="page active">
@@ -61,17 +58,32 @@
     <h2>Classes</h2>
 
     <div class="glass-box">
-      <input id="className" type="text" placeholder="Enter class name">
+      <input id="className" placeholder="Enter class name">
       <button onclick="addClass()">Add Class</button>
     </div>
 
-    <ul id="classList" class="list"></ul>
+    <ul id="classList" class="list">
+      <!-- example -->
+      <!--
+      <li>
+        FY BCA
+        <button onclick="openPanel('classPanel')">View / Edit</button>
+      </li>
+      -->
+    </ul>
   </section>
 
   <!-- TEACHERS -->
   <section id="teachers" class="page">
     <h2>Teachers</h2>
-    <ul id="teacherList" class="list"></ul>
+    <ul id="teacherList" class="list">
+      <!--
+      <li>
+        Rahul Sharma
+        <button onclick="openPanel('teacherPanel')">View</button>
+      </li>
+      -->
+    </ul>
   </section>
 
   <!-- APPROVALS -->
@@ -93,21 +105,65 @@
 
 </main>
 
-<!-- CLASS PANEL -->
-<div id="classPanel" class="panel"></div>
+<!-- ================= OVERLAY ================= -->
+<div id="overlay" class="overlay" onclick="closePanel()"></div>
 
-<!-- TEACHER PROFILE PANEL -->
-<div id="teacherProfile" class="panel"></div>
+<!-- ================= CLASS PANEL ================= -->
+<div id="classPanel" class="side-panel">
+  <h3>Edit Class</h3>
+  <input id="editClassName" placeholder="Class name">
+  <button onclick="saveClass()">Save</button>
+  <button onclick="closePanel()">Close</button>
+</div>
 
-<!-- CONFIRM MODAL -->
+<!-- ================= TEACHER PANEL ================= -->
+<div id="teacherPanel" class="side-panel">
+  <h3>Teacher Profile</h3>
+  <p id="teacherName">Name</p>
+  <p id="teacherEmail">Email</p>
+  <button onclick="closePanel()">Close</button>
+</div>
+
+<!-- ================= MODAL ================= -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
     <p id="modalText"></p>
-    <button id="modalOk">OK</button>
+    <button id="modalOk" onclick="closeModal()">OK</button>
   </div>
 </div>
-  <script>
+
+<!-- ================= BASIC UI JS (DO NOT REMOVE) ================= -->
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function nav(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function openPanel(id) {
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById(id).classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('overlay').classList.remove('show');
+  document.querySelectorAll('.side-panel').forEach(p => p.classList.remove('open'));
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = 'none';
+}
+</script>
+    <script>
   const firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
@@ -119,6 +175,8 @@
 };
   </script>  
 
+<!-- ================= YOUR LOGIC ================= -->
 <script src="admin.js"></script>
+
 </body>
 </html>
