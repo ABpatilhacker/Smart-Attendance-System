@@ -1,131 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Smart Attendance – Admin Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>Smart Attendance – Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="admin.css" />
+<link rel="stylesheet" href="admin.css">
 </head>
 
 <body>
 
-<!-- 🍔 HAMBURGER -->
+<!-- 🍔 Hamburger -->
 <div class="hamburger" onclick="toggleSidebar()">
-  <span></span>
-  <span></span>
-  <span></span>
+  <span></span><span></span><span></span>
 </div>
 
-<!-- 📚 SIDEBAR -->
+<!-- 📌 Sidebar -->
 <aside class="sidebar">
   <h2 class="logo">Smart Attendance</h2>
-  <nav>
-    <button onclick="nav('dashboard')">🏠 Dashboard</button>
-    <button onclick="nav('approvals')">🟡 Approvals</button>
-    <button onclick="nav('classes')">🏫 Classes</button>
-    <button onclick="nav('teachers')">👨‍🏫 Teachers</button>
-    <button onclick="nav('settings')">⚙️ Settings</button>
-    <button class="danger" onclick="logout()">🚪 Logout</button>
-  </nav>
+
+  <button onclick="nav('dashboard')">🏠 Dashboard</button>
+  <button onclick="nav('approvals')">🟡 Approvals</button>
+  <button onclick="nav('classes')">🏫 Classes</button>
+  <button onclick="nav('teachers')">👨‍🏫 Teachers</button>
+  <button onclick="nav('settings')">⚙️ Settings</button>
+
+  <button class="danger" onclick="logout()">🚪 Logout</button>
 </aside>
 
-<!-- 🧠 MAIN -->
-<main class="content">
+<!-- 🧠 Main Content -->
+<main class="main">
 
-  <!-- 📊 DASHBOARD -->
-  <section id="dashboard" class="page active">
-    <h1>Admin Dashboard</h1>
+<!-- ================= DASHBOARD ================= -->
+<section id="dashboard" class="page active">
+  <h1>Admin Dashboard</h1>
+  <p class="info">Live overview of classes, teachers and students</p>
 
-    <div class="stats">
-      <div class="card">
-        <h3>Classes</h3>
-        <p id="classCount">0</p>
-      </div>
-      <div class="card">
-        <h3>Teachers</h3>
-        <p id="teacherCount">0</p>
-      </div>
-      <div class="card">
-        <h3>Students</h3>
-        <p id="studentCount">0</p>
-      </div>
+  <div class="cards">
+    <div class="card">
+      <h3>Total Classes</h3>
+      <p id="classCount">0</p>
     </div>
-  </section>
-
-  <!-- 🟡 APPROVALS -->
-  <section id="approvals" class="page">
-    <h1>Pending Approvals</h1>
-    <ul id="pendingList" class="list"></ul>
-  </section>
-
-  <!-- 🏫 CLASSES -->
-  <section id="classes" class="page">
-    <h1>Classes</h1>
-
-    <div class="add-box">
-      <input id="className" placeholder="Class name" />
-      <button onclick="addClass()">➕ Add Class</button>
+    <div class="card">
+      <h3>Teachers</h3>
+      <p id="teacherCount">0</p>
     </div>
+    <div class="card">
+      <h3>Students</h3>
+      <p id="studentCount">0</p>
+    </div>
+  </div>
+</section>
 
-    <ul id="classList" class="list"></ul>
-  </section>
+<!-- ================= APPROVALS ================= -->
+<section id="approvals" class="page">
+  <h1>User Approvals</h1>
+  <p class="info">Approve or reject new registrations</p>
+  <ul id="pendingList" class="list"></ul>
+</section>
 
-  <!-- 👨‍🏫 TEACHERS -->
-  <section id="teachers" class="page">
-    <h1>Teachers</h1>
+<!-- ================= CLASSES ================= -->
+<section id="classes" class="page">
+  <h1>Classes</h1>
+  <p class="info">Manage classes, subjects & teacher assignment</p>
 
-    <button onclick="addTeacher()">➕ Add Teacher</button>
-    <ul id="teacherList" class="list"></ul>
-  </section>
+  <div class="add-bar">
+    <input id="className" placeholder="Enter class name">
+    <button onclick="addClass()">Add Class</button>
+  </div>
 
-  <!-- ⚙️ SETTINGS -->
-  <section id="settings" class="page">
-    <h1>Settings</h1>
+  <ul id="classList" class="list"></ul>
+</section>
 
-    <label>Minimum Attendance %</label>
-    <input id="minAttendance" type="number" min="0" max="100" />
-    <button onclick="saveSettings()">💾 Save</button>
-  </section>
+<!-- ================= TEACHERS ================= -->
+<section id="teachers" class="page">
+  <h1>Teachers</h1>
+  <p class="info">Create and manage teacher accounts</p>
+
+  <button onclick="addTeacher()">➕ Add Teacher</button>
+  <ul id="teacherList" class="list"></ul>
+</section>
+
+<!-- ================= SETTINGS ================= -->
+<section id="settings" class="page">
+  <h1>System Settings</h1>
+
+  <p class="info">
+    Minimum attendance is used to determine student eligibility for exams.
+  </p>
+
+  <label>Minimum Attendance (%)</label>
+  <input id="minAttendance" type="number" min="0" max="100">
+  <button onclick="saveSettings()">Save Settings</button>
+</section>
 
 </main>
 
-<!-- 📘 CLASS PANEL -->
+<!-- ================= PANELS ================= -->
 <div id="classPanel" class="panel"></div>
-
-<!-- 👤 TEACHER PANEL -->
 <div id="teacherProfile" class="panel"></div>
 
-<!-- ❓ MODAL -->
+<!-- ================= MODAL ================= -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
     <p id="modalText"></p>
-    <button id="modalOk">OK</button>
+    <button id="modalOk">Confirm</button>
   </div>
 </div>
 
-<!-- 🔥 FIREBASE CONFIG -->
+<!-- ================= FIREBASE CONFIG ================= -->
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-    authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-    databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-    projectId: "smart-attendance-system-17e89",
-    storageBucket: "smart-attendance-system-17e89.appspot.com",
-    messagingSenderId: "168700970246",
-    appId: "1:168700970246:web:392156387db81e92544a87"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
+  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
+  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
+  projectId: "smart-attendance-system-17e89",
+  storageBucket: "smart-attendance-system-17e89.appspot.com",
+  messagingSenderId: "168700970246",
+  appId: "1:168700970246:web:392156387db81e92544a87"
+};
 </script>
 
-<!-- ✅ ADMIN JS -->
 <script src="admin.js"></script>
-
 </body>
 </html>
