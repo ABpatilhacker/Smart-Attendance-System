@@ -2,26 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Smart Attendance – Admin Dashboard</title>
+<title>Smart Attendance – Admin</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<!-- 🔥 Firebase Config -->
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
-  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
-  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
-  projectId: "smart-attendance-system-17e89",
-  storageBucket: "smart-attendance-system-17e89.firebasestorage.app",
-  messagingSenderId: "168700970246",
-  appId: "1:168700970246:web:392156387db81e92544a87"
-};
-</script>
 
 <link rel="stylesheet" href="admin.css">
 </head>
@@ -30,50 +17,63 @@ const firebaseConfig = {
 
 <header class="topbar">
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
-  <h1>Smart Attendance – Admin Dashboard</h1>
-  <button onclick="logout()">Logout</button>
+  <h1>Smart Attendance</h1>
+  <button class="logout" onclick="logout()">Logout</button>
 </header>
 
-<aside class="sidebar">
-  <button onclick="nav('dashboard')">Dashboard</button>
-  <button onclick="nav('classes')">Classes</button>
-  <button onclick="nav('teachers')">Teachers</button>
-  <button onclick="nav('approvals')">Approvals</button>
-  <button onclick="nav('settings')">Settings</button>
+<aside class="sidebar" id="sidebar">
+  <button onclick="nav('dashboard')">📊 Dashboard</button>
+  <button onclick="nav('classes')">🏫 Classes</button>
+  <button onclick="nav('teachers')">👩‍🏫 Teachers</button>
+  <button onclick="nav('approvals')">✅ Approvals</button>
+  <button onclick="nav('settings')">⚙ Settings</button>
 </aside>
 
 <main class="content">
 
-<section id="dashboard" class="page">
+<section id="dashboard" class="page active">
   <div class="cards">
-    <div class="card">Classes <span id="classCount">0</span></div>
-    <div class="card">Teachers <span id="teacherCount">0</span></div>
-    <div class="card">Students <span id="studentCount">0</span></div>
+    <div class="card neon">
+      <h3>Classes</h3>
+      <span id="classCount">0</span>
+    </div>
+    <div class="card neon">
+      <h3>Teachers</h3>
+      <span id="teacherCount">0</span>
+    </div>
+    <div class="card neon">
+      <h3>Students</h3>
+      <span id="studentCount">0</span>
+    </div>
   </div>
 </section>
 
 <section id="classes" class="page">
   <h2>Classes</h2>
-  <input id="className" placeholder="Class name">
-  <button onclick="addClass()">Add Class</button>
-  <ul id="classList"></ul>
+  <div class="glass-box">
+    <input id="className" placeholder="Class name">
+    <button onclick="addClass()">Add Class</button>
+  </div>
+  <ul id="classList" class="list"></ul>
 </section>
 
 <section id="teachers" class="page">
   <h2>Teachers</h2>
-  <ul id="teacherList"></ul>
+  <ul id="teacherList" class="list"></ul>
 </section>
 
 <section id="approvals" class="page">
   <h2>Pending Approvals</h2>
-  <ul id="pendingList"></ul>
+  <ul id="pendingList" class="list"></ul>
 </section>
 
 <section id="settings" class="page">
   <h2>Settings</h2>
-  <label>Minimum Attendance %</label>
-  <input id="minAttendance" type="number">
-  <button onclick="saveSettings()">Save</button>
+  <div class="glass-box">
+    <label>Minimum Attendance %</label>
+    <input id="minAttendance" type="number">
+    <button onclick="saveSettings()">Save</button>
+  </div>
 </section>
 
 </main>
@@ -81,16 +81,28 @@ const firebaseConfig = {
 <div id="classPanel" class="panel"></div>
 <div id="teacherProfile" class="panel"></div>
 
-<div id="modal" class="modal hidden">
-  <div class="modal-box">
-    <h3 id="modalTitle"></h3>
-    <p id="modalText"></p>
-    <button id="modalOk" class="btn primary">OK</button>
-  </div>
+<div id="modal" class="modal">
+  <h3 id="modalTitle"></h3>
+  <p id="modalText"></p>
+  <button id="modalOk">OK</button>
 </div>
 
-<!-- ✅ REQUIRED -->
-<script src="admin.js"></script>
+<script>
+function nav(id){
+  document.querySelectorAll('.page').forEach(p=>{
+    p.classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+
+  // close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+}
+</script>
+  <script src="admin.js" defer></script>
 
 </body>
 </html>
