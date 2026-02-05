@@ -324,27 +324,78 @@ function animateCount(el, target) {
   }, 20);
 }
 function editClassPanel(classId) {
-  db.ref("classes/" + classId).once("value").then(snap => {
-    if (!snap.exists()) {
-      toast("Class not found");
-      return;
-    }
+  Promise.all([
+    db.ref("classes/" + classId).once("value"),
+    db.ref("users").once("value")
+  ]).then(([cSnap, uSnap]) => {
+
+    const cls = cSnap.val();
+    const users = uSnap.val() || {};
+
+    const teachers = Object.entries(users)
+      .filter(([_, u]) => u.role === "teacher" && u.approved);
+
+    let subjectsHTML = "";
+
+    Object.entries(cls.subjects || {}).forEach(([sid, sub]) => {
+      let options = `<option value="">Unassigned</option>`;
+      teachers.forEach(([tid, t]) => {
+        options += `
+          <option value="${tid}" ${sub.teacherId === tid ? "selected" : ""}>
+            ${t.name}
+          </option>`;
+      });
+
+      subjectsHTML += `
+        <div class="subject-card">
+          <label>${sub.name}</label>
+          <select id="edit-${sid}">${options}</select>
+        </div>
+      `;
+    });
 
     classPanel.innerHTML = `
-      <h2>Edit Class</h2>
+      <h2>Edit ${cls.name}</h2>
 
       <label>Class Name</label>
-      <input id="editClassName" value="${snap.val().name}">
+      <input id="editClassName" value="${cls.name}">
 
-      <div style="margin-top:16px;display:flex;gap:10px;">
-        <button onclick="saveClassEdit('${classId}')">Save</button>
-        <button class="danger" onclick="closePanel('classPanel')">Cancel</button>
-      </div>
+      <h3>Assign Teachers</h3>
+      ${subjectsHTML || "<p class='muted'>No subjects found</p>"}
+
+      <button class="btn primary" onclick="saveClassEdit('${classId}')">
+        Save Changes
+      </button>
+      <button class="btn secondary" onclick="closePanel('classPanel')">
+        Cancel
+      </button>
     `;
 
     openPanel("classPanel");
   });
 }
+function saveClassEdit(classId) {
+  const name = document.getElementById("editClassName").value.trim();
+  if (!name) return toast("Class name required");
+
+  const updates = { name };
+
+  db.ref("classes/" + classId + "/subjects").once("value").then(snap => {
+    snap.forEach(sub => {
+      const sel = document.getElementById("edit-" + sub.key);
+      if (sel) {
+        updates["subjects/" + sub.key + "/teacherId"] = sel.value || "";
+      }
+    });
+
+    db.ref("classes/" + classId).update(updates)
+      .then(() => {
+        toast("Class updated successfully ✅");
+        closePanel("classPanel");
+      });
+  });
+       }
+
 function openTeacherPanel(uid) {
   Promise.all([
     db.ref("users/" + uid).once("value"),
