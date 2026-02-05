@@ -45,6 +45,10 @@ auth.onAuthStateChanged(user => {
       return;
     }
 
+    // ✅ ACTIVATE DASHBOARD
+    nav("dashboard");
+
+    loadDashboard();
     loadApprovals();
     loadClasses();
     loadTeachers();
@@ -53,23 +57,32 @@ auth.onAuthStateChanged(user => {
 });
 
 /***********************
- 📊 DASHBOARD COUNTS
+ 🚪 LOGOUT
 ************************/
-db.ref("classes").on("value", s => {
-  if (classCount) animateCount(classCount, s.numChildren());
-});
+function logout() {
+  auth.signOut().then(() => location.href = "login.html");
+}
 
-db.ref("users").on("value", s => {
-  let t = 0, st = 0;
-  s.forEach(u => {
-    if (u.val().approved) {
-      if (u.val().role === "teacher") t++;
-      if (u.val().role === "student") st++;
-    }
+/***********************
+ 📊 DASHBOARD
+************************/
+function loadDashboard() {
+  db.ref("classes").on("value", s => {
+    if (classCount) animateCount(classCount, s.numChildren());
   });
-  if (teacherCount) animateCount(teacherCount, t);
-  if (studentCount) animateCount(studentCount, st);
-});
+
+  db.ref("users").on("value", s => {
+    let t = 0, st = 0;
+    s.forEach(u => {
+      if (u.val().approved) {
+        if (u.val().role === "teacher") t++;
+        if (u.val().role === "student") st++;
+      }
+    });
+    if (teacherCount) animateCount(teacherCount, t);
+    if (studentCount) animateCount(studentCount, st);
+  });
+}
 
 /***********************
  🟡 APPROVALS
@@ -136,21 +149,91 @@ function loadClasses() {
   });
 }
 
+function addClass() {
+  const name = className.value.trim();
+  if (!name) return toast("Enter class name");
+
+  const id = name.toLowerCase().replace(/\s+/g, "");
+  db.ref("classes/" + id).set({
+    name,
+    subjects: {},
+    students: {}
+  }).then(() => {
+    className.value = "";
+    toast("Class added ✅");
+  });
+}
+
 /***********************
- ✏️ EDIT CLASS FIX
+ 📘 CLASS PANEL
 ************************/
-function saveClassEdit(id) {
-  const input = document.getElementById("editClassName");
-  if (!input) return;
+function openClassPanel(classId) {
+  Promise.all([
+    db.ref("classes/" + classId).once("value"),
+    db.ref("users").once("value")
+  ]).then(([cSnap, uSnap]) => {
 
-  const name = input.value.trim();
-  if (!name) return toast("Invalid name");
+    const cls = cSnap.val();
+    if (!cls) return toast("Class not found");
 
-  db.ref("classes/" + id).update({ name })
-    .then(() => {
-      toast("Class updated");
-      closePanel("classPanel");
+    const users = uSnap.val() || {};
+    const teachers = Object.entries(users)
+      .filter(([_, u]) => u.role === "teacher" && u.approved);
+
+    let subjectHTML = "";
+
+    Object.entries(cls.subjects || {}).forEach(([key, sub]) => {
+      let options = `<option value="">Unassigned</option>`;
+      teachers.forEach(([tid, t]) => {
+        options += `<option value="${tid}" ${sub.teacherId === tid ? "selected" : ""}>${t.name}</option>`;
+      });
+
+      subjectHTML += `
+        <div class="subject-card">
+          <h4>${sub.name}</h4>
+          <select id="assign-${key}">${options}</select>
+          <button onclick="assignSubject('${classId}','${key}')">Assign</button>
+        </div>`;
     });
+
+    classPanel.innerHTML = `
+      <h2>${cls.name}</h2>
+      ${subjectHTML || "<p class='muted'>No subjects</p>"}
+      <button onclick="closePanel('classPanel')">Close</button>
+    `;
+
+    openPanel("classPanel");
+  });
+}
+
+function assignSubject(classId, subjectKey) {
+  const sel = document.getElementById("assign-" + subjectKey);
+  if (!sel) return;
+
+  db.ref(`classes/${classId}/subjects/${subjectKey}`)
+    .update({ teacherId: sel.value })
+    .then(() => toast("Subject assigned ✅"));
+}
+
+/***********************
+ 👨‍🏫 TEACHERS
+************************/
+function loadTeachers() {
+  if (!teacherList) return;
+
+  db.ref("users").on("value", snap => {
+    teacherList.innerHTML = "";
+    snap.forEach(u => {
+      const d = u.val();
+      if (d.role === "teacher" && d.approved) {
+        teacherList.innerHTML += `
+          <li>
+            <strong>${d.name}</strong>
+            <small>${d.email}</small>
+          </li>`;
+      }
+    });
+  });
 }
 
 /***********************
@@ -163,31 +246,53 @@ function loadSettings() {
   });
 }
 
+function saveSettings() {
+  const v = Number(minAttendance.value);
+  if (v < 0 || v > 100) return toast("Invalid value");
+  db.ref("settings").update({ minAttendance: v })
+    .then(() => toast("Settings saved"));
+}
+
 /***********************
- 🧭 UI HELPERS
+ 🧭 NAVIGATION (CRITICAL FIX)
 ************************/
+function nav(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  const page = document.getElementById(id);
+  if (page) page.classList.add("active");
+
+  const sb = document.querySelector(".sidebar");
+  if (sb) sb.classList.remove("active");
+}
+
 function toggleSidebar() {
   const sb = document.querySelector(".sidebar");
   if (sb) sb.classList.toggle("active");
 }
 
 /***********************
- 🔔 SAFE COUNT ANIMATION
+ 📦 PANELS
 ************************/
-function animateCount(el, target) {
-  if (!el) return;
-  let start = 0;
-  const step = Math.max(1, Math.floor(target / 30));
+function openPanel(id) {
+  const p = document.getElementById(id);
+  if (p) p.classList.add("active-panel");
+}
+function closePanel(id) {
+  const p = document.getElementById(id);
+  if (p) p.classList.remove("active-panel");
+}
 
-  const timer = setInterval(() => {
-    start += step;
-    if (start >= target) {
-      el.innerText = target;
-      clearInterval(timer);
-    } else {
-      el.innerText = start;
-    }
-  }, 20);
+/***********************
+ ❓ MODAL
+************************/
+function confirmModal(title, text, cb) {
+  modalTitle.innerText = title;
+  modalText.innerText = text;
+  modal.classList.add("show");
+  modalOk.onclick = () => {
+    modal.classList.remove("show");
+    cb();
+  };
 }
 
 /***********************
@@ -199,4 +304,19 @@ function toast(msg) {
   t.innerText = msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3000);
+}
+
+/***********************
+ 🔢 COUNT ANIMATION
+************************/
+function animateCount(el, target) {
+  let start = 0;
+  const step = Math.max(1, Math.floor(target / 30));
+  const timer = setInterval(() => {
+    start += step;
+    if (start >= target) {
+      el.innerText = target;
+      clearInterval(timer);
+    } else el.innerText = start;
+  }, 20);
 }
