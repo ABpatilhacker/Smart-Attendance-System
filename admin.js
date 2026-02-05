@@ -25,9 +25,6 @@ const className = $("className");
 const minAttendance = $("minAttendance");
 
 const classPanel = $("classPanel");
-const teacherPanel = $("teacherPanel");
-
-const overlay = $("overlay");
 const modal = $("modal");
 const modalTitle = $("modalTitle");
 const modalText = $("modalText");
@@ -63,41 +60,12 @@ function logout() {
 }
 
 /***********************
- 🧭 SIDEBAR + NAV
-************************/
-function toggleSidebar() {
-  $("sidebar").classList.toggle("open");
-  overlay.classList.toggle("show");
-}
-
-function nav(id, btn) {
-  document.querySelectorAll(".page").forEach(p =>
-    p.classList.remove("active")
-  );
-  $(id)?.classList.add("active");
-
-  document.querySelectorAll(".sidebar button").forEach(b =>
-    b.classList.remove("active")
-  );
-  if (btn) btn.classList.add("active");
-
-  $("sidebar").classList.remove("open");
-  overlay.classList.remove("show");
-}
-
-overlay.addEventListener("click", () => {
-  $("sidebar").classList.remove("open");
-  overlay.classList.remove("show");
-  closeAllPanels();
-});
-
-/***********************
  📊 DASHBOARD
 ************************/
 function loadDashboard() {
-  db.ref("classes").on("value", s =>
-    classCount && animateCount(classCount, s.numChildren())
-  );
+  db.ref("classes").on("value", s => {
+    classCount && animateCount(classCount, s.numChildren());
+  });
 
   db.ref("users").on("value", s => {
     let t = 0, st = 0;
@@ -138,8 +106,9 @@ function loadApprovals() {
       }
     });
 
-    if (!found)
+    if (!found) {
       pendingList.innerHTML = "<p class='muted'>No pending approvals 🎉</p>";
+    }
   });
 }
 
@@ -149,9 +118,10 @@ function approveUser(uid) {
 }
 
 function rejectUser(uid) {
-  confirmModal("Reject User", "Reject this user?", () =>
-    db.ref("users/" + uid).remove().then(() => toast("Rejected ❌"))
-  );
+  confirmModal("Reject User", "Reject this user?", () => {
+    db.ref("users/" + uid).remove()
+      .then(() => toast("Rejected ❌"));
+  });
 }
 
 /***********************
@@ -169,6 +139,7 @@ function loadClasses() {
           <div class="actions">
             <button onclick="openClassPanel('${c.key}')">View</button>
             <button onclick="editClassPanel('${c.key}')">✏️</button>
+            <button class="danger" onclick="deleteClass('${c.key}')">🗑️</button>
           </div>
         </li>`;
     });
@@ -180,27 +151,127 @@ function addClass() {
   if (!name) return toast("Enter class name");
 
   const id = name.toLowerCase().replace(/\s+/g, "");
-  db.ref("classes/" + id).set({ name, subjects: {}, students: {} })
-    .then(() => {
-      className.value = "";
-      toast("Class added ✅");
-    });
+  db.ref("classes/" + id).set({
+    name,
+    subjects: {},
+    students: {}
+  }).then(() => {
+    className.value = "";
+    toast("Class added ✅");
+  });
 }
 
 /***********************
- 📘 CLASS PANEL
+ 📘 VIEW CLASS PANEL
 ************************/
 function openClassPanel(classId) {
-  db.ref("classes/" + classId).once("value").then(snap => {
-    const cls = snap.val();
+  Promise.all([
+    db.ref("classes/" + classId).once("value"),
+    db.ref("users").once("value")
+  ]).then(([cSnap, uSnap]) => {
+
+    const cls = cSnap.val();
     if (!cls) return toast("Class not found");
+
+    const users = uSnap.val() || {};
+    const teachers = Object.entries(users)
+      .filter(([_, u]) => u.role === "teacher" && u.approved);
+
+    let html = "";
+
+    Object.entries(cls.subjects || {}).forEach(([sid, sub]) => {
+      let options = `<option value="">Unassigned</option>`;
+      teachers.forEach(([tid, t]) => {
+        options += `<option value="${tid}" ${sub.teacherId === tid ? "selected" : ""}>${t.name}</option>`;
+      });
+
+      html += `
+        <div class="subject-card">
+          <span class="badge">📘 ${sub.name}</span>
+          <select id="assign-${sid}">${options}</select>
+          <button onclick="assignSubject('${classId}','${sid}')">Assign</button>
+        </div>`;
+    });
 
     classPanel.innerHTML = `
       <h2>${cls.name}</h2>
-      <button onclick="closeAllPanels()">Close</button>
+
+      ${html || `
+        <p class="muted">No subjects yet</p>
+        <input id="newSubjectName" placeholder="Subject name">
+        <button onclick="addSubject('${classId}')">➕ Add Subject</button>
+      `}
+
+      <button class="ghost" onclick="closePanel()">Close</button>
     `;
-    openPanel(classPanel);
+
+    openPanel();
   });
+}
+
+/***********************
+ ➕ ADD SUBJECT
+************************/
+function addSubject(classId) {
+  const input = $("newSubjectName");
+  if (!input || !input.value.trim()) return toast("Enter subject name");
+
+  const key = input.value.toLowerCase().replace(/\s+/g, "");
+  db.ref(`classes/${classId}/subjects/${key}`).set({
+    name: input.value,
+    teacherId: ""
+  }).then(() => {
+    toast("Subject added ✅");
+    openClassPanel(classId);
+  });
+}
+
+function assignSubject(classId, subjectKey) {
+  const sel = $("assign-" + subjectKey);
+  if (!sel) return;
+
+  db.ref(`classes/${classId}/subjects/${subjectKey}`)
+    .update({ teacherId: sel.value })
+    .then(() => toast("Assigned ✅"));
+}
+
+/***********************
+ ✏️ EDIT CLASS
+************************/
+function editClassPanel(classId) {
+  db.ref("classes/" + classId).once("value").then(snap => {
+    const cls = snap.val();
+    if (!cls) return;
+
+    let subjects = "";
+    Object.entries(cls.subjects || {}).forEach(([sid, sub]) => {
+      subjects += `
+        <div class="subject-card">
+          <span class="badge">${sub.name}</span>
+        </div>`;
+    });
+
+    classPanel.innerHTML = `
+      <h2>Edit ${cls.name}</h2>
+      <input id="editClassName" value="${cls.name}">
+      ${subjects || "<p class='muted'>No subjects</p>"}
+      <button onclick="saveClassEdit('${classId}')">Save</button>
+      <button class="ghost" onclick="closePanel()">Cancel</button>
+    `;
+
+    openPanel();
+  });
+}
+
+function saveClassEdit(classId) {
+  const name = $("editClassName").value.trim();
+  if (!name) return toast("Name required");
+
+  db.ref("classes/" + classId).update({ name })
+    .then(() => {
+      toast("Updated ✅");
+      closePanel();
+    });
 }
 
 /***********************
@@ -227,22 +298,23 @@ function loadTeachers() {
 function openTeacherPanel(uid) {
   db.ref("users/" + uid).once("value").then(snap => {
     const t = snap.val();
-    teacherPanel.innerHTML = `
+    classPanel.innerHTML = `
       <h2>${t.name}</h2>
-      <p>${t.email}</p>
-      <button onclick="closeAllPanels()">Close</button>
+      <p class="muted">${t.email}</p>
+      <button onclick="closePanel()">Close</button>
     `;
-    openPanel(teacherPanel);
+    openPanel();
   });
 }
 
 /***********************
- ⚙ SETTINGS
+ ⚙️ SETTINGS
 ************************/
 function loadSettings() {
-  db.ref("settings").once("value").then(s =>
-    minAttendance.value = s.val()?.minAttendance || 75
-  );
+  if (!minAttendance) return;
+  db.ref("settings").once("value").then(s => {
+    minAttendance.value = s.val()?.minAttendance || 75;
+  });
 }
 
 function saveSettings() {
@@ -253,17 +325,27 @@ function saveSettings() {
 }
 
 /***********************
- 📦 PANELS
+ 🧭 NAV + SIDEBAR
 ************************/
-function openPanel(el) {
-  overlay.classList.add("show");
-  el.classList.add("active-panel");
+function nav(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  $(id)?.classList.add("active");
+  document.querySelector(".sidebar")?.classList.remove("open");
 }
 
-function closeAllPanels() {
-  overlay.classList.remove("show");
-  document.querySelectorAll(".side-panel")
-    .forEach(p => p.classList.remove("active-panel"));
+function toggleSidebar() {
+  document.querySelector(".sidebar")?.classList.toggle("open");
+}
+
+/***********************
+ 📦 PANEL
+************************/
+function openPanel() {
+  classPanel.classList.add("active-panel");
+}
+
+function closePanel() {
+  classPanel.classList.remove("active-panel");
 }
 
 /***********************
@@ -272,9 +354,9 @@ function closeAllPanels() {
 function confirmModal(title, text, cb) {
   modalTitle.innerText = title;
   modalText.innerText = text;
-  modal.classList.add("show");
+  modal.style.display = "flex";
   modalOk.onclick = () => {
-    modal.classList.remove("show");
+    modal.style.display = "none";
     cb();
   };
 }
@@ -294,13 +376,13 @@ function toast(msg) {
  🔢 COUNT ANIMATION
 ************************/
 function animateCount(el, target) {
-  let cur = 0;
-  const step = Math.max(1, Math.floor(target / 30));
+  let i = 0;
+  const step = Math.max(1, target / 30);
   const timer = setInterval(() => {
-    cur += step;
-    if (cur >= target) {
+    i += step;
+    if (i >= target) {
       el.innerText = target;
       clearInterval(timer);
-    } else el.innerText = cur;
+    } else el.innerText = Math.floor(i);
   }, 20);
 }
