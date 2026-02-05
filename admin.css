@@ -15,6 +15,8 @@
   --secondary: #ec4899;
   --text-dark: #1f2937;
   --text-light: #6b7280;
+  --shadow-soft: 0 10px 30px rgba(0,0,0,0.08);
+  --shadow-hover: 0 18px 45px rgba(0,0,0,0.12);
 }
 
 /* ===== BODY ===== */
@@ -29,10 +31,8 @@ body {
 .topbar {
   height: 60px;
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
+  inset: 0 0 auto 0;
+  z-index: 60;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -40,6 +40,7 @@ body {
   background: var(--glass-bg);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
 }
 
 .topbar h1 {
@@ -55,15 +56,15 @@ body {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #fff;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .hamburger:hover,
 .logout:hover {
   transform: scale(1.05);
+  box-shadow: var(--shadow-hover);
 }
 
-/* ===== SIDEBAR ===== */
 /* ===== SIDEBAR ===== */
 .sidebar {
   position: fixed;
@@ -75,91 +76,93 @@ body {
   backdrop-filter: blur(18px);
   border-right: 1px solid var(--glass-border);
   padding: 16px;
-  transition: transform 0.35s ease;
-  z-index: 40;
-
-  /* 🔑 IMPORTANT */
+  z-index: 50;
   transform: translateX(-100%);
+  transition: transform 0.35s ease;
+  box-shadow: var(--shadow-soft);
 }
 
-/* when opened */
 .sidebar.open {
   transform: translateX(0);
 }
-.content {
-  margin-top: 70px;
-  padding: 20px;
-  transition: margin-left 0.35s ease;
-}
 
-/* when sidebar open on desktop */
-@media (min-width: 769px) {
-  .content.sidebar-open {
-    margin-left: 250px;
-  }
-}
-
+/* ===== SIDEBAR BUTTONS ===== */
 .sidebar button {
   width: 100%;
   margin-bottom: 12px;
-  padding: 12px;
-  border-radius: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
   border: none;
   background: transparent;
   color: var(--text-dark);
   font-size: 15px;
   text-align: left;
   cursor: pointer;
-  transition: background 0.25s, transform 0.2s;
+  transition: 
+    background 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
 }
 
+/* hover */
 .sidebar button:hover {
   background: linear-gradient(135deg, #e0e7ff, #fce7f3);
   transform: translateX(4px);
 }
 
-/* ===== MOBILE SIDEBAR ===== */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
+/* 🔥 ACTIVE BUTTON GLOW */
+.sidebar button.active {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.25),
+              0 12px 30px rgba(236,72,153,0.35);
 }
 
 /* ===== CONTENT ===== */
 .content {
   margin-top: 70px;
-  margin-left: 250px;
   padding: 20px;
-  transition: margin 0.3s ease;
+  transition: margin-left 0.35s ease;
 }
 
-@media (max-width: 768px) {
-  .content {
-    margin-left: 0;
+@media (min-width: 769px) {
+  .content.sidebar-open {
+    margin-left: 250px;
   }
 }
 
-/* ===== PAGE ANIMATION ===== */
+/* ===== MOBILE OVERLAY BLUR ===== */
+.panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(8px);
+  display: none;
+  z-index: 45;
+}
+
+.panel.show {
+  display: block;
+}
+
+/* ===== PAGE TRANSITIONS ===== */
 .page {
   display: none;
-  animation: fadeUp 0.45s ease;
+  animation: pageFade 0.45s ease;
 }
 
 .page.active {
   display: block;
 }
 
-@keyframes fadeUp {
+@keyframes pageFade {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(14px) scale(0.98);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -177,12 +180,13 @@ body {
   border-radius: 18px;
   padding: 24px;
   text-align: center;
-  transition: transform 0.25s ease, box-shadow 0.25s;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-hover);
 }
 
 .card h3 {
@@ -204,6 +208,7 @@ body {
   backdrop-filter: blur(14px);
   border-radius: 16px;
   border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
 }
 
 /* ===== INPUTS & BUTTONS ===== */
@@ -228,11 +233,12 @@ button {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #fff;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 button:hover {
   transform: scale(1.05);
+  box-shadow: var(--shadow-hover);
 }
 
 /* ===== LIST ===== */
@@ -244,23 +250,15 @@ button:hover {
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-}
-
-/* ===== PANELS ===== */
-.panel {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(10px);
-  display: none;
-  z-index: 100;
+  box-shadow: var(--shadow-soft);
 }
 
 /* ===== MODAL ===== */
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(10px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -276,4 +274,5 @@ button:hover {
   max-width: 320px;
   text-align: center;
   border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-hover);
 }
