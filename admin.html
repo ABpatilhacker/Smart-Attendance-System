@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,18 +25,21 @@
 
 <!-- SIDEBAR -->
 <aside class="sidebar">
-  <button onclick="nav('dashboard')">📊 Dashboard</button>
+  <button class="active" onclick="nav('dashboard')">📊 Dashboard</button>
   <button onclick="nav('classes')">🏫 Classes</button>
   <button onclick="nav('teachers')">👩‍🏫 Teachers</button>
   <button onclick="nav('approvals')">✅ Approvals</button>
   <button onclick="nav('settings')">⚙ Settings</button>
 </aside>
 
+<!-- 🔴 REQUIRED OVERLAY (THIS WAS MISSING EARLIER) -->
+<div id="overlay" class="panel" onclick="toggleSidebar()"></div>
+
 <!-- MAIN CONTENT -->
-<main class="content">
+<main class="content sidebar-open">
 
   <!-- DASHBOARD -->
-  <section id="dashboard" class="page">
+  <section id="dashboard" class="page active">
     <div class="cards">
       <div class="card">
         <h3>Classes</h3>
@@ -103,7 +107,7 @@
     <button id="modalOk">OK</button>
   </div>
 </div>
-<script>
+  <script>
   const firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
@@ -115,8 +119,6 @@
 };
   </script>  
 
-<!-- YOUR ADMIN JS -->
 <script src="admin.js"></script>
-
 </body>
 </html>
