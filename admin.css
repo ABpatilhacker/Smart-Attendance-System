@@ -64,6 +64,7 @@ body {
 }
 
 /* ===== SIDEBAR ===== */
+/* ===== SIDEBAR ===== */
 .sidebar {
   position: fixed;
   top: 60px;
@@ -76,6 +77,26 @@ body {
   padding: 16px;
   transition: transform 0.35s ease;
   z-index: 40;
+
+  /* 🔑 IMPORTANT */
+  transform: translateX(-100%);
+}
+
+/* when opened */
+.sidebar.open {
+  transform: translateX(0);
+}
+.content {
+  margin-top: 70px;
+  padding: 20px;
+  transition: margin-left 0.35s ease;
+}
+
+/* when sidebar open on desktop */
+@media (min-width: 769px) {
+  .content.sidebar-open {
+    margin-left: 250px;
+  }
 }
 
 .sidebar button {
