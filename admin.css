@@ -203,12 +203,27 @@ input:focus {
   inset: 0;
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(18px);
-  display: none;
-  align-items: center;
-  justify-content: center;
+  display: none;              /* IMPORTANT */
   z-index: 30;
 }
 
+.panel.active,
+.modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* inner box */
+.panel > div,
+.modal > div {
+  background: rgba(30,0,60,0.9);
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 0 35px #a855f7;
+  width: 90%;
+  max-width: 420px;
+}
 .panel.active,
 .modal.active {
   display: flex;
