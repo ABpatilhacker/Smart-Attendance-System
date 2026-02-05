@@ -4,6 +4,27 @@
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
+/***********************
+ 🧩 DOM REFERENCES (FIX)
+************************/
+const classCount = document.getElementById("classCount");
+const teacherCount = document.getElementById("teacherCount");
+const studentCount = document.getElementById("studentCount");
+
+const classList = document.getElementById("classList");
+const teacherList = document.getElementById("teacherList");
+const pendingList = document.getElementById("pendingList");
+
+const className = document.getElementById("className");
+const minAttendance = document.getElementById("minAttendance");
+
+const classPanel = document.getElementById("classPanel");
+const teacherProfile = document.getElementById("teacherProfile");
+
+const modal = document.getElementById("modal");
+const modalTitle = document.getElementById("modalTitle");
+const modalText = document.getElementById("modalText");
+const modalOk = document.getElementById("modalOk");
 
 /***********************
  🔐 AUTH CHECK
