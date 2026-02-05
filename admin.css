@@ -1,21 +1,18 @@
 :root {
-  --bg: linear-gradient(180deg, #0b0016, #12002b);
-  --panel: #1b0836;
-  --accent: #8b5cf6;
-  --accent-soft: rgba(139,92,246,.3);
+  --bg: linear-gradient(180deg, #f4efff, #e9ddff);
+  --panel: rgba(255,255,255,0.65);
+  --panel-strong: rgba(255,255,255,0.85);
+  --accent: #7c3aed;
+  --accent-soft: #ede9fe;
   --danger: #ef4444;
-  --text: #ffffff;
-  --muted: #b8a9ff;
+  --text: #1f1b2e;
+  --muted: #6b5ca5;
 }
-
-/* RESET */
-* { box-sizing: border-box; margin:0; padding:0; font-family:Poppins,sans-serif }
 
 body {
   background: var(--bg);
   color: var(--text);
 }
-
 /* TOPBAR */
 .topbar {
   height:64px;
@@ -83,33 +80,59 @@ li {
 
 /* BUTTON SYSTEM */
 .btn {
-  padding:8px 14px;
-  border-radius:12px;
-  border:none;
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
 }
+
 .btn.primary {
-  background:var(--accent);
-  color:#fff;
+  background: var(--accent);
+  color: white;
 }
-.btn.ghost {
-  background:#2a145e;
-  color:#fff;
+
+.btn.secondary {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
+
 .btn.danger {
-  background:var(--danger);
+  background: var(--danger);
+  color: white;
+}
+
+.btn:active {
+  transform: scale(0.96);
 }
 
 /* PANELS */
 .panel {
-  position:fixed;
-  right:-100%;
-  top:64px;
-  width:100%;
-  max-width:420px;
-  height:100%;
-  background:#16002e;
-  padding:20px;
-  transition:.35s;
+  position: fixed;
+  right: -100%;
+  top: 64px;
+  width: 100%;
+  max-width: 420px;
+  height: calc(100% - 64px);
+  background: var(--panel-strong);
+  backdrop-filter: blur(14px);
+  padding: 20px;
+  border-radius: 20px 0 0 20px;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+  transition: 0.35s ease;
+  overflow-y: auto;
+}
+
+.panel.active-panel {
+  right: 0;
+}
+
+.panel h2 {
+  margin-bottom: 12px;
+}
+
+.panel h3 {
+  margin-top: 20px;
 }
 .panel.active-panel { right:0 }
 
