@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Student Dashboard</title>
+  <title>Student Dashboard | ERP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Font -->
@@ -19,14 +19,17 @@
 </head>
 <body>
 
+<!-- 🔔 LIVE ALERT -->
+<div id="liveAlert" class="alert-banner"></div>
+
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
-  <h2>Student ERP</h2>
+  <h2>🎓 Student ERP</h2>
   <nav>
-    <button onclick="showSection('dashboard')">Dashboard</button>
-    <button onclick="showSection('classes')">Subjects</button>
-    <button onclick="showSection('attendance')">Attendance</button>
-    <button onclick="logout()">Logout</button>
+    <button onclick="showSection('dashboard')">🏠 Dashboard</button>
+    <button onclick="showSection('classes')">📚 Subjects</button>
+    <button onclick="showSection('attendance')">📊 Attendance</button>
+    <button onclick="logout()">🚪 Logout</button>
   </nav>
 </aside>
 
@@ -41,97 +44,84 @@
 <!-- MAIN -->
 <main class="main">
 
-  <!-- DASHBOARD -->
-  <section id="dashboard" class="section active">
+<!-- DASHBOARD -->
+<section id="dashboard" class="section active">
 
-    <div class="erp-cards">
-      <div class="erp-card">
-        <label>Total Subjects</label>
-        <span id="classCount">0</span>
-      </div>
-      <div class="erp-card">
-        <label>Overall Attendance</label>
-        <span id="attendancePercent">0%</span>
-      </div>
-      <div class="erp-card">
-        <label>Monthly Summary</label>
-        <span id="monthlySummary">--</span>
-      </div>
-      <div class="erp-card">
-        <label>Prediction</label>
-        <span id="predictionText">--</span>
-      </div>
+  <div class="card-grid">
+    <div class="card">
+      Subjects
+      <span id="classCount">0</span>
     </div>
-
-    <div class="chart-box">
-      <canvas id="attendanceChart"></canvas>
+    <div class="card">
+      Attendance
+      <span id="attendancePercent">0%</span>
     </div>
-
-  </section>
-
-  <!-- SUBJECTS -->
-  <section id="classes" class="section">
-    <h2>Your Subjects</h2>
-    <div id="classList" class="erp-subject-grid"></div>
-  </section>
-
-  <!-- ATTENDANCE -->
-  <section id="attendance" class="section">
-
-    <div class="erp-header">
-      <h2>Attendance Details</h2>
-
-      <div class="erp-meta">
-        <div><strong>Class:</strong> <span id="metaClass">--</span></div>
-        <div><strong>Subject:</strong> <span id="metaSubject">--</span></div>
-        <div><strong>Attendance:</strong> <span id="metaPercent">--</span></div>
-        <div><strong>Status:</strong> <span id="metaStatus">--</span></div>
-      </div>
+    <div class="card">
+      Monthly
+      <span id="monthlySummary">--</span>
     </div>
-
-    <select id="subjectSelect" onchange="loadSubjectAttendance()">
-      <option value="">Select Subject</option>
-    </select>
-
-    <div class="erp-table-wrapper">
-      <table class="erp-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Day</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="attendanceTableBody"></tbody>
-      </table>
+    <div class="card">
+      Prediction
+      <span id="predictionText">--</span>
     </div>
+  </div>
 
-    <button class="export-btn" onclick="exportPDF()">Export Attendance PDF</button>
+  <div class="chart-box">
+    <canvas id="attendanceChart"></canvas>
+  </div>
 
-  </section>
+</section>
+
+<!-- SUBJECTS -->
+<section id="classes" class="section">
+  <h2>Your Subjects</h2>
+  <div id="classList" class="card-grid"></div>
+</section>
+
+<!-- ATTENDANCE -->
+<section id="attendance" class="section">
+  <h2>Attendance Record</h2>
+
+  <select id="subjectSelect" onchange="loadSubjectAttendance()">
+    <option value="">Select Subject</option>
+  </select>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="attendanceTableBody"></tbody>
+  </table>
+
+  <button class="export-btn" onclick="exportPDF()">📄 Export PDF</button>
+</section>
 
 </main>
 
-<!-- Firebase -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="firebase.js"></script>
 
-<!-- UI -->
+<!-- UI FIX -->
 <script>
-function toggleSidebar(){
+function toggleSidebar() {
   sidebar.classList.toggle("open");
   overlay.classList.toggle("show");
 }
-function showSection(id){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   sidebar.classList.remove("open");
   overlay.classList.remove("show");
 }
 </script>
 
+<!-- APP -->
 <script src="student.js"></script>
 </body>
 </html>
