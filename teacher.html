@@ -37,7 +37,6 @@
   </nav>
 </aside>
 
-<!-- Overlay -->
 <div id="overlay" onclick="toggleSidebar()"></div>
 
 <!-- ================= TOPBAR ================= -->
@@ -111,68 +110,82 @@
     <button class="save-btn" onclick="saveAttendance()">Save Attendance</button>
   </section>
 
-  <!-- ===== RECORDS (FIXED) ===== -->
- <select id="recordSubjectSelect" onchange="onRecordSubjectChange()">
-  <option value="">-- Select --</option>
- </select>
-<section class="section" id="records">
-  <h2>Attendance Records</h2>
+  <!-- ===== RECORDS ===== -->
+  <section class="section" id="records">
+    <h2>Attendance Records</h2>
 
-  <div class="form-group">
-    <label>Select Class & Subject</label>
-    <select id="recordSubjectSelect" onchange="onRecordSubjectChange()">
-      <option value="">-- Select --</option>
-    </select>
-  </div>
+    <div class="form-group">
+      <label>Select Class & Subject</label>
+      <select id="recordSubjectSelect" onchange="onRecordSubjectChange()">
+        <option value="">-- Select --</option>
+      </select>
+    </div>
 
-  <div class="form-group">
-    <label>Select Date</label>
-    <input type="date" id="calendar" onchange="loadAttendanceRecords()" />
-  </div>
+    <div class="form-group">
+      <label>Select Date</label>
+      <input type="date" id="calendar" onchange="loadAttendanceRecords()" />
+    </div>
 
-  <div class="table-wrapper">
-    <table class="attendance-table">
-      <thead>
-        <tr>
-          <th>Roll No</th>
-          <th>Name</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="recordBody"></tbody>
-    </table>
-  </div>
-</section>
- 
+    <div class="table-wrapper">
+      <table class="attendance-table">
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Name</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="recordBody"></tbody>
+      </table>
+    </div>
+  </section>
+
   <!-- ===== DEFAULTERS ===== -->
-  
-    <select id="recordSubjectSelect" onchange="onRecordSubjectChange()">
-  <option value="">-- Select --</option>
-    </select>
+  <section class="section" id="defaulters">
     <h2>Defaulters List</h2>
-<section class="section" id="defaulters">
-  <select id="defaulterSubjectSelect" onchange="onDefaulterSubjectChange()">
-    <option value="">-- Select Subject --</option>
-  </select>
 
-  <h2>Defaulters List</h2>
+    <div class="form-group">
+      <label>Select Subject</label>
+      <select id="defaulterSubjectSelect" onchange="onDefaulterSubjectChange()">
+        <option value="">-- Select Subject --</option>
+      </select>
+    </div>
 
-  <div class="table-wrapper">
-    <table class="defaulter-table">
-      <thead>
-        <tr>
-          <th>Roll No</th>
-          <th>Name</th>
-          <th>Absent %</th>
-        </tr>
-      </thead>
-      <tbody id="defaulterBody"></tbody>
-    </table>
-  </div>
-</section>
+    <div class="table-wrapper">
+      <table class="defaulter-table">
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Name</th>
+            <th>Absent %</th>
+          </tr>
+        </thead>
+        <tbody id="defaulterBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== PROFILE ===== -->
+  <section class="section" id="profile">
+    <h2>My Profile</h2>
+
+    <div class="profile-card">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="profileName" />
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="profileEmail" readonly />
+      </div>
+
+      <button class="save-btn" onclick="saveProfile()">Save Profile</button>
+    </div>
+  </section>
+
 </main>
 
-<!-- JS -->
 <script src="teacher.js"></script>
 </body>
 </html>
