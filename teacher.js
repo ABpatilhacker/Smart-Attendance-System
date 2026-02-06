@@ -131,50 +131,69 @@ function loadSubjects() {
 /********************************
  📝 ATTENDANCE TABLE (REAL-TIME + TODAY)
 *********************************/
-function loadAttendanceTable() {
+ function loadAttendanceTable() {
   const body = document.getElementById("attendanceBody");
-  body.innerHTML = {};
-  attendanceData = {};
+  body.innerHTML = "";
 
-  selectedSubjectKey = document.getElementById("subjectSelect").value;
   if (!selectedSubjectKey) return;
 
-  const [classId, subjectId] = selectedSubjectKey.split("_");
+  const [classId] = selectedSubjectKey.split("_");
   const today = new Date().toISOString().split("T")[0];
 
-  // Real-time listener for today's attendance
   db.ref(`attendance/${selectedSubjectKey}/${today}`).on("value", snap => {
-    const data = snap.val() || {};
-    attendanceData = {...data};
+    attendanceData = snap.val() || {};
     body.innerHTML = "";
 
-    db.ref("users").orderByChild("classId").equalTo(classId).once("value")
-      .then(stuSnap => {
+    db.ref("users")
+      .orderByChild("classId")
+      .equalTo(classId)
+      .once("value")
+      .then(studentsSnap => {
         let students = [];
-        stuSnap.forEach(s => {
+
+        studentsSnap.forEach(s => {
           const d = s.val();
-          if (d.role === "student") students.push({ ...d, uid: s.key });
+          if (d.role === "student") {
+            students.push({ ...d, uid: s.key });
+          }
         });
 
-        students.sort((a,b) => a.roll - b.roll);
+        students.sort((a, b) => a.roll - b.roll);
 
         students.forEach(stu => {
-          const tr = document.createElement("tr");
           const status = attendanceData[stu.uid] || "";
+
+          const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${stu.roll}</td>
             <td>${stu.name}</td>
             <td>
-              <button class="att-btn present ${status==='P'?'active':''}" onclick="markAttendance('${stu.uid}','P',this)">P</button>
-              <button class="att-btn absent ${status==='A'?'active':''}" onclick="markAttendance('${stu.uid}','A',this)">A</button>
+              <button class="att-btn present ${status === "P" ? "active" : ""}"
+                onclick="markAttendance('${stu.uid}','P',this)">P</button>
+
+              <button class="att-btn absent ${status === "A" ? "active" : ""}"
+                onclick="markAttendance('${stu.uid}','A',this)">A</button>
             </td>
           `;
           body.appendChild(tr);
         });
       });
   });
-}
+ }
+function markAttendance(uid, status, btn) {
+  attendanceData[uid] = status;
 
+  // deactivate siblings
+  const parent = btn.parentElement;
+  parent.querySelectorAll(".att-btn").forEach(b =>
+    b.classList.remove("active")
+  );
+
+  // activate clicked
+  btn.classList.add("active");
+
+  loadDefaulters(); // realtime defaulter update
+}
 /********************************
  💾 SAVE ATTENDANCE (TODAY ONLY)
 *********************************/
@@ -257,13 +276,46 @@ function loadChart() {
  ⚠️ DEFAULTERS (STATIC SAFE)
 *********************************/
 function loadDefaulters() {
-  const body = document.getElementById("defaulterBody");
-  body.innerHTML = `
-    <tr><td>12</td><td>Rahul</td><td>42%</td></tr>
-    <tr><td>18</td><td>Neha</td><td>38%</td></tr>
-  `;
-}
+  if (!selectedSubjectKey) return;
 
+  const list = document.getElementById("defaulterList");
+  list.innerHTML = "";
+
+  const minAttendance = Number(localStorage.getItem("minAttendance")) || 75;
+
+  db.ref(`attendance/${selectedSubjectKey}`).once("value").then(attSnap => {
+    const allDays = attSnap.val() || {};
+
+    db.ref("users").once("value").then(userSnap => {
+      userSnap.forEach(s => {
+        const stu = s.val();
+        if (stu.role !== "student") return;
+
+        let total = 0, present = 0;
+
+        Object.values(allDays).forEach(day => {
+          if (day[stu.uid]) {
+            total++;
+            if (day[stu.uid] === "P") present++;
+          }
+        });
+
+        if (!total) return;
+
+        const percent = Math.round((present / total) * 100);
+
+        if (percent < minAttendance) {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <strong>${stu.name}</strong>
+            <span>${percent}%</span>
+          `;
+          list.appendChild(li);
+        }
+      });
+    });
+  });
+                       }
 /********************************
  🍞 TOAST
 *********************************/
@@ -291,3 +343,18 @@ function toggleTheme() {
 if (localStorage.getItem("theme") === "light") {
   document.body.classList.add("light");
 }
+let attendanceData = {};
+let selectedSubjectKey = null;
+
+/* ===== SUBJECT CHANGE ===== */
+document.getElementById("subjectSelect").addEventListener("change", e => {
+  selectedSubjectKey = e.target.value;
+
+  document.getElementById("attendanceSection").style.display =
+    selectedSubjectKey ? "block" : "none";
+
+  if (selectedSubjectKey) {
+    loadAttendanceTable();
+    loadDefaulters(); // realtime defaulters
+  }
+});
