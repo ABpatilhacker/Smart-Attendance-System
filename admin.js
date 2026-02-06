@@ -165,43 +165,23 @@ function addClass() {
  📘 VIEW CLASS PANEL
 ************************/
 function openClassPanel(classId) {
-  Promise.all([
-    db.ref("classes/" + classId).once("value"),
-    db.ref("users").once("value")
-  ]).then(([cSnap, uSnap]) => {
-
-    const cls = cSnap.val();
+  db.ref("classes/" + classId).once("value").then(snap => {
+    const cls = snap.val();
     if (!cls) return toast("Class not found");
 
-    const users = uSnap.val() || {};
-    const teachers = Object.entries(users)
-      .filter(([_, u]) => u.role === "teacher" && u.approved);
-
-    let html = "";
-
-    Object.entries(cls.subjects || {}).forEach(([sid, sub]) => {
-      let options = `<option value="">Unassigned</option>`;
-      teachers.forEach(([tid, t]) => {
-        options += `<option value="${tid}" ${sub.teacherId === tid ? "selected" : ""}>${t.name}</option>`;
-      });
-
-      html += `
+    let subjects = "";
+    Object.values(cls.subjects || {}).forEach(sub => {
+      subjects += `
         <div class="subject-card">
-          <span class="badge">📘 ${sub.name}</span>
-          <select id="assign-${sid}">${options}</select>
-          <button onclick="assignSubject('${classId}','${sid}')">Assign</button>
-        </div>`;
+          <span class="badge">${sub.name}</span>
+        </div>
+      `;
     });
 
     classPanel.innerHTML = `
       <h2>${cls.name}</h2>
-
-      ${html || `
-        <p class="muted">No subjects yet</p>
-        <input id="newSubjectName" placeholder="Subject name">
-        <button onclick="addSubject('${classId}')">➕ Add Subject</button>
-      `}
-
+      <h4>Subjects</h4>
+      ${subjects || "<p class='muted'>No subjects yet</p>"}
       <button class="ghost" onclick="closePanel()">Close</button>
     `;
 
@@ -239,39 +219,55 @@ function assignSubject(classId, subjectKey) {
  ✏️ EDIT CLASS
 ************************/
 function editClassPanel(classId) {
-  db.ref("classes/" + classId).once("value").then(snap => {
-    const cls = snap.val();
-    if (!cls) return;
+  Promise.all([
+    db.ref("classes/" + classId).once("value"),
+    db.ref("users").once("value")
+  ]).then(([cSnap, uSnap]) => {
 
-    let subjects = "";
+    const cls = cSnap.val();
+    const users = uSnap.val() || {};
+
+    const teachers = Object.entries(users)
+      .filter(([_, u]) => u.role === "teacher" && u.approved);
+
+    let subjectsHTML = "";
+
     Object.entries(cls.subjects || {}).forEach(([sid, sub]) => {
-      subjects += `
+      let options = `<option value="">Unassigned</option>`;
+      teachers.forEach(([tid, t]) => {
+        options += `
+          <option value="${tid}" ${sub.teacherId === tid ? "selected" : ""}>
+            ${t.name}
+          </option>`;
+      });
+
+      subjectsHTML += `
         <div class="subject-card">
-          <span class="badge">${sub.name}</span>
-        </div>`;
+          <span class="badge">📘 ${sub.name}</span>
+          <select id="assign-${sid}">${options}</select>
+          <button onclick="assignSubject('${classId}','${sid}')">Assign</button>
+        </div>
+      `;
     });
 
     classPanel.innerHTML = `
       <h2>Edit ${cls.name}</h2>
+
+      <label>Class Name</label>
       <input id="editClassName" value="${cls.name}">
-      ${subjects || "<p class='muted'>No subjects</p>"}
+
+      <h4>Subjects & Teachers</h4>
+      ${subjectsHTML || "<p class='muted'>No subjects yet</p>"}
+
+      <input id="newSubjectName" placeholder="Add new subject">
+      <button onclick="addSubject('${classId}')">➕ Add Subject</button>
+
       <button onclick="saveClassEdit('${classId}')">Save</button>
       <button class="ghost" onclick="closePanel()">Cancel</button>
     `;
 
     openPanel();
   });
-}
-
-function saveClassEdit(classId) {
-  const name = $("editClassName").value.trim();
-  if (!name) return toast("Name required");
-
-  db.ref("classes/" + classId).update({ name })
-    .then(() => {
-      toast("Updated ✅");
-      closePanel();
-    });
 }
 
 /***********************
@@ -296,17 +292,42 @@ function loadTeachers() {
 }
 
 function openTeacherPanel(uid) {
-  db.ref("users/" + uid).once("value").then(snap => {
-    const t = snap.val();
+  Promise.all([
+    db.ref("users/" + uid).once("value"),
+    db.ref("classes").once("value")
+  ]).then(([uSnap, cSnap]) => {
+
+    const teacher = uSnap.val();
+    let assigned = [];
+
+    cSnap.forEach(cls => {
+      Object.values(cls.val().subjects || {}).forEach(sub => {
+        if (sub.teacherId === uid) {
+          assigned.push(`${cls.val().name} – ${sub.name}`);
+        }
+      });
+    });
+
     classPanel.innerHTML = `
-      <h2>${t.name}</h2>
-      <p class="muted">${t.email}</p>
-      <button onclick="closePanel()">Close</button>
+      <div class="teacher-profile">
+        <div class="avatar">👨‍🏫</div>
+        <h2>${teacher.name}</h2>
+        <p class="muted">${teacher.email}</p>
+
+        <h4>Assigned Subjects</h4>
+        ${
+          assigned.length
+            ? `<ul>${assigned.map(a => `<li>${a}</li>`).join("")}</ul>`
+            : `<p class="muted">No subjects assigned</p>`
+        }
+
+        <button class="ghost" onclick="closePanel()">Close</button>
+      </div>
     `;
+
     openPanel();
   });
 }
-
 /***********************
  ⚙️ SETTINGS
 ************************/
