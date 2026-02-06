@@ -1,30 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Admin Panel</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<link rel="stylesheet" href="admin.css">
 
-  <link rel="stylesheet" href="admin.css" />
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
+
 <body>
 
-<!-- 🔳 OVERLAY -->
-<div id="overlay" class="overlay" onclick="closePanel();toggleSidebar()"></div>
-
-<!-- 🔝 HEADER -->
+<!-- TOPBAR -->
 <header class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h1>Admin Dashboard</h1>
+  <h1>Admin Panel</h1>
   <button class="logout" onclick="logout()">Logout</button>
 </header>
 
-<!-- 📚 SIDEBAR -->
+<!-- SIDEBAR -->
 <aside class="sidebar">
   <button onclick="nav('dashboard')">📊 Dashboard</button>
   <button onclick="nav('approvals')">🟡 Approvals</button>
@@ -33,15 +31,24 @@
   <button onclick="nav('settings')">⚙️ Settings</button>
 </aside>
 
-<!-- 🧩 MAIN -->
+<!-- MAIN -->
 <main class="main">
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="page active">
     <div class="cards">
-      <div class="card">Classes <span id="classCount">0</span></div>
-      <div class="card">Teachers <span id="teacherCount">0</span></div>
-      <div class="card">Students <span id="studentCount">0</span></div>
+      <div class="card">
+        <h3>Classes</h3>
+        <span id="classCount">0</span>
+      </div>
+      <div class="card">
+        <h3>Teachers</h3>
+        <span id="teacherCount">0</span>
+      </div>
+      <div class="card">
+        <h3>Students</h3>
+        <span id="studentCount">0</span>
+      </div>
     </div>
   </section>
 
@@ -54,10 +61,12 @@
   <!-- CLASSES -->
   <section id="classes" class="page">
     <h2>Classes</h2>
-    <div class="inline">
-      <input id="className" placeholder="New class name">
+
+    <div class="add-box">
+      <input id="className" placeholder="Class name">
       <button onclick="addClass()">➕ Add</button>
     </div>
+
     <ul id="classList" class="list"></ul>
   </section>
 
@@ -70,17 +79,17 @@
   <!-- SETTINGS -->
   <section id="settings" class="page">
     <h2>Settings</h2>
-    <label>Minimum Attendance %</label>
+    <label>Minimum Attendance (%)</label>
     <input type="number" id="minAttendance">
     <button onclick="saveSettings()">Save</button>
   </section>
 
 </main>
 
-<!-- 📦 SIDE PANEL -->
+<!-- SIDE PANEL -->
 <div id="classPanel" class="side-panel"></div>
 
-<!-- ❓ MODAL -->
+<!-- MODAL -->
 <div id="modal" class="modal">
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
@@ -88,8 +97,8 @@
     <button id="modalOk">OK</button>
   </div>
 </div>
-      <script>
-  const firebaseConfig = {
+<script>  
+const firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
   databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
@@ -99,8 +108,9 @@
   appId: "1:168700970246:web:392156387db81e92544a87"
 };
   </script>  
-  
 
+  
 <script src="admin.js"></script>
 </body>
 </html>
+
