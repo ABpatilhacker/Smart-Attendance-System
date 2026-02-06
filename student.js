@@ -1,294 +1,175 @@
-/*********************************
- 🔥 GLOBAL STATE
-**********************************/
-let currentUser = null;
-let currentClassId = "";
-let selectedSubjectId = "";
+let currentUser, currentClassId, selectedSubjectId;
 let attendanceChart = null;
 let MIN_ATTENDANCE = 75;
+let alertTimer = null;
 
-/*********************************
- 🔁 MIN ATTENDANCE (REALTIME)
-**********************************/
-db.ref("settings/minimumAttendance").on("value", snap => {
-  if (snap.exists()) {
-    MIN_ATTENDANCE = Number(snap.val());
-  }
+/* 🔔 Minimum attendance realtime */
+db.ref("settings/minimumAttendance").on("value", s => {
+  if (s.exists()) MIN_ATTENDANCE = Number(s.val());
 });
 
-/*********************************
- 🔐 AUTH CHECK
-**********************************/
+/* 🔐 AUTH */
 auth.onAuthStateChanged(user => {
-  if (!user) {
-    location.href = "index.html";
-    return;
-  }
+  if (!user) return location.href = "index.html";
 
   currentUser = user;
-
   db.ref("users/" + user.uid).once("value").then(snap => {
-    if (!snap.exists()) {
-      auth.signOut();
-      location.href = "index.html";
-      return;
-    }
-
-    const data = snap.val();
-
-    if (data.role !== "student") {
-      auth.signOut();
-      location.href = "index.html";
-      return;
-    }
-
-    currentClassId = data.classId;
-
+    const u = snap.val();
+    if (!u || u.role !== "student") return auth.signOut();
+    currentClassId = u.classId;
     loadDashboard();
     loadSubjects();
   });
 });
 
-/*********************************
- 📊 DASHBOARD
-**********************************/
+/* 📊 DASHBOARD */
 function loadDashboard() {
-  // Subjects count
-  db.ref("classes/" + currentClassId + "/subjects").on("value", snap => {
-    document.getElementById("classCount").innerText =
-      snap.exists() ? snap.numChildren() : 0;
-  });
-
   calculateOverallAttendance();
   calculateMonthlySummary();
 }
 
-/*********************************
- 📚 SUBJECTS
-**********************************/
+/* 📚 SUBJECTS */
 function loadSubjects() {
-  const select = document.getElementById("subjectSelect");
-  const list = document.getElementById("classList");
-
-  select.innerHTML = `<option value="">Select Subject</option>`;
-  list.innerHTML = "";
+  subjectSelect.innerHTML = `<option value="">Select Subject</option>`;
+  classList.innerHTML = "";
 
   db.ref("classes/" + currentClassId + "/subjects").on("value", snap => {
-    select.innerHTML = `<option value="">Select Subject</option>`;
-    list.innerHTML = "";
-
-    snap.forEach(sub => {
-      const subjectId = sub.key;
-      const subjectName = sub.val().name;
-
-      // Dropdown
-      select.innerHTML += `<option value="${subjectId}">${subjectName}</option>`;
-
-      // Card
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `<h3>${subjectName}</h3><p>View Attendance</p>`;
-      card.onclick = () => openSubject(subjectId, subjectName);
-      list.appendChild(card);
+    document.getElementById("classCount").innerText = snap.numChildren();
+    snap.forEach(s => {
+      subjectSelect.innerHTML += `<option value="${s.key}">${s.val().name}</option>`;
+      classList.innerHTML += `
+        <div class="card" onclick="openSubject('${s.key}')">
+          <h3>${s.val().name}</h3>
+          <p>View Attendance</p>
+        </div>`;
     });
   });
 }
 
-function openSubject(id, name) {
+function openSubject(id) {
   selectedSubjectId = id;
-  document.getElementById("subjectSelect").value = id;
-
-  document.getElementById("metaSubject").innerText = name;
-  document.getElementById("metaClass").innerText = currentClassId;
-
+  subjectSelect.value = id;
   showSection("attendance");
   loadSubjectAttendance();
 }
 
-/*********************************
- 📝 SUBJECT ATTENDANCE (ERP STYLE)
-**********************************/
+/* 📝 SUBJECT ATTENDANCE */
 function loadSubjectAttendance() {
-  const select = document.getElementById("subjectSelect");
-  selectedSubjectId = select.value;
-
+  selectedSubjectId = subjectSelect.value;
   if (!selectedSubjectId) return;
 
-  const tbody = document.getElementById("attendanceTableBody");
-  tbody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
+  attendanceTableBody.innerHTML = "";
 
-  db.ref(`attendance/${currentClassId}/${selectedSubjectId}`)
-    .on("value", snap => {
+  db.ref(`attendance/${currentClassId}/${selectedSubjectId}`).on("value", snap => {
+    let p = 0, t = 0;
+    let labels = [], values = [];
 
-      tbody.innerHTML = "";
+    attendanceTableBody.innerHTML = "";
 
-      let present = 0;
-      let total = 0;
-      const labels = [];
-      const values = [];
-
-      if (!snap.exists()) {
-        tbody.innerHTML = `<tr><td colspan="3">No attendance records</td></tr>`;
-        updateMeta(0);
-        drawChart([], []);
-        return;
+    snap.forEach(d => {
+      const st = d.val()[currentUser.uid];
+      if (st) {
+        t++;
+        if (st === "P") p++;
       }
+      labels.push(d.key);
+      values.push(st === "P" ? 1 : 0);
 
-      snap.forEach(day => {
-        const date = day.key;
-        const status = day.val()[currentUser.uid] || "-";
-
-        if (status !== "-") {
-          total++;
-          if (status === "P") present++;
-        }
-
-        labels.push(date);
-        values.push(status === "P" ? 1 : 0);
-
-        const d = new Date(date);
-        const dayName = d.toLocaleDateString("en-IN", { weekday: "short" });
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${date}</td>
-            <td>${dayName}</td>
-            <td class="${status === "P" ? "status-present" : status === "A" ? "status-absent" : ""}">
-              ${status}
-            </td>
-          </tr>`;
-      });
-
-      const percent = total ? Math.round((present / total) * 100) : 0;
-      updateMeta(percent);
-      showPrediction(present, total);
-      drawChart(labels, values);
+      attendanceTableBody.innerHTML += `
+        <tr>
+          <td>${d.key}</td>
+          <td class="${st === "P" ? "present" : "absent"}">${st || "-"}</td>
+        </tr>`;
     });
+
+    const percent = t ? Math.round((p / t) * 100) : 0;
+    attendancePercent.innerText = percent + "%";
+    showPrediction(p, t);
+    drawChart(labels, values);
+    showLiveAlert(percent < MIN_ATTENDANCE, percent);
+  });
 }
 
-/*********************************
- 📈 OVERALL ATTENDANCE %
-**********************************/
+/* 📈 OVERALL */
 function calculateOverallAttendance() {
   db.ref("attendance/" + currentClassId).on("value", snap => {
-    let present = 0;
-    let total = 0;
-
-    snap.forEach(subject =>
-      subject.forEach(day => {
-        const status = day.val()[currentUser.uid];
-        if (status) {
-          total++;
-          if (status === "P") present++;
+    let p = 0, t = 0;
+    snap.forEach(s =>
+      s.forEach(d => {
+        const st = d.val()[currentUser.uid];
+        if (st) {
+          t++;
+          if (st === "P") p++;
         }
       })
     );
-
-    const percent = total ? Math.round((present / total) * 100) : 0;
-    document.getElementById("attendancePercent").innerText = percent + "%";
+    attendancePercent.innerText = t ? Math.round((p / t) * 100) + "%" : "0%";
   });
 }
 
-/*********************************
- 📅 MONTHLY SUMMARY
-**********************************/
+/* 📅 MONTHLY */
 function calculateMonthlySummary() {
-  const now = new Date();
-  let present = 0;
-  let total = 0;
+  const m = new Date().getMonth();
+  let p = 0, t = 0;
 
   db.ref("attendance/" + currentClassId).once("value").then(snap => {
-    snap.forEach(subject =>
-      subject.forEach(day => {
-        const d = new Date(day.key);
-        const status = day.val()[currentUser.uid];
-
-        if (status && d.getMonth() === now.getMonth()) {
-          total++;
-          if (status === "P") present++;
+    snap.forEach(s =>
+      s.forEach(d => {
+        const dt = new Date(d.key);
+        const st = d.val()[currentUser.uid];
+        if (st && dt.getMonth() === m) {
+          t++;
+          if (st === "P") p++;
         }
       })
     );
-
-    document.getElementById("monthlySummary").innerText =
-      total ? `${present}/${total} (${Math.round((present / total) * 100)}%)` : "--";
+    monthlySummary.innerText = `${p}/${t}`;
   });
 }
 
-/*********************************
- 🔮 ATTENDANCE PREDICTION
-**********************************/
-function showPrediction(present, total) {
+/* 🔮 PREDICTION */
+function showPrediction(p, t) {
   let miss = 0;
-  while (((present / (total + miss)) * 100) >= MIN_ATTENDANCE) miss++;
-
-  document.getElementById("predictionText").innerText =
-    `Can miss ${Math.max(miss - 1, 0)} classes`;
+  while (((p / (t + miss)) * 100) >= MIN_ATTENDANCE) miss++;
+  predictionText.innerText = `Can miss ${Math.max(0, miss - 1)} classes`;
 }
 
-/*********************************
- 🧾 META INFO
-**********************************/
-function updateMeta(percent) {
-  document.getElementById("metaPercent").innerText = percent + "%";
-  document.getElementById("metaStatus").innerText =
-    percent >= MIN_ATTENDANCE ? "Safe" : "At Risk";
+/* 🔔 ALERT */
+function showLiveAlert(show, percent) {
+  if (!liveAlert) return;
+  if (alertTimer) clearTimeout(alertTimer);
+
+  if (show) {
+    liveAlert.innerText = `⚠ Attendance ${percent}% (Minimum ${MIN_ATTENDANCE}%)`;
+    liveAlert.classList.add("show");
+    alertTimer = setTimeout(() => liveAlert.classList.remove("show"), 5000);
+  } else {
+    liveAlert.classList.remove("show");
+  }
 }
 
-/*********************************
- 📊 CHART (ERP STYLE)
-**********************************/
+/* 📊 CHART */
 function drawChart(labels, data) {
-  const ctx = document.getElementById("attendanceChart");
-  if (!ctx) return;
-
   if (attendanceChart) attendanceChart.destroy();
-
-  attendanceChart = new Chart(ctx, {
+  attendanceChart = new Chart(attendanceChartEl || attendanceChart, {
     type: "line",
     data: {
       labels,
       datasets: [{
-        label: "Attendance",
         data,
-        borderColor: "#2563eb",
-        backgroundColor: "rgba(37,99,235,0.15)",
         fill: true,
+        borderColor: "#6366f1",
+        backgroundColor: "rgba(99,102,241,0.2)",
         tension: 0.4
       }]
     },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          min: 0,
-          max: 1,
-          ticks: {
-            callback: v => v === 1 ? "Present" : "Absent"
-          }
-        }
-      }
-    }
+    options: { responsive: true }
   });
 }
 
-/*********************************
- 📄 PDF EXPORT
-**********************************/
+/* 📄 PDF */
 function exportPDF() {
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-
-  pdf.text("Attendance Report", 14, 16);
-  pdf.text(`Student: ${currentUser.email}`, 14, 26);
-  pdf.text(`Class: ${currentClassId}`, 14, 36);
-
-  pdf.save("attendance-report.pdf");
+  const pdf = new jspdf.jsPDF();
+  pdf.text("Attendance Report", 14, 15);
+  pdf.save("attendance.pdf");
 }
-
-/*********************************
- 🚪 LOGOUT
-**********************************/
-function logout() {
-  auth.signOut().then(() => location.href = "index.html");
-     }
