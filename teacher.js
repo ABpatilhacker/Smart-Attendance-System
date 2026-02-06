@@ -65,10 +65,20 @@ function toggleSidebar() {
 }
 
 function openSection(id) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  document.getElementById(id)?.classList.add("active");
+  document.querySelectorAll(".section").forEach(s =>
+    s.classList.remove("active")
+  );
+
+  const section = document.getElementById(id);
+  section.classList.add("active");
+
   sidebar.classList.remove("open");
   overlay.classList.remove("show");
+
+  // 🔥 FIX: redraw chart when dashboard opens
+  if (id === "dashboard") {
+    setTimeout(loadChart, 200);
+  }
 }
 
 /********************************
@@ -130,7 +140,12 @@ function loadSubjects() {
     });
   });
 }
-
+// Auto select first subject for chart
+if (!selectedSubjectKey && subjectSelect.options.length > 1) {
+  selectedSubjectKey = subjectSelect.options[1].value;
+  subjectSelect.value = selectedSubjectKey;
+  loadChart();
+}
 /********************************
  📝 ATTENDANCE
 *********************************/
