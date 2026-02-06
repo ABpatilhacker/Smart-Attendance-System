@@ -59,37 +59,56 @@ function loadSubjectAttendance() {
   if (!selectedSubjectId) return;
 
   attendanceTableBody.innerHTML = "";
+  let present = 0, total = 0;
+  const labels = [], data = [];
 
-  db.ref(`attendance/${currentClassId}/${selectedSubjectId}`).on("value", snap => {
-    let p = 0, t = 0;
-    let labels = [], values = [];
+  db.ref(`attendance/${currentClassId}/${selectedSubjectId}`)
+    .once("value")
+    .then(snap => {
 
-    attendanceTableBody.innerHTML = "";
-
-    snap.forEach(d => {
-      const st = d.val()[currentUser.uid];
-      if (st) {
-        t++;
-        if (st === "P") p++;
+      if (!snap.exists()) {
+        attendanceTableBody.innerHTML =
+          `<tr><td colspan="2">No attendance recorded</td></tr>`;
+        return;
       }
-      labels.push(d.key);
-      values.push(st === "P" ? 1 : 0);
 
-      attendanceTableBody.innerHTML += `
-        <tr>
-          <td>${d.key}</td>
-          <td class="${st === "P" ? "present" : "absent"}">${st || "-"}</td>
-        </tr>`;
+      // ✅ Sort dates properly
+      const dates = Object.keys(snap.val()).sort();
+
+      dates.forEach(date => {
+        const status = snap.val()[date][currentUser.uid] || "-";
+
+        if (status !== "-") {
+          total++;
+          if (status === "P") present++;
+        }
+
+        labels.push(date);
+        data.push(status === "P" ? 1 : 0);
+
+        attendanceTableBody.innerHTML += `
+          <tr>
+            <td>${new Date(date).toDateString()}</td>
+            <td class="${status === "P" ? "present" : "absent"}">
+              ${status === "P" ? "Present" : status === "A" ? "Absent" : "-"}
+            </td>
+          </tr>
+        `;
+      });
+
+      const percent = total
+        ? Math.round((present / total) * 100)
+        : 0;
+
+      updatePercent(percent);
+      showPrediction(present, total);
+      drawChart(labels, data);
+      showDefaulterAlert(percent);
     });
-
-    const percent = t ? Math.round((p / t) * 100) : 0;
-    attendancePercent.innerText = percent + "%";
-    showPrediction(p, t);
-    drawChart(labels, values);
-    showLiveAlert(percent < MIN_ATTENDANCE, percent);
-  });
 }
 
+// ✅ THIS LINE
+showDefaulterAlert(percent);
 /* 📈 OVERALL */
 function calculateOverallAttendance() {
   db.ref("attendance/" + currentClassId).on("value", snap => {
@@ -172,4 +191,17 @@ function exportPDF() {
   const pdf = new jspdf.jsPDF();
   pdf.text("Attendance Report", 14, 15);
   pdf.save("attendance.pdf");
+}
+function showDefaulterAlert(percent) {
+  const banner = document.getElementById("alertBanner");
+  if (!banner) return;
+
+  if (percent < MIN_ATTENDANCE) {
+    banner.classList.add("show");
+
+    // 🔔 Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      banner.classList.remove("show");
+    }, 5000);
+  }
 }
