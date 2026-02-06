@@ -129,76 +129,68 @@ function loadSubjects() {
 }
 
 /********************************
- 📝 ATTENDANCE TABLE (FIXED)
+ 📝 ATTENDANCE TABLE (REAL-TIME + TODAY)
 *********************************/
 function loadAttendanceTable() {
   const body = document.getElementById("attendanceBody");
-  body.innerHTML = "";
+  body.innerHTML = {};
   attendanceData = {};
 
   selectedSubjectKey = document.getElementById("subjectSelect").value;
   if (!selectedSubjectKey) return;
 
-  const classId = selectedSubjectKey.split("_")[0];
+  const [classId, subjectId] = selectedSubjectKey.split("_");
+  const today = new Date().toISOString().split("T")[0];
 
-  db.ref("users").orderByChild("classId").equalTo(classId).once("value")
-    .then(snap => {
-      let students = [];
-      snap.forEach(s => {
-        const d = s.val();
-        if (d.role === "student") {
-          students.push({ ...d, uid: s.key });
-        }
+  // Real-time listener for today's attendance
+  db.ref(`attendance/${selectedSubjectKey}/${today}`).on("value", snap => {
+    const data = snap.val() || {};
+    attendanceData = {...data};
+    body.innerHTML = "";
+
+    db.ref("users").orderByChild("classId").equalTo(classId).once("value")
+      .then(stuSnap => {
+        let students = [];
+        stuSnap.forEach(s => {
+          const d = s.val();
+          if (d.role === "student") students.push({ ...d, uid: s.key });
+        });
+
+        students.sort((a,b) => a.roll - b.roll);
+
+        students.forEach(stu => {
+          const tr = document.createElement("tr");
+          const status = attendanceData[stu.uid] || "";
+          tr.innerHTML = `
+            <td>${stu.roll}</td>
+            <td>${stu.name}</td>
+            <td>
+              <button class="att-btn present ${status==='P'?'active':''}" onclick="markAttendance('${stu.uid}','P',this)">P</button>
+              <button class="att-btn absent ${status==='A'?'active':''}" onclick="markAttendance('${stu.uid}','A',this)">A</button>
+            </td>
+          `;
+          body.appendChild(tr);
+        });
       });
-
-      students.sort((a, b) => a.roll - b.roll);
-
-      students.forEach(stu => {
-        attendanceData[stu.uid] = "";
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${stu.roll}</td>
-          <td>${stu.name}</td>
-          <td>
-            <button class="att-btn present"
-              onclick="markAttendance('${stu.uid}','P',this)">P</button>
-            <button class="att-btn absent"
-              onclick="markAttendance('${stu.uid}','A',this)">A</button>
-          </td>
-        `;
-        body.appendChild(tr);
-      });
-    });
+  });
 }
 
 /********************************
- ✅ MARK ATTENDANCE (COLOR FIX)
-*********************************/
-function markAttendance(uid, status, btn) {
-  attendanceData[uid] = status;
-
-  const buttons = btn.parentElement.querySelectorAll("button");
-  buttons.forEach(b => b.classList.remove("active"));
-
-  btn.classList.add("active");
-}
-
-/********************************
- 💾 SAVE ATTENDANCE (WORKING)
+ 💾 SAVE ATTENDANCE (TODAY ONLY)
 *********************************/
 function saveAttendance() {
   if (!selectedSubjectKey) return toast("Select Subject ⚠️");
 
-  const date = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
 
-  db.ref(`attendance/${selectedSubjectKey}/${date}`)
+  db.ref(`attendance/${selectedSubjectKey}/${today}`)
     .set(attendanceData)
     .then(() => {
       toast("Attendance Saved ✅");
-      loadChart();
     });
-}
+            }
+
+/********************************
 
 /********************************
  📅 ATTENDANCE RECORDS (FIXED)
