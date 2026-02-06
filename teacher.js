@@ -16,7 +16,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 /********************************
- 🌍 GLOBAL STATE (NO DUPLICATES)
+ 🌍 GLOBAL STATE (FINAL)
 *********************************/
 let currentTeacher = null;
 let selectedSubjectKey = "";
@@ -28,7 +28,6 @@ let chart = null;
 *********************************/
 auth.onAuthStateChanged(user => {
   if (!user) return location.href = "login.html";
-
   currentTeacher = user;
   loadTeacherInfo();
   loadSubjects();
@@ -43,22 +42,20 @@ function logout() {
 }
 
 /********************************
- 📂 SIDEBAR + NAV (SAFE)
+ 📂 SIDEBAR
 *********************************/
 function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("open");
-  document.getElementById("overlay").classList.toggle("show");
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
 }
 
 function openSection(id) {
-  document.querySelectorAll(".section").forEach(sec =>
-    sec.classList.remove("active")
+  document.querySelectorAll(".section").forEach(s =>
+    s.classList.remove("active")
   );
-
   document.getElementById(id)?.classList.add("active");
-
-  document.getElementById("sidebar").classList.remove("open");
-  document.getElementById("overlay").classList.remove("show");
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
 }
 
 /********************************
@@ -67,9 +64,9 @@ function openSection(id) {
 function loadTeacherInfo() {
   db.ref("users/" + currentTeacher.uid).once("value").then(snap => {
     const d = snap.val();
-    document.getElementById("welcomeCard").innerText = `Welcome 👋 ${d.name}`;
-    document.getElementById("profileName").value = d.name;
-    document.getElementById("profileEmail").value = d.email;
+    welcomeCard.innerText = `Welcome 👋 ${d.name}`;
+    profileName.value = d.name;
+    profileEmail.value = d.email;
   });
 }
 
@@ -77,7 +74,8 @@ function saveProfile() {
   const name = profileName.value.trim();
   if (!name) return toast("Name required ⚠️");
 
-  db.ref("users/" + currentTeacher.uid).update({ name })
+  db.ref("users/" + currentTeacher.uid)
+    .update({ name })
     .then(() => toast("Profile updated ✅"));
 }
 
@@ -85,11 +83,8 @@ function saveProfile() {
  📚 LOAD CLASSES + SUBJECTS
 *********************************/
 function loadSubjects() {
-  const select = document.getElementById("subjectSelect");
-  const container = document.getElementById("classListContainer");
-
-  select.innerHTML = `<option value="">-- Select --</option>`;
-  container.innerHTML = "";
+  subjectSelect.innerHTML = `<option value="">-- Select --</option>`;
+  classListContainer.innerHTML = "";
 
   db.ref("classes").once("value").then(snap => {
     snap.forEach(cls => {
@@ -98,7 +93,7 @@ function loadSubjects() {
         if (sub.teacherId === currentTeacher.uid) {
           const key = `${cls.key}_${sid}`;
 
-          select.innerHTML += `
+          subjectSelect.innerHTML += `
             <option value="${key}">
               ${c.name} - ${sub.name}
             </option>`;
@@ -108,10 +103,11 @@ function loadSubjects() {
           card.innerHTML = `<h3>${c.name}</h3><p>${sub.name}</p>`;
           card.onclick = () => {
             selectedSubjectKey = key;
+            subjectSelect.value = key;
             openSection("attendance");
             loadAttendanceTable();
           };
-          container.appendChild(card);
+          classListContainer.appendChild(card);
         }
       });
     });
@@ -119,13 +115,11 @@ function loadSubjects() {
 }
 
 /********************************
- 📝 ATTENDANCE (REAL-TIME)
+ 📝 ATTENDANCE (ROLL SORT FIXED)
 *********************************/
 function loadAttendanceTable() {
   selectedSubjectKey = subjectSelect.value;
-  const body = attendanceBody;
-  body.innerHTML = "";
-
+  attendanceBody.innerHTML = "";
   if (!selectedSubjectKey) return;
 
   const [classId] = selectedSubjectKey.split("_");
@@ -133,38 +127,48 @@ function loadAttendanceTable() {
 
   db.ref(`attendance/${selectedSubjectKey}/${today}`).on("value", snap => {
     attendanceData = snap.val() || {};
-    body.innerHTML = "";
+    attendanceBody.innerHTML = "";
 
-    db.ref("users").orderByChild("classId").equalTo(classId).once("value")
+    db.ref("users")
+      .orderByChild("classId")
+      .equalTo(classId)
+      .once("value")
       .then(snap => {
+        let students = [];
         snap.forEach(s => {
           const d = s.val();
-          if (d.role !== "student") return;
+          if (d.role === "student") {
+            students.push({ ...d, uid: s.key });
+          }
+        });
 
+        // 🔥 FIX: roll number sort
+        students.sort((a, b) => Number(a.roll) - Number(b.roll));
+
+        students.forEach(stu => {
+          const status = attendanceData[stu.uid] || "";
           const tr = document.createElement("tr");
-          const status = attendanceData[s.key] || "";
-
           tr.innerHTML = `
-            <td>${d.roll}</td>
-            <td>${d.name}</td>
+            <td>${stu.roll}</td>
+            <td>${stu.name}</td>
             <td>
               <button class="att-btn present ${status==="P"?"active":""}"
-                onclick="markAttendance('${s.key}','P',this)">P</button>
+                onclick="markAttendance('${stu.uid}','P',this)">P</button>
               <button class="att-btn absent ${status==="A"?"active":""}"
-                onclick="markAttendance('${s.key}','A',this)">A</button>
+                onclick="markAttendance('${stu.uid}','A',this)">A</button>
             </td>`;
-          body.appendChild(tr);
+          attendanceBody.appendChild(tr);
         });
+
+        loadDefaulters(); // realtime
       });
   });
 }
 
 function markAttendance(uid, status, btn) {
   attendanceData[uid] = status;
-
   btn.parentElement.querySelectorAll(".att-btn")
     .forEach(b => b.classList.remove("active"));
-
   btn.classList.add("active");
   loadDefaulters();
 }
@@ -179,14 +183,13 @@ function saveAttendance() {
 }
 
 /********************************
- 📅 RECORDS
+ 📅 RECORDS (AUTO LOAD)
 *********************************/
 function loadAttendanceRecords() {
-  const date = calendar.value;
   recordBody.innerHTML = "";
-  if (!date || !selectedSubjectKey) return;
+  if (!calendar.value || !selectedSubjectKey) return;
 
-  db.ref(`attendance/${selectedSubjectKey}/${date}`).once("value")
+  db.ref(`attendance/${selectedSubjectKey}/${calendar.value}`).once("value")
     .then(snap => {
       if (!snap.exists()) {
         recordBody.innerHTML = `<tr><td colspan="3">No record</td></tr>`;
@@ -208,12 +211,12 @@ function loadAttendanceRecords() {
 }
 
 /********************************
- ⚠️ DEFAULTERS (REAL)
+ ⚠️ DEFAULTERS (REALTIME)
 *********************************/
 function loadDefaulters() {
   if (!selectedSubjectKey) return;
-  const min = Number(localStorage.getItem("minAttendance")) || 75;
   defaulterBody.innerHTML = "";
+  const min = Number(localStorage.getItem("minAttendance")) || 75;
 
   db.ref(`attendance/${selectedSubjectKey}`).once("value").then(attSnap => {
     const days = attSnap.val() || {};
@@ -237,7 +240,7 @@ function loadDefaulters() {
             <tr>
               <td>${d.roll}</td>
               <td>${d.name}</td>
-              <td>${100-percent}%</td>
+              <td>${100 - percent}%</td>
             </tr>`;
         }
       });
@@ -246,12 +249,11 @@ function loadDefaulters() {
 }
 
 /********************************
- 📊 DONUT CHART (SAFE)
+ 📊 DONUT CHART (RESPONSIVE SAFE)
 *********************************/
 function loadChart() {
-  const ctx = document.getElementById("attendanceChart");
+  const ctx = attendanceChart;
   if (!ctx || typeof Chart === "undefined") return;
-
   if (chart) chart.destroy();
 
   chart = new Chart(ctx, {
@@ -264,6 +266,8 @@ function loadChart() {
       }]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       cutout: "70%",
       plugins: { legend: { position: "bottom" } }
     }
@@ -271,14 +275,16 @@ function loadChart() {
 }
 
 /********************************
- 🍞 TOAST
+ 🍞 TOAST (FIXED)
 *********************************/
 function toast(msg) {
   const t = document.createElement("div");
   t.className = "toast";
   t.innerText = msg;
   document.body.appendChild(t);
-  setTimeout(()=>t.remove(),3000);
+  requestAnimationFrame(() => t.classList.add("show"));
+  setTimeout(() => t.classList.remove("show"), 2500);
+  setTimeout(() => t.remove(), 3000);
 }
 
 /********************************
