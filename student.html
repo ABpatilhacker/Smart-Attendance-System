@@ -5,7 +5,7 @@
   <title>Student Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Fonts -->
+  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
   <!-- CSS -->
@@ -19,49 +19,46 @@
 </head>
 <body>
 
-<!-- ============ SIDEBAR ============ -->
+<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
-  <h2>🎓 Student</h2>
+  <h2>Student ERP</h2>
   <nav>
-    <button onclick="showSection('dashboard')">🏠 Dashboard</button>
-    <button onclick="showSection('classes')">📚 Subjects</button>
-    <button onclick="showSection('attendance')">📊 Attendance</button>
-    <button onclick="logout()">🚪 Logout</button>
+    <button onclick="showSection('dashboard')">Dashboard</button>
+    <button onclick="showSection('classes')">Subjects</button>
+    <button onclick="showSection('attendance')">Attendance</button>
+    <button onclick="logout()">Logout</button>
   </nav>
 </aside>
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-<!-- ============ TOPBAR ============ -->
+<!-- TOPBAR -->
 <header class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <h1>Student Dashboard</h1>
 </header>
 
-<!-- ============ MAIN ============ -->
+<!-- MAIN -->
 <main class="main">
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="section active">
 
-    <div class="card-grid">
-      <div class="card">
-        📘 Subjects
+    <div class="erp-cards">
+      <div class="erp-card">
+        <label>Total Subjects</label>
         <span id="classCount">0</span>
       </div>
-      <div class="card">
-        ✅ Attendance
+      <div class="erp-card">
+        <label>Overall Attendance</label>
         <span id="attendancePercent">0%</span>
       </div>
-    </div>
-
-    <div class="card-grid">
-      <div class="card">
-        📅 Monthly Summary
+      <div class="erp-card">
+        <label>Monthly Summary</label>
         <span id="monthlySummary">--</span>
       </div>
-      <div class="card">
-        🔮 Prediction
+      <div class="erp-card">
+        <label>Prediction</label>
         <span id="predictionText">--</span>
       </div>
     </div>
@@ -75,54 +72,66 @@
   <!-- SUBJECTS -->
   <section id="classes" class="section">
     <h2>Your Subjects</h2>
-    <div id="classList" class="card-grid"></div>
+    <div id="classList" class="erp-subject-grid"></div>
   </section>
 
   <!-- ATTENDANCE -->
   <section id="attendance" class="section">
-    <h2>Attendance Record</h2>
+
+    <div class="erp-header">
+      <h2>Attendance Details</h2>
+
+      <div class="erp-meta">
+        <div><strong>Class:</strong> <span id="metaClass">--</span></div>
+        <div><strong>Subject:</strong> <span id="metaSubject">--</span></div>
+        <div><strong>Attendance:</strong> <span id="metaPercent">--</span></div>
+        <div><strong>Status:</strong> <span id="metaStatus">--</span></div>
+      </div>
+    </div>
 
     <select id="subjectSelect" onchange="loadSubjectAttendance()">
       <option value="">Select Subject</option>
     </select>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="attendanceTableBody"></tbody>
-    </table>
+    <div class="erp-table-wrapper">
+      <table class="erp-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Day</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceTableBody"></tbody>
+      </table>
+    </div>
 
-    <button class="export-btn" onclick="exportPDF()">📄 Export PDF</button>
+    <button class="export-btn" onclick="exportPDF()">Export Attendance PDF</button>
+
   </section>
 
 </main>
 
-<!-- ============ FIREBASE ============ -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="firebase.js"></script>
 
-<!-- ============ UI FIX SCRIPT ============ -->
+<!-- UI -->
 <script>
-function toggleSidebar() {
-  document.getElementById("sidebar").classList.toggle("open");
-  document.getElementById("overlay").classList.toggle("show");
+function toggleSidebar(){
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("show");
 }
-
-function showSection(id) {
-  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+function showSection(id){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  document.getElementById("sidebar").classList.remove("open");
-  document.getElementById("overlay").classList.remove("show");
+  sidebar.classList.remove("open");
+  overlay.classList.remove("show");
 }
 </script>
 
-<!-- APP JS -->
 <script src="student.js"></script>
 </body>
 </html>
