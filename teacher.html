@@ -112,77 +112,64 @@
   </section>
 
   <!-- ===== RECORDS (FIXED) ===== -->
-  <section class="section" id="records">
-    <h2>Attendance Records</h2>
+ <select id="recordSubjectSelect" onchange="onRecordSubjectChange()">
+  <option value="">-- Select --</option>
+ </select>
+<section class="section" id="records">
+  <h2>Attendance Records</h2>
 
-    <!-- ✅ SUBJECT SELECT ADDED -->
-    <div class="form-group">
-      <label>Select Class & Subject</label>
-      <select onchange="selectedSubjectKey=this.value">
-        <option value="">-- Select --</option>
-        <!-- auto-filled from JS loadSubjects() -->
-      </select>
-    </div>
+  <div class="form-group">
+    <label>Select Class & Subject</label>
+    <select id="recordSubjectSelect" onchange="onRecordSubjectChange()">
+      <option value="">-- Select --</option>
+    </select>
+  </div>
 
-    <div class="form-group">
-      <label>Select Date</label>
-      <input type="date" id="calendar" onchange="loadAttendanceRecords()" />
-    </div>
+  <div class="form-group">
+    <label>Select Date</label>
+    <input type="date" id="calendar" onchange="loadAttendanceRecords()" />
+  </div>
 
-    <div class="table-wrapper">
-      <table class="attendance-table">
-        <thead>
-          <tr>
-            <th>Roll No</th>
-            <th>Name</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="recordBody"></tbody>
-      </table>
-    </div>
-  </section>
-
+  <div class="table-wrapper">
+    <table class="attendance-table">
+      <thead>
+        <tr>
+          <th>Roll No</th>
+          <th>Name</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="recordBody"></tbody>
+    </table>
+  </div>
+</section>
+ 
   <!-- ===== DEFAULTERS ===== -->
-  <section class="section" id="defaulters">
-    <select id="defaulterSubjectSelect" onchange="loadDefaulters()">
-  <option value="">-- Select Subject --</option>
+  
+    <select id="recordSubjectSelect" onchange="onRecordSubjectChange()">
+  <option value="">-- Select --</option>
     </select>
     <h2>Defaulters List</h2>
+<section class="section" id="defaulters">
+  <select id="defaulterSubjectSelect" onchange="onDefaulterSubjectChange()">
+    <option value="">-- Select Subject --</option>
+  </select>
 
-    <div class="table-wrapper">
-      <table class="defaulter-table">
-        <thead>
-          <tr>
-            <th>Roll No</th>
-            <th>Name</th>
-            <th>Absent %</th>
-          </tr>
-        </thead>
-        <tbody id="defaulterBody"></tbody>
-      </table>
-    </div>
-  </section>
+  <h2>Defaulters List</h2>
 
-  <!-- ===== PROFILE ===== -->
-  <section class="section" id="profile">
-    <h2>My Profile</h2>
-
-    <div class="profile-card">
-      <div class="form-group">
-        <label>Name</label>
-        <input type="text" id="profileName" />
-      </div>
-
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="profileEmail" readonly />
-      </div>
-
-      <button class="save-btn" onclick="saveProfile()">Save Profile</button>
-    </div>
-  </section>
-
+  <div class="table-wrapper">
+    <table class="defaulter-table">
+      <thead>
+        <tr>
+          <th>Roll No</th>
+          <th>Name</th>
+          <th>Absent %</th>
+        </tr>
+      </thead>
+      <tbody id="defaulterBody"></tbody>
+    </table>
+  </div>
+</section>
 </main>
 
 <!-- JS -->
