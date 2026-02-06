@@ -37,41 +37,36 @@
   </nav>
 </aside>
 
-<!-- Overlay for mobile -->
+<!-- Overlay -->
 <div id="overlay" onclick="toggleSidebar()"></div>
 
 <!-- ================= TOPBAR ================= -->
 <header class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <div class="topbar-title">Teacher Dashboard</div>
-</header>
   <button class="menu-btn" onclick="toggleTheme()">🌗</button>
+</header>
 
-<!-- ================= MAIN CONTENT ================= -->
+<!-- ================= MAIN ================= -->
 <main class="main">
 
   <!-- ===== DASHBOARD ===== -->
   <section class="section active" id="dashboard">
-    <div class="welcome-card" id="welcomeCard">
-      Welcome 👋
-    </div>
+    <div class="welcome-card" id="welcomeCard">Welcome 👋</div>
 
     <div class="cards-container">
       <div class="card" onclick="openSection('classes')">
         <h3>My Classes</h3>
         <p>View assigned classes & subjects</p>
       </div>
-
       <div class="card" onclick="openSection('attendance')">
         <h3>Take Attendance</h3>
-        <p>Mark present / absent per subject</p>
+        <p>Mark daily attendance</p>
       </div>
-
       <div class="card" onclick="openSection('records')">
         <h3>Attendance Records</h3>
-        <p>View saved attendance</p>
+        <p>View past attendance</p>
       </div>
-
       <div class="card" onclick="openSection('defaulters')">
         <h3>Defaulters</h3>
         <p>Low attendance students</p>
@@ -116,9 +111,18 @@
     <button class="save-btn" onclick="saveAttendance()">Save Attendance</button>
   </section>
 
-  <!-- ===== RECORDS ===== -->
+  <!-- ===== RECORDS (FIXED) ===== -->
   <section class="section" id="records">
     <h2>Attendance Records</h2>
+
+    <!-- ✅ SUBJECT SELECT ADDED -->
+    <div class="form-group">
+      <label>Select Class & Subject</label>
+      <select onchange="selectedSubjectKey=this.value">
+        <option value="">-- Select --</option>
+        <!-- auto-filled from JS loadSubjects() -->
+      </select>
+    </div>
 
     <div class="form-group">
       <label>Select Date</label>
@@ -141,6 +145,9 @@
 
   <!-- ===== DEFAULTERS ===== -->
   <section class="section" id="defaulters">
+    <select id="defaulterSubjectSelect" onchange="loadDefaulters()">
+  <option value="">-- Select Subject --</option>
+    </select>
     <h2>Defaulters List</h2>
 
     <div class="table-wrapper">
