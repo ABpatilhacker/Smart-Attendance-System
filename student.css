@@ -135,3 +135,39 @@ td.absent {
   .main { margin-left: 260px; }
   .sidebar { left: 0; }
 }
+.card.glow {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.card.glow:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+}
+
+.chart-box {
+  height: 320px;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.present {
+  animation: pulseGreen 0.6s ease;
+}
+
+.absent {
+  animation: pulseRed 0.6s ease;
+}
+
+@keyframes pulseGreen {
+  from { background:#16a34a; }
+  to { background:#22c55e; }
+}
+
+@keyframes pulseRed {
+  from { background:#dc2626; }
+  to { background:#ef4444; }
+}
