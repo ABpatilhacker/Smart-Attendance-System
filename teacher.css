@@ -376,3 +376,13 @@ input:focus, select:focus {
   opacity: 0.75;
   transform: scale(1);
 }
+.chart-card {
+  height: 320px;
+  width: 100%;
+  padding: 10px;
+}
+
+#attendanceChart {
+  width: 100% !important;
+  height: 100% !important;
+}
