@@ -3,85 +3,55 @@
 **********************************/
 let currentUser = null;
 let currentClassId = "";
-let selectedSubjectId = "";
+let selectedSubjectKey = "";
 let attendanceChart = null;
 
 /*********************************
-/*********************************
- 🔐 AUTH – FINAL (JSON VERIFIED)
+ 🔐 AUTH
 **********************************/
-
-firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  .catch(err => console.error("Auth persistence error:", err));
-
-auth.onAuthStateChanged(user => {
+firebase.auth().onAuthStateChanged(user => {
   if (!user) {
-    location.replace("index.html");
+    location.href = "index.html";
     return;
   }
 
   currentUser = user;
 
-  // ✅ CORRECT PATH: users/{uid}
-  db.ref("users/" + user.uid).once("value")
-    .then(snap => {
-
-      // ❌ No user record → logout
-      if (!snap.exists()) {
-        auth.signOut();
-        location.replace("index.html");
-        return;
-      }
-
-      const userData = snap.val();
-
-      // ❌ Not approved
-      if (userData.approved !== true) {
-        alert("Your account is not approved yet");
-        auth.signOut();
-        location.replace("index.html");
-        return;
-      }
-
-      // ✅ ROLE HANDLING
-      if (userData.role === "student") {
-        currentClassId = userData.classId;
-        loadDashboard();
-        loadSubjects();
-      }
-
-      else if (userData.role === "teacher") {
-        // redirect if needed
-        // location.href = "teacher.html";
-      }
-
-      else if (userData.role === "admin") {
-        // location.href = "admin.html";
-      }
-
-    })
-    .catch(err => {
-      console.error("Auth DB error:", err);
+  db.ref("users/" + user.uid).on("value", snap => {
+    if (!snap.exists()) {
       auth.signOut();
-      location.replace("index.html");
-    });
+      location.href = "index.html";
+      return;
+    }
+
+    const u = snap.val();
+
+    if (u.role !== "student") {
+      auth.signOut();
+      location.href = "index.html";
+      return;
+    }
+
+    currentClassId = u.classId;
+    loadDashboard();
+    loadSubjects();
+  });
 });
+
 /*********************************
  📊 DASHBOARD (REALTIME)
 **********************************/
 function loadDashboard() {
-  // Subjects count
-  db.ref("classes/" + currentClassId + "/subjects").on("value", snap => {
+  db.ref(`classes/${currentClassId}/subjects`).on("value", snap => {
     document.getElementById("classCount").innerText =
       snap.exists() ? snap.numChildren() : 0;
   });
 
-  // Overall attendance %
   calculateOverallAttendance();
 }
 
 /*********************************
- 📚 SUBJECTS (REALTIME)
+ 📚 SUBJECTS
 **********************************/
 function loadSubjects() {
   const select = document.getElementById("subjectSelect");
@@ -90,20 +60,19 @@ function loadSubjects() {
   select.innerHTML = `<option value="">Select Subject</option>`;
   list.innerHTML = "";
 
-  db.ref("classes/" + currentClassId + "/subjects").on("value", snap => {
+  db.ref(`classes/${currentClassId}/subjects`).on("value", snap => {
     select.innerHTML = `<option value="">Select Subject</option>`;
     list.innerHTML = "";
 
     snap.forEach(sub => {
-      const id = sub.key;
+      const sid = sub.key;
       const name = sub.val().name;
+      const key = `${currentClassId}_${sid}`;
 
-      // Dropdown
-      select.innerHTML += `<option value="${id}">${name}</option>`;
+      select.innerHTML += `<option value="${key}">${name}</option>`;
 
-      // Card
       list.innerHTML += `
-        <div class="card" onclick="openSubject('${id}')">
+        <div class="card glow" onclick="openSubject('${key}')">
           <h3>${name}</h3>
           <p>View Attendance</p>
         </div>`;
@@ -111,9 +80,9 @@ function loadSubjects() {
   });
 }
 
-function openSubject(id) {
-  selectedSubjectId = id;
-  document.getElementById("subjectSelect").value = id;
+function openSubject(key) {
+  selectedSubjectKey = key;
+  document.getElementById("subjectSelect").value = key;
   showSection("attendance");
   loadSubjectAttendance();
 }
@@ -122,68 +91,69 @@ function openSubject(id) {
  📝 SUBJECT ATTENDANCE (REALTIME)
 **********************************/
 function loadSubjectAttendance() {
-  selectedSubjectId = document.getElementById("subjectSelect").value;
-  if (!selectedSubjectId) return;
+  selectedSubjectKey = document.getElementById("subjectSelect").value;
+  if (!selectedSubjectKey) return;
 
   const body = document.getElementById("attendanceTableBody");
   body.innerHTML = `<tr><td colspan="2">Loading...</td></tr>`;
 
-  db.ref(`attendance/${currentClassId}/${selectedSubjectId}`)
-    .on("value", snap => {
-      body.innerHTML = "";
+  db.ref(`attendance/${selectedSubjectKey}`).on("value", snap => {
+    body.innerHTML = "";
 
-      let present = 0;
-      let total = 0;
-      let labels = [];
-      let values = [];
+    let present = 0;
+    let total = 0;
+    let labels = [];
+    let values = [];
 
-      if (!snap.exists()) {
-        body.innerHTML = `<tr><td colspan="2">No records</td></tr>`;
-        updatePercent(0);
-        drawChart([], []);
-        return;
+    if (!snap.exists()) {
+      body.innerHTML = `<tr><td colspan="2">No records</td></tr>`;
+      updatePercent(0);
+      drawChart([], []);
+      return;
+    }
+
+    snap.forEach(dateSnap => {
+      const status = dateSnap.val()[currentUser.uid] || "-";
+
+      if (status !== "-") {
+        total++;
+        if (status === "P") present++;
       }
 
-      snap.forEach(dateSnap => {
-        const status = dateSnap.val()[currentUser.uid] || "-";
+      body.innerHTML += `
+        <tr>
+          <td>${dateSnap.key}</td>
+          <td class="${status === "P" ? "present" : status === "A" ? "absent" : ""}">
+            ${status}
+          </td>
+        </tr>`;
 
-        if (status !== "-") {
-          total++;
-          if (status === "P") present++;
-        }
-
-        body.innerHTML += `
-          <tr>
-            <td>${dateSnap.key}</td>
-            <td class="${status === "P" ? "present" : status === "A" ? "absent" : ""}">
-              ${status}
-            </td>
-          </tr>`;
-
-        labels.push(dateSnap.key);
-        values.push(status === "P" ? 1 : 0);
-      });
-
-      const percent = total ? ((present / total) * 100).toFixed(1) : 0;
-      updatePercent(percent);
-      drawChart(labels, values);
+      labels.push(dateSnap.key);
+      values.push(status === "P" ? 1 : 0);
     });
+
+    const percent = total ? ((present / total) * 100).toFixed(1) : 0;
+    updatePercent(percent);
+    drawChart(labels, values);
+  });
 }
 
 /*********************************
  📈 OVERALL ATTENDANCE %
 **********************************/
 function calculateOverallAttendance() {
-  db.ref("attendance/" + currentClassId).on("value", snap => {
+  db.ref("attendance").on("value", snap => {
     let present = 0;
     let total = 0;
 
-    snap.forEach(subjectSnap => {
-      subjectSnap.forEach(dateSnap => {
-        const status = dateSnap.val()[currentUser.uid];
-        if (status) {
+    snap.forEach(subSnap => {
+      if (!subSnap.key.startsWith(currentClassId + "_")) return;
+
+      subSnap.forEach(dateSnap => {
+        const v = dateSnap.val()[currentUser.uid];
+        if (v) {
           total++;
-          if (status === "P") present++;
+          if (v === "P") present++;
         }
       });
     });
@@ -198,7 +168,7 @@ function updatePercent(val) {
 }
 
 /*********************************
- 📊 CHART (REALTIME SAFE)
+ 📊 CHART
 **********************************/
 function drawChart(labels, data) {
   const ctx = document.getElementById("attendanceChart");
@@ -213,14 +183,15 @@ function drawChart(labels, data) {
       datasets: [{
         label: "Attendance",
         data,
-        borderColor: "#2563eb",
-        backgroundColor: "rgba(37,99,235,0.25)",
+        borderColor: "#38bdf8",
+        backgroundColor: "rgba(56,189,248,0.3)",
         tension: 0.4,
         fill: true
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
         y: {
           min: 0,
@@ -235,36 +206,28 @@ function drawChart(labels, data) {
 }
 
 /*********************************
- 🧭 UI (SIDEBAR FIXED)
+ 🧭 UI
 **********************************/
 function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("open");
 }
-
-document.addEventListener("click", e => {
-  const sidebar = document.getElementById("sidebar");
-  const btn = document.querySelector(".menu-btn");
-
-  if (
-    sidebar.classList.contains("open") &&
-    !sidebar.contains(e.target) &&
-    !btn.contains(e.target)
-  ) {
-    sidebar.classList.remove("open");
-  }
-});
 
 function showSection(id) {
   document.querySelectorAll(".section").forEach(s =>
     s.classList.remove("active")
   );
   document.getElementById(id).classList.add("active");
-  document.getElementById("sidebar").classList.remove("open");
+
+  if (id === "dashboard") {
+    setTimeout(() => {
+      if (attendanceChart) attendanceChart.resize();
+    }, 200);
+  }
 }
 
 /*********************************
- 🚪 LOGOUT (SAFE)
+ 🚪 LOGOUT
 **********************************/
 function logout() {
   auth.signOut().then(() => location.href = "index.html");
-    }
+}
