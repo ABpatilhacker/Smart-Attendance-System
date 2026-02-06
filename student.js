@@ -1,28 +1,49 @@
 /*********************************
- 🔥 GLOBAL
+ 🔥 GLOBAL STATE
 **********************************/
-let currentUser, currentClassId, selectedSubjectId;
+let currentUser = null;
+let currentClassId = "";
+let selectedSubjectId = "";
 let attendanceChart = null;
 let MIN_ATTENDANCE = 75;
 
 /*********************************
  🔁 MIN ATTENDANCE (REALTIME)
 **********************************/
-db.ref("settings/minimumAttendance").on("value", s => {
-  if (s.exists()) MIN_ATTENDANCE = Number(s.val());
+db.ref("settings/minimumAttendance").on("value", snap => {
+  if (snap.exists()) {
+    MIN_ATTENDANCE = Number(snap.val());
+  }
 });
 
 /*********************************
- 🔐 AUTH
+ 🔐 AUTH CHECK
 **********************************/
 auth.onAuthStateChanged(user => {
-  if (!user) return location.href = "index.html";
+  if (!user) {
+    location.href = "index.html";
+    return;
+  }
 
   currentUser = user;
+
   db.ref("users/" + user.uid).once("value").then(snap => {
-    const u = snap.val();
-    if (!u || u.role !== "student") return auth.signOut();
-    currentClassId = u.classId;
+    if (!snap.exists()) {
+      auth.signOut();
+      location.href = "index.html";
+      return;
+    }
+
+    const data = snap.val();
+
+    if (data.role !== "student") {
+      auth.signOut();
+      location.href = "index.html";
+      return;
+    }
+
+    currentClassId = data.classId;
+
     loadDashboard();
     loadSubjects();
   });
@@ -32,6 +53,12 @@ auth.onAuthStateChanged(user => {
  📊 DASHBOARD
 **********************************/
 function loadDashboard() {
+  // Subjects count
+  db.ref("classes/" + currentClassId + "/subjects").on("value", snap => {
+    document.getElementById("classCount").innerText =
+      snap.exists() ? snap.numChildren() : 0;
+  });
+
   calculateOverallAttendance();
   calculateMonthlySummary();
 }
@@ -40,91 +67,126 @@ function loadDashboard() {
  📚 SUBJECTS
 **********************************/
 function loadSubjects() {
-  const select = subjectSelect;
-  classList.innerHTML = "";
+  const select = document.getElementById("subjectSelect");
+  const list = document.getElementById("classList");
+
   select.innerHTML = `<option value="">Select Subject</option>`;
+  list.innerHTML = "";
 
   db.ref("classes/" + currentClassId + "/subjects").on("value", snap => {
-    snap.forEach(s => {
-      select.innerHTML += `<option value="${s.key}">${s.val().name}</option>`;
-      classList.innerHTML += `
-        <div class="card" onclick="openSubject('${s.key}')">
-          <h3>${s.val().name}</h3>
-          <p>View Attendance</p>
-        </div>`;
+    select.innerHTML = `<option value="">Select Subject</option>`;
+    list.innerHTML = "";
+
+    snap.forEach(sub => {
+      const subjectId = sub.key;
+      const subjectName = sub.val().name;
+
+      // Dropdown
+      select.innerHTML += `<option value="${subjectId}">${subjectName}</option>`;
+
+      // Card
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<h3>${subjectName}</h3><p>View Attendance</p>`;
+      card.onclick = () => openSubject(subjectId, subjectName);
+      list.appendChild(card);
     });
   });
 }
 
-function openSubject(id) {
+function openSubject(id, name) {
   selectedSubjectId = id;
-  subjectSelect.value = id;
+  document.getElementById("subjectSelect").value = id;
+
+  document.getElementById("metaSubject").innerText = name;
+  document.getElementById("metaClass").innerText = currentClassId;
+
   showSection("attendance");
   loadSubjectAttendance();
 }
 
 /*********************************
- 📝 SUBJECT ATTENDANCE
+ 📝 SUBJECT ATTENDANCE (ERP STYLE)
 **********************************/
 function loadSubjectAttendance() {
-  selectedSubjectId = subjectSelect.value;
+  const select = document.getElementById("subjectSelect");
+  selectedSubjectId = select.value;
+
   if (!selectedSubjectId) return;
 
-  attendanceTableBody.innerHTML = "";
+  const tbody = document.getElementById("attendanceTableBody");
+  tbody.innerHTML = `<tr><td colspan="3">Loading...</td></tr>`;
 
   db.ref(`attendance/${currentClassId}/${selectedSubjectId}`)
     .on("value", snap => {
-      let present = 0, total = 0;
-      const labels = [], data = [];
 
-      attendanceTableBody.innerHTML = "";
+      tbody.innerHTML = "";
+
+      let present = 0;
+      let total = 0;
+      const labels = [];
+      const values = [];
+
+      if (!snap.exists()) {
+        tbody.innerHTML = `<tr><td colspan="3">No attendance records</td></tr>`;
+        updateMeta(0);
+        drawChart([], []);
+        return;
+      }
 
       snap.forEach(day => {
-        const st = day.val()[currentUser.uid];
-        if (st) {
+        const date = day.key;
+        const status = day.val()[currentUser.uid] || "-";
+
+        if (status !== "-") {
           total++;
-          if (st === "P") present++;
+          if (status === "P") present++;
         }
 
-        labels.push(day.key);
-        data.push(st === "P" ? 1 : 0);
+        labels.push(date);
+        values.push(status === "P" ? 1 : 0);
 
-        attendanceTableBody.innerHTML += `
+        const d = new Date(date);
+        const dayName = d.toLocaleDateString("en-IN", { weekday: "short" });
+
+        tbody.innerHTML += `
           <tr>
-            <td>${day.key}</td>
-            <td class="${st === "P" ? "present" : "absent"}">${st || "-"}</td>
+            <td>${date}</td>
+            <td>${dayName}</td>
+            <td class="${status === "P" ? "status-present" : status === "A" ? "status-absent" : ""}">
+              ${status}
+            </td>
           </tr>`;
       });
 
       const percent = total ? Math.round((present / total) * 100) : 0;
-      updatePercent(percent);
+      updateMeta(percent);
       showPrediction(present, total);
-      drawChart(labels, data);
-      showDefaulterAlert(percent);
+      drawChart(labels, values);
     });
 }
 
 /*********************************
- 📈 OVERALL %
+ 📈 OVERALL ATTENDANCE %
 **********************************/
 function calculateOverallAttendance() {
   db.ref("attendance/" + currentClassId).on("value", snap => {
-    let p = 0, t = 0;
-    snap.forEach(sub =>
-      sub.forEach(d => {
-        const st = d.val()[currentUser.uid];
-        if (st) {
-          t++;
-          if (st === "P") p++;
+    let present = 0;
+    let total = 0;
+
+    snap.forEach(subject =>
+      subject.forEach(day => {
+        const status = day.val()[currentUser.uid];
+        if (status) {
+          total++;
+          if (status === "P") present++;
         }
       })
     );
-    updatePercent(t ? Math.round((p / t) * 100) : 0);
-  });
-}
 
-function updatePercent(v) {
-  attendancePercent.innerText = v + "%";
+    const percent = total ? Math.round((present / total) * 100) : 0;
+    document.getElementById("attendancePercent").innerText = percent + "%";
+  });
 }
 
 /*********************************
@@ -132,50 +194,81 @@ function updatePercent(v) {
 **********************************/
 function calculateMonthlySummary() {
   const now = new Date();
-  let p = 0, t = 0;
+  let present = 0;
+  let total = 0;
 
   db.ref("attendance/" + currentClassId).once("value").then(snap => {
-    snap.forEach(sub =>
-      sub.forEach(d => {
-        const dt = new Date(d.key);
-        const st = d.val()[currentUser.uid];
-        if (st && dt.getMonth() === now.getMonth()) {
-          t++;
-          if (st === "P") p++;
+    snap.forEach(subject =>
+      subject.forEach(day => {
+        const d = new Date(day.key);
+        const status = day.val()[currentUser.uid];
+
+        if (status && d.getMonth() === now.getMonth()) {
+          total++;
+          if (status === "P") present++;
         }
       })
     );
-    monthlySummary.innerText = `${p}/${t} (${t ? Math.round((p/t)*100) : 0}%)`;
+
+    document.getElementById("monthlySummary").innerText =
+      total ? `${present}/${total} (${Math.round((present / total) * 100)}%)` : "--";
   });
 }
 
 /*********************************
- 🔮 PREDICTION
+ 🔮 ATTENDANCE PREDICTION
 **********************************/
 function showPrediction(present, total) {
   let miss = 0;
   while (((present / (total + miss)) * 100) >= MIN_ATTENDANCE) miss++;
-  predictionText.innerText = `Can miss ${Math.max(miss - 1, 0)} classes`;
+
+  document.getElementById("predictionText").innerText =
+    `Can miss ${Math.max(miss - 1, 0)} classes`;
 }
 
 /*********************************
- ⚠ LIVE ALERT
+ 🧾 META INFO
 **********************************/
-function showDefaulterAlert(percent) {
-  if (percent < MIN_ATTENDANCE) {
-    toast("⚠ Attendance below minimum!");
-  }
+function updateMeta(percent) {
+  document.getElementById("metaPercent").innerText = percent + "%";
+  document.getElementById("metaStatus").innerText =
+    percent >= MIN_ATTENDANCE ? "Safe" : "At Risk";
 }
 
 /*********************************
- 📊 CHART
+ 📊 CHART (ERP STYLE)
 **********************************/
-function drawChart(labels, values) {
+function drawChart(labels, data) {
+  const ctx = document.getElementById("attendanceChart");
+  if (!ctx) return;
+
   if (attendanceChart) attendanceChart.destroy();
-  attendanceChart = new Chart(attendanceChartEl, {
+
+  attendanceChart = new Chart(ctx, {
     type: "line",
-    data: { labels, datasets: [{ data: values, fill: true }] },
-    options: { responsive: true }
+    data: {
+      labels,
+      datasets: [{
+        label: "Attendance",
+        data,
+        borderColor: "#2563eb",
+        backgroundColor: "rgba(37,99,235,0.15)",
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          min: 0,
+          max: 1,
+          ticks: {
+            callback: v => v === 1 ? "Present" : "Absent"
+          }
+        }
+      }
+    }
   });
 }
 
@@ -183,7 +276,19 @@ function drawChart(labels, values) {
  📄 PDF EXPORT
 **********************************/
 function exportPDF() {
-  const pdf = new jspdf.jsPDF();
-  pdf.text("Attendance Report", 14, 15);
-  pdf.save("attendance.pdf");
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+
+  pdf.text("Attendance Report", 14, 16);
+  pdf.text(`Student: ${currentUser.email}`, 14, 26);
+  pdf.text(`Class: ${currentClassId}`, 14, 36);
+
+  pdf.save("attendance-report.pdf");
 }
+
+/*********************************
+ 🚪 LOGOUT
+**********************************/
+function logout() {
+  auth.signOut().then(() => location.href = "index.html");
+     }
