@@ -330,3 +330,60 @@ input:focus, select:focus {
     display: none !important;
   }
 }
+/* ===============================
+   📝 ATTENDANCE BUTTONS UPGRADE
+================================ */
+.att-btn {
+  padding: 10px 18px;
+  margin: 0 5px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  min-width: 50px;
+}
+
+.att-btn.present {
+  background: #16a34a33;
+  color: var(--success);
+}
+
+.att-btn.absent {
+  background: #dc262633;
+  color: var(--danger);
+}
+
+.att-btn.active.present {
+  background: var(--success);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(22,163,74,0.4);
+}
+
+.att-btn.active.absent {
+  background: var(--danger);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(220,38,38,0.4);
+}
+
+.att-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+   }
+/* Light theme: attendance buttons */
+body.light .att-btn.present {
+  background: #bbf7d0aa;
+  color: #16a34a;
+}
+body.light .att-btn.absent {
+  background: #fecacaaa;
+  color: #dc2626;
+}
+body.light .att-btn.active.present {
+  background: #16a34a;
+  color: #fff;
+}
+body.light .att-btn.active.absent {
+  background: #dc2626;
+  color: #fff;
+}
