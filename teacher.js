@@ -129,6 +129,13 @@ function loadSubjects() {
     });
   });
 }
+const defSelect = document.getElementById("defaulterSubjectSelect");
+if (defSelect) {
+  defSelect.innerHTML = `<option value="">-- Select Subject --</option>`;
+  subjectSelect.querySelectorAll("option").forEach(opt => {
+    if (opt.value) defSelect.appendChild(opt.cloneNode(true));
+  });
+}
 
 /********************************
  📝 ATTENDANCE (REALTIME)
@@ -234,10 +241,15 @@ function loadAttendanceRecords() {
  ⚠️ DEFAULTERS (REALTIME)
 *********************************/
 function loadDefaulters() {
-  if (!selectedSubjectKey) return;
+  const subjectKey =
+    document.getElementById("defaulterSubjectSelect")?.value ||
+    selectedSubjectKey;
+
+  if (!subjectKey) return;
+
   defaulterBody.innerHTML = "";
 
-  db.ref(`attendance/${selectedSubjectKey}`).once("value").then(attSnap => {
+  db.ref(`attendance/${subjectKey}`).once("value").then(attSnap => {
     const days = attSnap.val() || {};
 
     db.ref("users").once("value").then(users => {
@@ -246,6 +258,7 @@ function loadDefaulters() {
         if (d.role !== "student") return;
 
         let total = 0, present = 0;
+
         Object.values(days).forEach(day => {
           if (day[u.key]) {
             total++;
@@ -254,6 +267,7 @@ function loadDefaulters() {
         });
 
         if (!total) return;
+
         const percent = Math.round((present / total) * 100);
 
         if (percent < MIN_ATTENDANCE) {
@@ -261,7 +275,7 @@ function loadDefaulters() {
             <tr>
               <td>${d.roll}</td>
               <td>${d.name}</td>
-              <td>${100 - percent}%</td>
+              <td>${percent}%</td>
             </tr>`;
         }
       });
@@ -297,7 +311,45 @@ function loadChart() {
     }
   });
 }
+function loadChart() {
+  if (!selectedSubjectKey) return;
 
+  const ctx = document.getElementById("attendanceChart");
+  if (!ctx || typeof Chart === "undefined") return;
+
+  const today = new Date().toISOString().split("T")[0];
+
+  db.ref(`attendance/${selectedSubjectKey}/${today}`).once("value").then(snap => {
+    const data = snap.val() || {};
+    let p = 0, a = 0;
+
+    Object.values(data).forEach(v => {
+      if (v === "P") p++;
+      if (v === "A") a++;
+    });
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: ["Present", "Absent"],
+        datasets: [{
+          data: [p, a],
+          backgroundColor: ["#22c55e", "#ef4444"]
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "70%",
+        plugins: {
+          legend: { position: "bottom" }
+        }
+      }
+    });
+  });
+}
 /********************************
  🍞 TOAST
 *********************************/
