@@ -20,8 +20,9 @@
 <body>
 
 <!-- 🔔 LIVE ALERT -->
-<div id="liveAlert" class="alert-banner"></div>
-
+<div id="alertBanner" class="alert-banner">
+  ⚠ Attendance below minimum requirement!
+</div>
 <!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <h2 class="sidebar-title">Student Panel</h2>
@@ -86,14 +87,14 @@
     <option value="">Select Subject</option>
   </select>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody id="attendanceTableBody"></tbody>
+  <table class="attendance-table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="attendanceTableBody"></tbody>
   </table>
 
   <button class="export-btn" onclick="exportPDF()">📄 Export PDF</button>
