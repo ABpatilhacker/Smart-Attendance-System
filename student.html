@@ -5,20 +5,22 @@
   <title>Student Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Fonts & Icons -->
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a2d9d6d66c.js" crossorigin="anonymous"></script>
 
   <!-- CSS -->
   <link rel="stylesheet" href="student.css">
 
   <!-- Chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<!-- ================= SIDEBAR ================= -->
-<div class="sidebar" id="sidebar">
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar">
   <h2>🎓 Student</h2>
   <nav>
     <button onclick="showSection('dashboard')">🏠 Dashboard</button>
@@ -26,18 +28,20 @@
     <button onclick="showSection('attendance')">📊 Attendance</button>
     <button onclick="logout()">🚪 Logout</button>
   </nav>
-</div>
+</aside>
 
-<!-- ================= TOPBAR ================= -->
-<div class="topbar">
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ============ TOPBAR ============ -->
+<header class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
   <h1>Student Dashboard</h1>
-</div>
+</header>
 
-<!-- ================= MAIN ================= -->
-<div class="main">
+<!-- ============ MAIN ============ -->
+<main class="main">
 
-  <!-- ===== DASHBOARD ===== -->
+  <!-- DASHBOARD -->
   <section id="dashboard" class="section active">
 
     <div class="card-grid">
@@ -51,8 +55,7 @@
       </div>
     </div>
 
-    <!-- Monthly + Prediction -->
-    <div class="card-grid" style="margin-top:20px;">
+    <div class="card-grid">
       <div class="card">
         📅 Monthly Summary
         <span id="monthlySummary">--</span>
@@ -63,20 +66,19 @@
       </div>
     </div>
 
-    <!-- Chart -->
     <div class="chart-box">
       <canvas id="attendanceChart"></canvas>
     </div>
 
   </section>
 
-  <!-- ===== SUBJECTS ===== -->
+  <!-- SUBJECTS -->
   <section id="classes" class="section">
     <h2>Your Subjects</h2>
     <div id="classList" class="card-grid"></div>
   </section>
 
-  <!-- ===== ATTENDANCE ===== -->
+  <!-- ATTENDANCE -->
   <section id="attendance" class="section">
     <h2>Attendance Record</h2>
 
@@ -94,20 +96,33 @@
       <tbody id="attendanceTableBody"></tbody>
     </table>
 
-    <button onclick="exportPDF()" class="export-btn">
-      📄 Export Attendance PDF
-    </button>
+    <button class="export-btn" onclick="exportPDF()">📄 Export PDF</button>
   </section>
 
-</div>
+</main>
 
-<!-- ================= FIREBASE ================= -->
+<!-- ============ FIREBASE ============ -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script src="firebase.js"></script>
 
-<!-- ================= JS ================= -->
+<!-- ============ UI FIX SCRIPT ============ -->
+<script>
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("overlay").classList.toggle("show");
+}
+
+function showSection(id) {
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("overlay").classList.remove("show");
+}
+</script>
+
+<!-- APP JS -->
 <script src="student.js"></script>
 </body>
 </html>
