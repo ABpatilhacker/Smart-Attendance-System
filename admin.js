@@ -16,300 +16,184 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 /********************************
- 🌍 GLOBAL STATE (SINGLE SOURCE)
+ 🌍 GLOBAL STATE
 *********************************/
-let currentTeacher = null;
-let selectedSubjectKey = "";
-let attendanceData = {};
+let currentAdmin = null;
 
 /********************************
  🔐 AUTH CHECK
 *********************************/
 auth.onAuthStateChanged(user => {
   if (!user) {
-    window.location.href = "login.html";
-  } else {
-    currentTeacher = user;
-    loadTeacherInfo();
-    loadSubjects();
-    loadChart();
+    location.href = "index.html";
+    return;
   }
+
+  db.ref("users/" + user.uid).once("value").then(snap => {
+    const u = snap.val();
+    if (!u || u.role !== "admin") {
+      auth.signOut();
+      location.href = "index.html";
+      return;
+    }
+
+    currentAdmin = user;
+    loadDashboard();
+    loadClasses();
+    loadTeachers();
+    loadApprovals();
+    loadSettings();
+  });
 });
 
 /********************************
  🚪 LOGOUT
 *********************************/
 function logout() {
-  auth.signOut().then(() => {
-    window.location.href = "login.html";
-  });
+  auth.signOut().then(() => location.href = "index.html");
 }
 
 /********************************
- 📂 SIDEBAR
+ 📂 SIDEBAR NAV
 *********************************/
-function toggleSidebar() {
-  document.getElementById("sidebar")?.classList.toggle("open");
-  document.getElementById("overlay")?.classList.toggle("show");
-}
-
-function openSection(id) {
-  document.querySelectorAll(".section").forEach(sec =>
-    sec.classList.remove("active")
+function nav(id) {
+  document.querySelectorAll(".page").forEach(p =>
+    p.style.display = "none"
   );
-
-  document.getElementById(id)?.classList.add("active");
-
-  if (document.getElementById("sidebar")?.classList.contains("open")) {
-    toggleSidebar();
-  }
+  document.getElementById(id).style.display = "block";
 }
 
+nav("dashboard");
+
 /********************************
- 👋 TEACHER INFO
+ 📊 DASHBOARD COUNTS
 *********************************/
-function loadTeacherInfo() {
-  db.ref("users/" + currentTeacher.uid).once("value").then(snap => {
-    const d = snap.val();
-    document.getElementById("welcomeCard").innerText = `Welcome 👋 ${d.name}`;
-    document.getElementById("profileName").value = d.name;
-    document.getElementById("profileEmail").value = d.email;
+function loadDashboard() {
+  // Classes
+  db.ref("classes").on("value", snap => {
+    document.getElementById("classCount").innerText =
+      snap.exists() ? snap.numChildren() : 0;
   });
-}
 
-function saveProfile() {
-  const name = document.getElementById("profileName").value.trim();
-  if (!name) return toast("Name required ⚠️");
-
-  db.ref("users/" + currentTeacher.uid)
-    .update({ name })
-    .then(() => toast("Profile Updated ✅"));
-}
-
-/********************************
- 📚 LOAD SUBJECTS + CLASS CARDS
-*********************************/
-function loadSubjects() {
-  const select = document.getElementById("subjectSelect");
-  const classBox = document.getElementById("classListContainer");
-
-  select.innerHTML = `<option value="">-- Select Subject --</option>`;
-  classBox.innerHTML = "";
-
-  db.ref("classes").once("value").then(snap => {
-    snap.forEach(cls => {
-      const c = cls.val();
-
-      Object.keys(c.subjects || {}).forEach(subId => {
-        const sub = c.subjects[subId];
-
-        if (sub.teacherId === currentTeacher.uid) {
-          const key = `${cls.key}_${subId}`;
-
-          select.innerHTML += `
-            <option value="${key}">
-              ${c.name} - ${sub.name}
-            </option>
-          `;
-
-          const card = document.createElement("div");
-          card.className = "card";
-          card.onclick = () => {
-            selectedSubjectKey = key;
-            select.value = key;
-            openSection("attendance");
-            loadAttendanceTable();
-            loadDefaulters();
-          };
-          card.innerHTML = `<h3>${c.name}</h3><p>${sub.name}</p>`;
-          classBox.appendChild(card);
-        }
-      });
+  // Teachers & Students
+  db.ref("users").on("value", snap => {
+    let t = 0, s = 0;
+    snap.forEach(u => {
+      if (u.val().role === "teacher") t++;
+      if (u.val().role === "student") s++;
     });
+    document.getElementById("teacherCount").innerText = t;
+    document.getElementById("studentCount").innerText = s;
   });
 }
 
 /********************************
- 🔄 SUBJECT CHANGE
+ 🏫 CLASSES
 *********************************/
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("subjectSelect").addEventListener("change", e => {
-    selectedSubjectKey = e.target.value;
-    document.getElementById("attendanceSection").style.display =
-      selectedSubjectKey ? "block" : "none";
-
-    if (selectedSubjectKey) {
-      loadAttendanceTable();
-      loadDefaulters();
-    }
-  });
-});
-
-/********************************
- 📝 ATTENDANCE TABLE (REAL-TIME)
-*********************************/
-function loadAttendanceTable() {
-  if (!selectedSubjectKey) return;
-
-  const body = document.getElementById("attendanceBody");
-  body.innerHTML = "";
-
-  const [classId] = selectedSubjectKey.split("_");
-  const today = new Date().toISOString().split("T")[0];
-
-  db.ref(`attendance/${selectedSubjectKey}/${today}`).on("value", snap => {
-    attendanceData = snap.val() || {};
-    body.innerHTML = "";
-
-    db.ref("users")
-      .orderByChild("classId")
-      .equalTo(classId)
-      .once("value")
-      .then(stSnap => {
-        let students = [];
-
-        stSnap.forEach(s => {
-          const d = s.val();
-          if (d.role === "student") students.push({ ...d, uid: s.key });
-        });
-
-        students.sort((a, b) => a.roll - b.roll);
-
-        students.forEach(stu => {
-          const status = attendanceData[stu.uid] || "";
-
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${stu.roll}</td>
-            <td>${stu.name}</td>
-            <td>
-              <button class="att-btn present ${status === "P" ? "active" : ""}"
-                onclick="markAttendance('${stu.uid}','P',this)">P</button>
-              <button class="att-btn absent ${status === "A" ? "active" : ""}"
-                onclick="markAttendance('${stu.uid}','A',this)">A</button>
-            </td>`;
-          body.appendChild(tr);
-        });
-      });
-  });
-}
-
-function markAttendance(uid, status, btn) {
-  attendanceData[uid] = status;
-
-  btn.parentElement.querySelectorAll(".att-btn")
-    .forEach(b => b.classList.remove("active"));
-
-  btn.classList.add("active");
-  loadDefaulters();
-}
-
-/********************************
- 💾 SAVE ATTENDANCE
-*********************************/
-function saveAttendance() {
-  if (!selectedSubjectKey) return toast("Select subject ⚠️");
-
-  const today = new Date().toISOString().split("T")[0];
-  db.ref(`attendance/${selectedSubjectKey}/${today}`)
-    .set(attendanceData)
-    .then(() => toast("Attendance Saved ✅"));
-}
-
-/********************************
- 📅 ATTENDANCE RECORDS
-*********************************/
-function loadAttendanceRecords() {
-  const date = document.getElementById("calendar").value;
-  const body = document.getElementById("recordBody");
-  body.innerHTML = "";
-
-  if (!date || !selectedSubjectKey) return;
-
-  db.ref(`attendance/${selectedSubjectKey}/${date}`).once("value")
-    .then(snap => {
-      const data = snap.val();
-      if (!data) {
-        body.innerHTML = `<tr><td colspan="3">No record</td></tr>`;
-        return;
-      }
-
-      Object.keys(data).forEach(uid => {
-        db.ref("users/" + uid).once("value").then(s => {
-          const d = s.val();
-          body.innerHTML += `
-            <tr>
-              <td>${d.roll}</td>
-              <td>${d.name}</td>
-              <td>${data[uid]}</td>
-            </tr>`;
-        });
-      });
-    });
-}
-
-/********************************
- ⚠️ DEFAULTERS (REAL-TIME)
-*********************************/
-function loadDefaulters() {
-  if (!selectedSubjectKey) return;
-
-  const list = document.getElementById("defaulterList");
+function loadClasses() {
+  const list = document.getElementById("classList");
   list.innerHTML = "";
 
-  const min = Number(localStorage.getItem("minAttendance")) || 75;
+  db.ref("classes").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(c => {
+      const li = document.createElement("li");
+      li.innerText = c.val().name;
+      list.appendChild(li);
+    });
+  });
+}
 
-  db.ref(`attendance/${selectedSubjectKey}`).once("value").then(attSnap => {
-    const allDays = attSnap.val() || {};
+function addClass() {
+  const input = document.getElementById("className");
+  const name = input.value.trim();
+  if (!name) return showModal("Error", "Class name required");
 
-    db.ref("users").once("value").then(uSnap => {
-      uSnap.forEach(s => {
-        const stu = s.val();
-        const uid = s.key;
-        if (stu.role !== "student") return;
+  db.ref("classes").push({
+    name,
+    createdAt: Date.now()
+  });
 
-        let total = 0, present = 0;
+  input.value = "";
+}
 
-        Object.values(allDays).forEach(day => {
-          if (day[uid]) {
-            total++;
-            if (day[uid] === "P") present++;
-          }
-        });
+/********************************
+ 👨‍🏫 TEACHERS LIST
+*********************************/
+function loadTeachers() {
+  const list = document.getElementById("teacherList");
+  list.innerHTML = "";
 
-        if (!total) return;
-
-        const percent = Math.round((present / total) * 100);
-        if (percent < min) {
-          list.innerHTML += `
-            <li><strong>${stu.name}</strong><span>${percent}%</span></li>`;
-        }
-      });
+  db.ref("users").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(u => {
+      const d = u.val();
+      if (d.role === "teacher") {
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${d.name}</strong><span>${d.email}</span>`;
+        list.appendChild(li);
+      }
     });
   });
 }
 
 /********************************
- 🍞 TOAST
+ ✅ APPROVALS
 *********************************/
-function toast(msg) {
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.innerText = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.classList.add("show"), 100);
-  setTimeout(() => t.remove(), 3000);
+function loadApprovals() {
+  const list = document.getElementById("pendingList");
+  list.innerHTML = "";
+
+  db.ref("users").on("value", snap => {
+    list.innerHTML = "";
+    snap.forEach(u => {
+      const d = u.val();
+      if (d.approved === false) {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${d.name}</strong>
+          <button onclick="approveUser('${u.key}')">Approve</button>
+        `;
+        list.appendChild(li);
+      }
+    });
+  });
+}
+
+function approveUser(uid) {
+  db.ref("users/" + uid).update({ approved: true });
 }
 
 /********************************
- 🌗 THEME
+ ⚙ SETTINGS (REALTIME SYNC)
 *********************************/
-function toggleTheme() {
-  document.body.classList.toggle("light");
-  localStorage.setItem("theme",
-    document.body.classList.contains("light") ? "light" : "dark");
+function loadSettings() {
+  db.ref("settings/minimumAttendance").on("value", snap => {
+    if (snap.exists()) {
+      document.getElementById("minAttendance").value = snap.val();
+    }
+  });
 }
 
-if (localStorage.getItem("theme") === "light") {
-  document.body.classList.add("light");
+function saveSettings() {
+  const val = Number(document.getElementById("minAttendance").value);
+  if (val < 1 || val > 100) {
+    showModal("Error", "Enter value between 1–100");
+    return;
+  }
+
+  db.ref("settings/minimumAttendance").set(val);
+  showModal("Saved", "Minimum attendance updated");
+}
+
+/********************************
+ 🪟 MODAL
+*********************************/
+function showModal(title, text) {
+  document.getElementById("modalTitle").innerText = title;
+  document.getElementById("modalText").innerText = text;
+  document.getElementById("modal").style.display = "flex";
+
+  document.getElementById("modalOk").onclick = () =>
+    document.getElementById("modal").style.display = "none";
 }
