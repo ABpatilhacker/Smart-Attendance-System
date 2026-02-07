@@ -1,116 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Admin Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
 
-  <!-- GOOGLE FONT -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="admin.css">
-
-  <!-- FIREBASE -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
 
-<!-- ================= TOPBAR ================= -->
+<!-- TOPBAR -->
 <div class="topbar">
-  <button class="hamburger" onclick="toggleSidebar()">☰</button>
-  <h1>Admin Dashboard</h1>
-  <button class="logout" onclick="logout()">Logout</button>
+  <button id="menuBtn" class="hamburger">☰</button>
+  <h2>Admin Dashboard</h2>
+  <button class="logout">Logout</button>
 </div>
 
-<!-- ================= SIDEBAR ================= -->
-<div class="sidebar">
-  <button class="active" onclick="nav('dashboard')">📊 Dashboard</button>
-  <button onclick="nav('classes')">🏫 Classes</button>
-  <button onclick="nav('teachers')">👨‍🏫 Teachers</button>
-  <button onclick="nav('approvals')">✅ Approvals</button>
-  <button onclick="nav('settings')">⚙️ Settings</button>
+<!-- SIDEBAR -->
+<div id="sidebar" class="sidebar">
+  <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+  <button class="nav-btn" data-page="classes">Classes</button>
+  <button class="nav-btn" data-page="teachers">Teachers</button>
+  <button class="nav-btn" data-page="settings">Settings</button>
 </div>
 
-<!-- ================= OVERLAY ================= -->
-<div id="overlay" onclick="toggleSidebar()"></div>
+<!-- OVERLAY -->
+<div id="overlay"></div>
 
-<!-- ================= CONTENT ================= -->
-<div class="content">
+<!-- MAIN -->
+<div class="main">
 
-  <!-- ===== DASHBOARD ===== -->
-  <div id="dashboard" class="page active">
-    <div class="stats">
-      <div class="stat-card">
-        <h2 id="classCount">0</h2>
-        <p>Total Classes</p>
-      </div>
-      <div class="stat-card">
-        <h2 id="teacherCount">0</h2>
-        <p>Total Teachers</p>
-      </div>
-      <div class="stat-card">
-        <h2 id="studentCount">0</h2>
-        <p>Total Students</p>
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="page active">
+    <h3>Welcome 👋</h3>
+    <div class="cards">
+      <div class="card">Total Classes <span>6</span></div>
+      <div class="card">Teachers <span>12</span></div>
+      <div class="card">Students <span>240</span></div>
+    </div>
+  </section>
+
+  <!-- CLASSES -->
+  <section id="classes" class="page">
+    <h3>Classes</h3>
+    <div class="list">
+      <div class="list-item">
+        FY BCA
+        <button onclick="viewClass('FY BCA')">View</button>
+        <button onclick="editClass('FY BCA')">Edit</button>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- ===== CLASSES ===== -->
-  <div id="classes" class="page">
-    <h2>Classes</h2>
-
-    <div class="glass-box">
-      <input id="className" placeholder="Enter class name">
-      <button class="primary" onclick="addClass()">➕ Add Class</button>
+  <!-- TEACHERS -->
+  <section id="teachers" class="page">
+    <h3>Teachers</h3>
+    <div class="list">
+      <div class="list-item">
+        Prof. Sharma
+        <button onclick="viewTeacher('Prof. Sharma')">View</button>
+      </div>
     </div>
+  </section>
 
-    <ul id="classList"></ul>
-  </div>
-
-  <!-- ===== TEACHERS ===== -->
-  <div id="teachers" class="page">
-    <h2>Teachers</h2>
-    <ul id="teacherList"></ul>
-  </div>
-
-  <!-- ===== APPROVALS ===== -->
-  <div id="approvals" class="page">
-    <h2>Pending Approvals</h2>
-    <ul id="pendingList"></ul>
-  </div>
-
-  <!-- ===== SETTINGS ===== -->
-  <div id="settings" class="page">
-    <h2>Attendance Settings</h2>
-
-    <div class="settings-box">
-      <p class="muted">
-        Minimum attendance percentage required for students to be eligible.
-      </p>
-      <input type="number" id="minAttendance" min="0" max="100">
-      <button class="primary" onclick="saveSettings()">Save Settings</button>
-    </div>
-  </div>
+  <!-- SETTINGS -->
+  <section id="settings" class="page">
+    <h3>Settings</h3>
+    <label>Attendance Threshold</label>
+    <input type="range" value="75">
+    <button class="primary">Save Settings</button>
+  </section>
 
 </div>
 
-<!-- ================= CLASS / TEACHER PANEL ================= -->
-<div id="classPanel"></div>
+<!-- PANELS -->
+<div id="classPanel" class="panel"></div>
+<div id="teacherPanel" class="panel"></div>
 
-<!-- ================= MODAL ================= -->
+<!-- MODAL -->
 <div id="modal" class="modal">
   <div class="modal-box">
-    <h3 id="modalTitle"></h3>
-    <p id="modalText" class="muted"></p>
-    <button id="modalOk" class="primary">OK</button>
+    <h4>Edit Class</h4>
+    <input placeholder="Class name">
+    <button class="primary">Save</button>
+    <button onclick="closeModal()">Cancel</button>
   </div>
 </div>
 
-<!-- ================= JS ================= -->
-<script src="admin.js"></script>
+<!-- Firebase Config -->
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
+  authDomain: "smart-attendance-system-17e89.firebaseapp.com",
+  databaseURL: "https://smart-attendance-system-17e89-default-rtdb.firebaseio.com",
+  projectId: "smart-attendance-system-17e89",
+  storageBucket: "smart-attendance-system-17e89.appspot.com",
+  messagingSenderId: "168700970246",
+  appId: "1:168700970246:web:392156387db81e92544a87"
+};
+firebase.initializeApp(firebaseConfig);
+</script>
 
+<script src="admin.js"></script>
 </body>
 </html>
