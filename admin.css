@@ -1,367 +1,164 @@
-/* =========================
-   🌈 THEME VARIABLES
-========================= */
-:root{
-  --primary:#0ea5a4;        /* teal */
-  --secondary:#38bdf8;      /* sky */
-  --accent:#f59e0b;         /* amber */
-  --bg:#f8fafc;
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#64748b;
-  --danger:#ef4444;
-
-  --radius:18px;
-  --shadow-sm:0 6px 16px rgba(0,0,0,.08);
-  --shadow-md:0 12px 30px rgba(0,0,0,.12);
+:root {
+  --primary: #6366f1;
+  --secondary: #22d3ee;
+  --glass: rgba(255,255,255,0.75);
+  --border: rgba(0,0,0,0.08);
+  --shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
-/* =========================
-   🔧 RESET
-========================= */
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Poppins',system-ui,-apple-system;
+* { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg,#eef2ff,#f0fdfa);
 }
 
-body{
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
+/* TOPBAR */
+.topbar {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
 }
 
-/* =========================
-   🔝 TOPBAR
-========================= */
-.topbar{
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  height:64px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 18px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
-  color:#fff;
-  z-index:1000;
-  box-shadow:var(--shadow-md);
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 230px;
+  height: calc(100% - 60px);
+  background: var(--glass);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid var(--border);
+  padding: 14px;
+  transform: translateX(-100%);
+  transition: .35s ease;
+  z-index: 900;
+}
+.sidebar.open { transform: translateX(0); }
+
+@media (min-width: 769px) {
+  .sidebar { transform: translateX(0); }
 }
 
-.topbar h1{
-  font-size:18px;
-  font-weight:600;
+.sidebar button {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+.sidebar button:hover {
+  background: linear-gradient(135deg,var(--primary),var(--secondary));
+  color: white;
 }
 
-.menu-btn,
-.logout{
-  background:none;
-  border:none;
-  color:#fff;
-  font-size:20px;
-  cursor:pointer;
+/* CONTENT */
+.content {
+  margin-top: 60px;
+  padding: 20px;
+  margin-left: 0;
+}
+@media (min-width:769px){
+  .content { margin-left: 230px; }
 }
 
-/* =========================
-   📚 SIDEBAR
-========================= */
-.sidebar{
-  position:fixed;
-  top:64px;
-  left:0;
-  width:240px;
-  height:calc(100% - 64px);
-  padding:16px;
-  background:rgba(255,255,255,.85);
-  backdrop-filter:blur(18px);
-  border-right:1px solid rgba(0,0,0,.05);
-  transform:translateX(-100%);
-  transition:.35s ease;
-  z-index:900;
+/* PAGES */
+.page { display: none; animation: fade .3s ease; }
+.page.active { display: block; }
+
+/* CARDS */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+  gap: 16px;
+}
+.card {
+  background: var(--glass);
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  text-align: center;
 }
 
-.sidebar.open{
-  transform:translateX(0);
+/* LIST */
+.list li {
+  background: var(--glass);
+  margin-bottom: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Desktop open */
-@media(min-width:769px){
-  .sidebar{transform:none;}
+/* PANEL */
+.side-panel {
+  position: fixed;
+  right: 0;
+  top: 60px;
+  width: 360px;
+  height: calc(100% - 60px);
+  background: white;
+  box-shadow: -10px 0 30px rgba(0,0,0,.15);
+  transform: translateX(100%);
+  transition: .4s ease;
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1200;
+}
+.side-panel.active-panel { transform: translateX(0); }
+
+/* SUBJECT CARD */
+.subject-card {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-.sidebar button{
-  width:100%;
-  padding:14px 16px;
-  margin-bottom:12px;
-  border:none;
-  border-radius:14px;
-  background:transparent;
-  text-align:left;
-  font-size:15px;
-  cursor:pointer;
-  color:var(--text);
-  transition:.25s;
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.modal-box {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
 }
 
-.sidebar button:hover{
-  background:#e0f2fe;
-  transform:translateX(4px);
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: black;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 20px;
+  animation: fade .3s;
 }
 
-/* =========================
-   📦 MAIN AREA
-========================= */
-.main{
-  padding:90px 18px 30px;
-  max-width:1200px;
-  margin:auto;
-}
-
-/* =========================
-   📄 PAGES
-========================= */
-.page{
-  display:none;
-  animation:pageFade .35s ease;
-}
-
-.page.active{
-  display:block;
-}
-
-@keyframes pageFade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:none}
-}
-
-/* =========================
-   📊 DASHBOARD CARDS
-========================= */
-.cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:18px;
-}
-
-.card{
-  background:var(--card);
-  border-radius:var(--radius);
-  padding:22px;
-  box-shadow:var(--shadow-sm);
-  transition:.3s;
-}
-
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:var(--shadow-md);
-}
-
-.card h3{
-  font-size:15px;
-  color:var(--muted);
-  margin-bottom:6px;
-}
-
-.card span{
-  font-size:36px;
-  font-weight:700;
-  color:var(--primary);
-}
-
-/* =========================
-   📋 LISTS
-========================= */
-.list{
-  list-style:none;
-  margin-top:14px;
-}
-
-.list li{
-  background:var(--card);
-  border-radius:var(--radius);
-  padding:14px 16px;
-  margin-bottom:14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  box-shadow:var(--shadow-sm);
-  animation:fadeUp .3s ease;
-}
-
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(6px)}
-  to{opacity:1;transform:none}
-}
-
-.list strong{
-  font-size:15px;
-}
-
-.list small{
-  color:var(--muted);
-  font-size:12px;
-}
-
-/* =========================
-   🎯 ACTION BUTTONS
-========================= */
-.actions button{
-  margin-left:6px;
-}
-
-/* =========================
-   🔘 INPUTS & BUTTONS
-========================= */
-input,select{
-  width:100%;
-  padding:12px 14px;
-  border-radius:14px;
-  border:1px solid #e5e7eb;
-  font-size:14px;
-  background:#fff;
-}
-
-input:focus,select:focus{
-  outline:none;
-  border-color:var(--primary);
-}
-
-button{
-  padding:12px 18px;
-  border-radius:14px;
-  border:none;
-  cursor:pointer;
-  font-size:14px;
-  background:linear-gradient(135deg,var(--primary),var(--secondary));
-  color:#fff;
-  transition:.25s;
-}
-
-button:hover{
-  transform:translateY(-2px);
-  box-shadow:var(--shadow-sm);
-}
-
-button.danger{
-  background:linear-gradient(135deg,#ef4444,#f97316);
-}
-
-button.ghost{
-  background:transparent;
-  color:var(--primary);
-  border:1px dashed var(--primary);
-}
-
-/* =========================
-   ➕ ADD BOX
-========================= */
-.add-box{
-  display:flex;
-  gap:12px;
-  margin:16px 0;
-}
-
-/* =========================
-   📘 SUBJECT CARD
-========================= */
-.subject-card{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  margin-bottom:14px;
-  padding:12px;
-  background:#f1f5f9;
-  border-radius:14px;
-}
-
-.badge{
-  background:linear-gradient(135deg,var(--accent),#fde68a);
-  padding:6px 12px;
-  border-radius:999px;
-  font-size:13px;
-  font-weight:500;
-}
-
-/* =========================
-   📦 SIDE PANEL
-========================= */
-.side-panel{
-  position:fixed;
-  top:0;
-  right:-100%;
-  width:400px;
-  max-width:100%;
-  height:100%;
-  background:#fff;
-  padding:22px;
-  box-shadow:-12px 0 30px rgba(0,0,0,.18);
-  transition:.35s ease;
-  z-index:1200;
-  overflow-y:auto;
-}
-
-.side-panel.active-panel{
-  right:0;
-}
-
-.side-panel h2{
-  margin-bottom:10px;
-}
-
-.side-panel .muted{
-  margin-bottom:14px;
-}
-
-/* =========================
-   ❓ MODAL
-========================= */
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(15,23,42,.5);
-  backdrop-filter:blur(4px);
-  align-items:center;
-  justify-content:center;
-  z-index:2000;
-}
-
-.modal-box{
-  background:#fff;
-  padding:22px;
-  border-radius:20px;
-  width:300px;
-  text-align:center;
-  box-shadow:var(--shadow-md);
-}
-
-/* =========================
-   🔔 TOAST
-========================= */
-.toast{
-  position:fixed;
-  bottom:24px;
-  right:24px;
-  background:#0f172a;
-  color:#fff;
-  padding:12px 20px;
-  border-radius:999px;
-  animation:fadeUp .3s ease;
-}
-
-/* =========================
-   🧾 MISC
-========================= */
-label{
-  display:block;
-  margin:10px 0 6px;
-  font-size:14px;
-}
-
-.muted{
-  color:var(--muted);
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
 }
