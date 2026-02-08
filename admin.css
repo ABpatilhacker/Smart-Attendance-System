@@ -168,39 +168,45 @@ main {
   from {opacity: 0; transform: translateY(14px);}
   to {opacity: 1; transform: translateY(0);}
 }
-
 /* ===============================
-   📊 DASHBOARD CARDS
+   📊 DASHBOARD FIX (STRUCTURE SAFE)
 ================================ */
-.stats {
+#dashboard {
   display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
 }
 
-.stat-card {
+/* Auto-style dashboard blocks */
+#dashboard > * {
   background: var(--glass);
   backdrop-filter: var(--blur);
   border-radius: var(--radius);
-  padding: 30px 20px;
-  text-align: center;
+  padding: 26px 20px;
   box-shadow: var(--shadow-md);
-  transition: .3s;
+  text-align: center;
+  transition: .3s ease;
 }
 
-.stat-card:hover {
+#dashboard > *:hover {
   transform: translateY(-6px) scale(1.02);
 }
 
-.stat-card h3 {
+/* Titles */
+#dashboard h3 {
+  font-size: 18px;
   color: var(--muted);
-  font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.stat-card span {
-  font-size: 36px;
+/* Numbers */
+#dashboard span {
+  display: block;
+  font-size: 38px;
   font-weight: 800;
+  background: linear-gradient(135deg,var(--primary),var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* ===============================
@@ -355,3 +361,47 @@ input, select {
   from {opacity:0; transform:translate(-50%,20px);}
   to {opacity:1; transform:translate(-50%,0);}
   }
+/* ===============================
+   🔥 TEACHER / SUBJECT CHIPS
+================================ */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg,var(--primary),var(--accent));
+  box-shadow: var(--shadow-sm);
+  animation: chipPop .35s ease both;
+}
+
+@keyframes chipPop {
+  from {
+    opacity: 0;
+    transform: scale(.8) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.chip:hover {
+  transform: scale(1.06);
+}
+
+@keyframes glassGlow {
+  0% { box-shadow: var(--shadow-md); }
+  100% { box-shadow: 0 20px 60px rgba(99,102,241,.25); }
+}
+
+.panel.active-panel {
+  animation: glassGlow .6s ease forwards;
+}
