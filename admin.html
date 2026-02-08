@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard</title>
+<title>Smart Attendance – Admin</title>
 
-<!-- Firebase v8 -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -15,22 +15,22 @@
 <body>
 
 <!-- Overlay -->
-<div id="overlay" onclick="toggleSidebar()"></div>
+<div id="overlay"></div>
 
 <!-- Topbar -->
 <header class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h1>Admin Dashboard</h1>
+  <h1>Smart Attendance</h1>
   <button class="logout-btn" onclick="logout()">Logout</button>
 </header>
 
 <!-- Sidebar -->
 <aside id="sidebar" class="sidebar">
-  <button onclick="nav('dashboard', this)" class="active">📊 Dashboard</button>
-  <button onclick="nav('classes', this)">🏫 Classes</button>
-  <button onclick="nav('teachers', this)">👨‍🏫 Teachers</button>
-  <button onclick="nav('approvals', this)">✅ Approvals</button>
-  <button onclick="nav('settings', this)">⚙ Settings</button>
+  <button onclick="nav('dashboard',this)" class="active">📊 Dashboard</button>
+  <button onclick="nav('classes',this)">🏫 Classes</button>
+  <button onclick="nav('teachers',this)">👨‍🏫 Teachers</button>
+  <button onclick="nav('approvals',this)">✅ Approvals</button>
+  <button onclick="nav('settings',this)">⚙ Settings</button>
 </aside>
 
 <!-- Main -->
@@ -39,16 +39,25 @@
 <!-- Dashboard -->
 <section id="dashboard" class="page active">
   <div class="cards">
-    <div class="card">Classes <span id="classCount">0</span></div>
-    <div class="card">Teachers <span id="teacherCount">0</span></div>
-    <div class="card">Students <span id="studentCount">0</span></div>
+    <div class="card glow">
+      <h3>Classes</h3>
+      <span id="classCount">0</span>
+    </div>
+    <div class="card glow">
+      <h3>Teachers</h3>
+      <span id="teacherCount">0</span>
+    </div>
+    <div class="card glow">
+      <h3>Students</h3>
+      <span id="studentCount">0</span>
+    </div>
   </div>
 </section>
 
 <!-- Classes -->
 <section id="classes" class="page">
   <div class="header-row">
-    <input id="className" placeholder="New class name">
+    <input id="className" placeholder="Enter class name">
     <button onclick="addClass()">Add Class</button>
   </div>
   <ul id="classList" class="list"></ul>
@@ -66,9 +75,12 @@
 
 <!-- Settings -->
 <section id="settings" class="page">
-  <label>Minimum Attendance (%)</label>
-  <input id="minAttendance" type="number">
-  <button onclick="saveSettings()">Save</button>
+  <div class="settings-box">
+    <label>Minimum Attendance Percentage</label>
+    <input id="minAttendance" type="number" min="0" max="100">
+    <small>This percentage decides eligibility for exams</small>
+    <button onclick="saveSettings()">Save Settings</button>
+  </div>
 </section>
 
 </main>
@@ -82,12 +94,10 @@
   <div class="modal-box">
     <h3 id="modalTitle"></h3>
     <p id="modalText"></p>
-    <div class="actions">
-      <button id="modalOk">OK</button>
-    </div>
+    <button id="modalOk">OK</button>
   </div>
 </div>
-<script> 
+  <script> 
   const firebaseConfig = {
   apiKey: "AIzaSyB3ytMC77uaEwdqmXgr1t-PN0z3qV_Dxi8",
   authDomain: "smart-attendance-system-17e89.firebaseapp.com",
@@ -98,6 +108,9 @@
   appId: "1:168700970246:web:392156387db81e92544a87"
 };
 </script>
+
+  
+
 <script src="admin.js"></script>
 </body>
 </html>
