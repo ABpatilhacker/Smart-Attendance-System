@@ -189,13 +189,6 @@ function exportPDF() {
   pdf.text("Attendance Report", 14, 15);
   pdf.save("attendance.pdf");
 }
-function showDefaulterAlert(percent) {
-  const banner = document.getElementById("alertBanner");
-  if (!banner) return;
-
-  if (percent < MIN_ATTENDANCE) {
-    banner.classList.add("show");
-
     // 🔔 Auto-dismiss after 5 seconds
     setTimeout(() => {
       banner.classList.remove("show");
