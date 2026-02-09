@@ -108,23 +108,20 @@ function loadSubjectAttendance() {
 }
 
 // ✅ THIS LINE
-showDefaulterAlert(percent);
-/* 📈 OVERALL */
-function calculateOverallAttendance() {
-  db.ref("attendance/" + currentClassId).on("value", snap => {
-    let p = 0, t = 0;
-    snap.forEach(s =>
-      s.forEach(d => {
-        const st = d.val()[currentUser.uid];
-        if (st) {
-          t++;
-          if (st === "P") p++;
-        }
-      })
-    );
-    attendancePercent.innerText = t ? Math.round((p / t) * 100) + "%" : "0%";
-  });
+function showDefaulterAlert(percent) {
+  const banner = document.getElementById("alertBanner");
+  if (!banner) return;
+
+  if (percent < MIN_ATTENDANCE) {
+    banner.classList.add("show");
+  } else {
+    banner.classList.remove("show");
+  }
 }
+function closeAlert() {
+  document.getElementById("alertBanner").classList.remove("show");
+}
+
 
 /* 📅 MONTHLY */
 function calculateMonthlySummary() {
