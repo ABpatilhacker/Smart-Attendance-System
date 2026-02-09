@@ -33,6 +33,25 @@ auth.onAuthStateChanged(user => {
     loadSubjects();
   });
 });
+function calculateOverallAttendance() {
+  let present = 0, total = 0;
+
+  db.ref("attendance/" + currentClassId).once("value").then(snap => {
+    snap.forEach(subject =>
+      subject.forEach(date => {
+        const st = date.val()[currentUser.uid];
+        if (st) {
+          total++;
+          if (st === "P") present++;
+        }
+      })
+    );
+
+    const percent = total ? Math.round((present / total) * 100) : 0;
+    updatePercent(percent);
+    showDefaulterAlert(percent);
+  });
+}
 
 /* 📊 DASHBOARD */
 function loadDashboard() {
@@ -130,11 +149,11 @@ function showDefaulterAlert(percent) {
     banner.classList.remove("show");
   }
 }
+
 function closeAlert() {
-  document.getElementById("alertBanner").classList.remove("show");
+  const banner = document.getElementById("alertBanner");
+  if (banner) banner.classList.remove("show");
 }
-
-
 /* 📅 MONTHLY */
 function calculateMonthlySummary() {
   const m = new Date().getMonth();
@@ -178,12 +197,17 @@ function showLiveAlert(show, percent) {
 
 /* 📊 CHART */
 function drawChart(labels, data) {
+  const ctx = document.getElementById("attendanceChartEl");
+  if (!ctx) return;
+
   if (attendanceChart) attendanceChart.destroy();
-  attendanceChart = new Chart(attendanceChartEl || attendanceChart, {
+
+  attendanceChart = new Chart(ctx, {
     type: "line",
     data: {
       labels,
       datasets: [{
+        label: "Attendance",
         data,
         fill: true,
         borderColor: "#6366f1",
@@ -191,7 +215,10 @@ function drawChart(labels, data) {
         tension: 0.4
       }]
     },
-    options: { responsive: true }
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } }
+    }
   });
 }
 
@@ -201,13 +228,7 @@ function exportPDF() {
   pdf.text("Attendance Report", 14, 15);
   pdf.save("attendance.pdf");
 }
-    // 🔔 Auto-dismiss after 5 seconds
-    setTimeout(() => {
-      banner.classList.remove("show");
-    }, 5000);
-  }
-}
-
+    
 function filterByDate() {
   const date = document.getElementById("dateFilter").value;
   if (!date || !selectedSubjectId) return;
