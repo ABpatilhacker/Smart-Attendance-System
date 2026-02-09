@@ -205,3 +205,31 @@ function showDefaulterAlert(percent) {
     }, 5000);
   }
 }
+
+function filterByDate() {
+  const date = document.getElementById("dateFilter").value;
+  if (!date || !selectedSubjectId) return;
+
+  attendanceTableBody.innerHTML = "";
+
+  db.ref(`attendance/${currentClassId}/${selectedSubjectId}/${date}`)
+    .once("value")
+    .then(snap => {
+      if (!snap.exists()) {
+        attendanceTableBody.innerHTML =
+          `<tr><td colspan="2">No record for selected date</td></tr>`;
+        return;
+      }
+
+      const status = snap.val()[currentUser.uid];
+
+      attendanceTableBody.innerHTML = `
+        <tr>
+          <td>${new Date(date).toDateString()}</td>
+          <td class="${status === "P" ? "present" : "absent"}">
+            ${status === "P" ? "Present" : "Absent"}
+          </td>
+        </tr>
+      `;
+    });
+}
