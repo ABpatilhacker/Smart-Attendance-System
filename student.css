@@ -70,13 +70,18 @@ body {
 }
 
 /* ===== OVERLAY ===== */
+/* ===== OVERLAY ===== */
 .overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,.4);
   display: none;
+  z-index: 900;
 }
-.overlay.show { display: block; }
+
+.overlay.show {
+  display: block;
+}
 
 /* ===== TOPBAR ===== */
 .topbar {
@@ -93,7 +98,26 @@ body {
   backdrop-filter: blur(14px);
   z-index: 800;
 }
+.menu-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg,#6366f1,#22d3ee);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+  transition: .25s;
+}
 
+.menu-btn:hover {
+  transform: scale(1.05);
+}
+
+.menu-btn:active {
+  transform: scale(.95);
+}
 /* ===== MAIN ===== */
 .main {
   padding: 90px 20px 20px;
