@@ -1,8 +1,20 @@
+const subjectSelect = document.getElementById("subjectSelect");
+const classList = document.getElementById("classList");
+const attendanceTableBody = document.getElementById("attendanceTableBody");
+const attendancePercent = document.getElementById("attendancePercent");
+const monthlySummary = document.getElementById("monthlySummary");
+const predictionText = document.getElementById("predictionText");
+
 let currentUser, currentClassId, selectedSubjectId;
 let attendanceChart = null;
 let MIN_ATTENDANCE = 75;
 let alertTimer = null;
 
+function updatePercent(percent) {
+  const attendancePercent = document.getElementById("attendancePercent");
+  if (!attendancePercent) return;
+  attendancePercent.innerText = percent + "%";
+}
 /* 🔔 Minimum attendance realtime */
 db.ref("settings/minimumAttendance").on("value", s => {
   if (s.exists()) MIN_ATTENDANCE = Number(s.val());
