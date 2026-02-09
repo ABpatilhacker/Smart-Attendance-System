@@ -48,28 +48,27 @@
 <!-- DASHBOARD -->
 <section id="dashboard" class="section active">
 
-  <div class="card-grid">
-    <div class="card">
-      Subjects
-      <span id="classCount">0</span>
-    </div>
-    <div class="card">
-      Attendance
-      <span id="attendancePercent">0%</span>
-    </div>
-    <div class="card">
-      Monthly
-      <span id="monthlySummary">--</span>
-    </div>
-    <div class="card">
-      Prediction
-      <span id="predictionText">--</span>
-    </div>
+<div class="card-grid">
+  <div class="card">
+    <p>Subjects</p>
+    <h2 id="classCount">0</h2>
   </div>
 
-  <div class="chart-box">
-    <canvas id="attendanceChart"></canvas>
+  <div class="card">
+    <p>Attendance</p>
+    <h2 id="attendancePercent">0%</h2>
   </div>
+
+  <div class="card">
+    <p>Monthly</p>
+    <h2 id="monthlySummary">--</h2>
+  </div>
+
+  <div class="card">
+    <p>Prediction</p>
+    <h2 id="predictionText">--</h2>
+  </div>
+</div>
 
 </section>
 
@@ -86,7 +85,9 @@
   <select id="subjectSelect" onchange="loadSubjectAttendance()">
     <option value="">Select Subject</option>
   </select>
-
+<div class="filter-row">
+  <input type="date" id="dateFilter" onchange="filterByDate()" />
+</div>
   <table class="attendance-table">
   <thead>
     <tr>
