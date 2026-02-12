@@ -306,3 +306,104 @@ button.danger{
   transform:translateY(-4px);
   box-shadow:0 10px 25px rgba(0,0,0,.15);
 }
+/* ===============================
+   PAGE SWITCHING
+================================ */
+.page{
+  display:none;
+}
+.page.active{
+  display:block;
+}
+
+/* ===============================
+   LIST STYLING
+================================ */
+.list{
+  list-style:none;
+  margin-top:20px;
+}
+
+.list li{
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  padding:16px;
+  border-radius:18px;
+  margin-bottom:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:var(--shadow-sm);
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+}
+
+/* ===============================
+   HEADER ROW
+================================ */
+.header-row{
+  display:flex;
+  gap:12px;
+  margin-bottom:20px;
+}
+
+.header-row input{
+  flex:1;
+}
+
+/* ===============================
+   SETTINGS BOX
+================================ */
+.settings-box{
+  max-width:400px;
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  padding:25px;
+  border-radius:20px;
+  box-shadow:var(--shadow-md);
+}
+
+/* ===============================
+   OVERLAY
+================================ */
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;
+  z-index:800;
+}
+
+#overlay.show{
+  display:block;
+}
+
+/* ===============================
+   MODAL
+================================ */
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.5);
+  z-index:1000;
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+  background:#fff;
+  padding:25px;
+  border-radius:18px;
+  width:90%;
+  max-width:350px;
+  text-align:center;
+  box-shadow:var(--shadow-lg);
+}
