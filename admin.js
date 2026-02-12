@@ -186,12 +186,22 @@ function openClassEdit(classId) {
     });
 
     $("classPanel").innerHTML = `
-      <h2>Edit ${cls.name}</h2>
-      <input id="editClassName" value="${cls.name}">
-      ${subs || "<p class='muted'>No subjects</p>"}
-      <button onclick="saveClassEdit('${classId}')">Save</button>
-      <button class="ghost" onclick="closePanel('classPanel')">Cancel</button>
-    `;
+  <h2>Edit ${cls.name}</h2>
+
+  <label>Class Name</label>
+  <input id="editClassName" value="${cls.name}">
+
+  <h3 style="margin:15px 0 8px;">Subjects</h3>
+  ${subs || "<p class='muted'>No subjects</p>"}
+
+  <div class="subject-add-box">
+    <input id="newSubjectName" placeholder="New Subject Name">
+    <button onclick="addSubject('${classId}')">+ Add Subject</button>
+  </div>
+
+  <button onclick="saveClassEdit('${classId}')">Save Changes</button>
+  <button class="ghost" onclick="closePanel('classPanel')">Cancel</button>
+`;
     openPanel("classPanel");
   });
 }
