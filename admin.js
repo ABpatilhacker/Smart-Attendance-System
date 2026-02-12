@@ -195,6 +195,20 @@ function openClassEdit(classId) {
     openPanel("classPanel");
   });
 }
+function addSubject(classId) {
+  const name = $("newSubjectName").value.trim();
+  if (!name) return toast("Enter subject name");
+
+  const id = name.toLowerCase().replace(/\s+/g,"");
+
+  db.ref("classes/" + classId + "/subjects/" + id).set({
+    name,
+    teacherId: ""
+  }).then(() => {
+    toast("Subject added 📘");
+    openClassEdit(classId);
+  });
+}
 
 function saveClassEdit(classId) {
   const name = $("editClassName").value.trim();
@@ -374,3 +388,30 @@ function animateCount(el, target) {
     } else el.innerText = Math.floor(i);
   }, 20);
      }
+
+/********************************
+ 🌙 THEME TOGGLE
+*********************************/
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+
+  const btn = document.querySelector(".theme-btn");
+
+  if (document.body.classList.contains("dark")) {
+    btn.innerText = "☀";
+    localStorage.setItem("adminTheme", "dark");
+  } else {
+    btn.innerText = "🌙";
+    localStorage.setItem("adminTheme", "light");
+  }
+}
+
+window.addEventListener("load", () => {
+  const saved = localStorage.getItem("adminTheme");
+  const btn = document.querySelector(".theme-btn");
+
+  if (saved === "dark") {
+    document.body.classList.add("dark");
+    if (btn) btn.innerText = "☀";
+  }
+});
