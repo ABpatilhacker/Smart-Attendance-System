@@ -20,10 +20,12 @@
 <!-- Topbar -->
 <header class="topbar">
   <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-  <h1>Smart Attendance</h1>
-  <button class="logout-btn" onclick="logout()">Logout</button>
+  <h1 class="topbar-title">Smart Attendance</h1>
+  <div class="topbar-actions">
+    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
 </header>
-
 <!-- Sidebar -->
 <aside id="sidebar" class="sidebar">
   <button onclick="nav('dashboard',this)" class="active">📊 Dashboard</button>
