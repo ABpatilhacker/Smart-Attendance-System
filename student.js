@@ -55,7 +55,9 @@ function calculateOverallAttendance() {
 
 /* 📊 DASHBOARD */
 function loadDashboard() {
-  
+  calculateOverallAttendance();
+}
+
 /* 📚 SUBJECTS */
 function loadSubjects() {
   subjectSelect.innerHTML = `<option value="">Select Subject</option>`;
@@ -222,9 +224,23 @@ function logout() {
   document.body.classList.toggle("dark");
 
   const btn = document.querySelector(".theme-btn");
+
   if (document.body.classList.contains("dark")) {
     btn.innerText = "☀";
+    localStorage.setItem("theme","dark");
   } else {
     btn.innerText = "🌙";
+    localStorage.setItem("theme","light");
   }
+}
+
+/* Load saved theme */
+window.addEventListener("load", () => {
+  const saved = localStorage.getItem("theme");
+  const btn = document.querySelector(".theme-btn");
+
+  if (saved === "dark") {
+    document.body.classList.add("dark");
+    btn.innerText = "☀";
   }
+});
