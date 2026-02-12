@@ -162,83 +162,96 @@ function openClassView(classId) {
  ✏️ CLASS EDIT
 *********************************/
 function openClassEdit(classId) {
-  Promise.all([
-    db.ref("classes/" + classId).once("value"),
-    db.ref("users").once("value")
-  ]).then(([cSnap, uSnap]) => {
+  db.ref("classes/" + classId).once("value", snap => {
+    const cls = snap.val();
+    if (!cls) return;
 
-    const cls = cSnap.val();
-    const teachers = Object.entries(uSnap.val() || {})
-      .filter(([_, u]) => u.role === "teacher" && u.approved);
+    db.ref("users").once("value", userSnap => {
+      const users = userSnap.val() || {};
 
-    let subs = "";
-    Object.entries(cls.subjects || {}).forEach(([sid, s]) => {
-      let opts = `<option value="">Unassigned</option>`;
-      teachers.forEach(([tid, t]) => {
-        opts += `<option value="${tid}" ${s.teacherId === tid ? "selected" : ""}>${t.name}</option>`;
+      // Get teachers only
+      let teacherOptions = `<option value="">Unassigned</option>`;
+      Object.entries(users).forEach(([uid, u]) => {
+        if (u.role === "teacher") {
+          teacherOptions += `<option value="${uid}">${u.name}</option>`;
+        }
       });
 
-      subs += `
-        <div class="subject-card">
-          <label>${s.name}</label>
-          <select id="sub-${sid}">${opts}</select>
-        </div>`;
-    });
+      let subjectHTML = "";
+      let subjectCount = 0;
 
-    $("classPanel").innerHTML = `
-  <h2>Edit ${cls.name}</h2>
+      if (cls.subjects) {
+        Object.entries(cls.subjects).forEach(([subId, sub]) => {
+          subjectCount++;
 
-  <label>Class Name</label>
-  <input id="editClassName" value="${cls.name}">
+          subjectHTML += `
+            <div class="subject-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <strong>${sub.name}</strong>
+                <button class="danger" onclick="deleteSubject('${classId}','${subId}')">🗑</button>
+              </div>
 
-  <h3 style="margin:15px 0 8px;">Subjects</h3>
-  ${subs || "<p class='muted'>No subjects</p>"}
+              <select onchange="assignTeacher('${classId}','${subId}', this.value)" class="teacher-dropdown">
+                ${teacherOptions.replace(
+                  `value="${sub.teacherId}"`,
+                  `value="${sub.teacherId}" selected`
+                )}
+              </select>
+            </div>
+          `;
+        });
+      }
 
-  <div class="subject-add-box">
-    <input id="newSubjectName" placeholder="New Subject Name">
-    <button onclick="addSubject('${classId}')">+ Add Subject</button>
-  </div>
+      $("classPanel").innerHTML = `
+        <h2>Edit ${cls.name}</h2>
 
-  <button onclick="saveClassEdit('${classId}')">Save Changes</button>
-  <button class="ghost" onclick="closePanel('classPanel')">Cancel</button>
-`;
-    openPanel("classPanel");
-  });
-}
-function addSubject(classId) {
-  const name = $("newSubjectName").value.trim();
-  if (!name) return toast("Enter subject name");
+        <label>Class Name</label>
+        <input id="editClassName" value="${cls.name}">
 
-  const id = name.toLowerCase().replace(/\s+/g,"");
+        <h3 style="margin:15px 0 8px;">
+          Subjects 
+          <span style="background:#6366f1;color:#fff;padding:4px 10px;border-radius:20px;font-size:12px;">
+            ${subjectCount}
+          </span>
+        </h3>
 
-  db.ref("classes/" + classId + "/subjects/" + id).set({
-    name,
-    teacherId: ""
-  }).then(() => {
-    toast("Subject added 📘");
+        ${subjectHTML || "<p class='muted'>No subjects yet</p>"}
+
+        <div class="subject-add-box">
+          <input id="newSubjectName" placeholder="New Subject Name">
+          <button onclick="addSubject('${classId}')">+ Add Subject</button>
+        </div>
+
+        <button onclick="saveClassEdit('${classId}')">Save Changes</button>
+        <button class="ghost" onclick="closePanel('classPanel')">Cancel</button>
+      `;
+
+      openPanel("classPanel");
+   db.ref("classes/" + classId).on("value", () => {
+  if (document.getElementById("classPanel").classList.contains("active-panel")) {
     openClassEdit(classId);
-  });
-}
-
-function saveClassEdit(classId) {
-  const name = $("editClassName").value.trim();
-  if (!name) return toast("Name required");
-
-  const updates = { name };
-  db.ref("classes/" + classId + "/subjects").once("value").then(snap => {
-    snap.forEach(s => {
-      const sel = $("sub-" + s.key);
-      if (sel) updates[`subjects/${s.key}/teacherId`] = sel.value;
+  }
+});
     });
-
-    db.ref("classes/" + classId).update(updates)
-      .then(() => {
-        toast("Class updated ✅");
-        closePanel("classPanel");
-      });
   });
 }
+function deleteSubject(classId, subId) {
+  if (!confirm("Delete this subject?")) return;
 
+  db.ref("classes/" + classId + "/subjects/" + subId)
+    .remove()
+    .then(() => {
+      toast("Subject deleted 🗑");
+      openClassEdit(classId);
+    });
+}
+function assignTeacher(classId, subId, teacherId) {
+  db.ref("classes/" + classId + "/subjects/" + subId + "/teacherId")
+    .set(teacherId)
+    .then(() => {
+      toast("Teacher updated 🎯");
+    });
+}
 /********************************
  👨‍🏫 TEACHERS
 *********************************/
