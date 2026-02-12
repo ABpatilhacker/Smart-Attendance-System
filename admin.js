@@ -190,13 +190,17 @@ function openClassEdit(classId) {
                 <strong>${sub.name}</strong>
                 <button class="danger" onclick="deleteSubject('${classId}','${subId}')">🗑</button>
               </div>
-
-              <select onchange="assignTeacher('${classId}','${subId}', this.value)" class="teacher-dropdown">
-                ${teacherOptions.replace(
-                  `value="${sub.teacherId}"`,
-                  `value="${sub.teacherId}" selected`
-                )}
-              </select>
+<select onchange="assignTeacher('${classId}','${subId}', this.value)" class="teacher-dropdown">
+  ${Object.entries(users)
+    .filter(([uid, u]) => u.role === "teacher" && u.approved)
+    .map(([uid, u]) => `
+      <option value="${uid}" ${sub.teacherId === uid ? "selected" : ""}>
+        ${u.name}
+      </option>
+    `).join("")}
+  <option value="" ${!sub.teacherId ? "selected" : ""}>Unassigned</option>
+</select>
+              
             </div>
           `;
         });
@@ -227,11 +231,7 @@ function openClassEdit(classId) {
       `;
 
       openPanel("classPanel");
-   db.ref("classes/" + classId).on("value", () => {
-  if (document.getElementById("classPanel").classList.contains("active-panel")) {
-    openClassEdit(classId);
-  }
-});
+    
     });
   });
 }
@@ -245,6 +245,21 @@ function deleteSubject(classId, subId) {
       openClassEdit(classId);
     });
 }
+function addSubject(classId) {
+  const name = $("newSubjectName").value.trim();
+  if (!name) return toast("Enter subject name");
+
+  const subId = name.toLowerCase().replace(/\s+/g, "");
+
+  db.ref("classes/" + classId + "/subjects/" + subId).set({
+    name: name,
+    teacherId: ""
+  }).then(() => {
+    toast("Subject added 📘");
+    openClassEdit(classId);
+  });
+}
+
 function assignTeacher(classId, subId, teacherId) {
   db.ref("classes/" + classId + "/subjects/" + subId + "/teacherId")
     .set(teacherId)
