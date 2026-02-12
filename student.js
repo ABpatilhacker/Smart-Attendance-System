@@ -55,10 +55,7 @@ function calculateOverallAttendance() {
 
 /* 📊 DASHBOARD */
 function loadDashboard() {
-  calculateOverallAttendance();
-  calculateMonthlySummary();
-}
-
+  
 /* 📚 SUBJECTS */
 function loadSubjects() {
   subjectSelect.innerHTML = `<option value="">Select Subject</option>`;
@@ -132,7 +129,7 @@ function loadSubjectAttendance() {
         : 0;
 
       updatePercent(percent);
-      showPrediction(present, total);
+
       drawChart(labels, data);
       showDefaulterAlert(percent);
     });
@@ -153,46 +150,6 @@ function showDefaulterAlert(percent) {
 function closeAlert() {
   const banner = document.getElementById("alertBanner");
   if (banner) banner.classList.remove("show");
-}
-/* 📅 MONTHLY */
-function calculateMonthlySummary() {
-  const m = new Date().getMonth();
-  let p = 0, t = 0;
-
-  db.ref("attendance/" + currentClassId).once("value").then(snap => {
-    snap.forEach(s =>
-      s.forEach(d => {
-        const dt = new Date(d.key);
-        const st = d.val()[currentUser.uid];
-        if (st && dt.getMonth() === m) {
-          t++;
-          if (st === "P") p++;
-        }
-      })
-    );
-    monthlySummary.innerText = `${p}/${t}`;
-  });
-}
-
-/* 🔮 PREDICTION */
-function showPrediction(p, t) {
-  let miss = 0;
-  while (((p / (t + miss)) * 100) >= MIN_ATTENDANCE) miss++;
-  predictionText.innerText = `Can miss ${Math.max(0, miss - 1)} classes`;
-}
-
-/* 🔔 ALERT */
-function showLiveAlert(show, percent) {
-  if (!liveAlert) return;
-  if (alertTimer) clearTimeout(alertTimer);
-
-  if (show) {
-    liveAlert.innerText = `⚠ Attendance ${percent}% (Minimum ${MIN_ATTENDANCE}%)`;
-    liveAlert.classList.add("show");
-    alertTimer = setTimeout(() => liveAlert.classList.remove("show"), 5000);
-  } else {
-    liveAlert.classList.remove("show");
-  }
 }
 
 /* 📊 CHART */
@@ -255,4 +212,19 @@ function filterByDate() {
         </tr>
       `;
     });
+} 
+function logout() {
+  auth.signOut().then(() => {
+    window.location.href = "index.html";
+  });
 }
+  function toggleTheme() {
+  document.body.classList.toggle("dark");
+
+  const btn = document.querySelector(".theme-btn");
+  if (document.body.classList.contains("dark")) {
+    btn.innerText = "☀";
+  } else {
+    btn.innerText = "🌙";
+  }
+  }
