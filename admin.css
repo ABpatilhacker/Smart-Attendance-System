@@ -288,3 +288,21 @@ button.danger{
   from{opacity:0;transform:translate(-50%,20px);}
   to{opacity:1;transform:translate(-50%,0);}
 }
+.teacher-dropdown {
+  margin-top:8px;
+  border-radius:12px;
+  transition:all .3s ease;
+}
+
+.teacher-dropdown:hover {
+  transform:scale(1.03);
+}
+
+.subject-card {
+  transition:all .3s ease;
+}
+
+.subject-card:hover {
+  transform:translateY(-4px);
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
