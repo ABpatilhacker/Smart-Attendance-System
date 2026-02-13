@@ -315,7 +315,28 @@ function openTeacherPanel(uid) {
     openPanel("teacherPanel");
   });
 }
+function createTeacher() {
+  const name = $("newTeacherName").value.trim();
+  const email = $("newTeacherEmail").value.trim();
+  const pass = $("newTeacherPass").value.trim();
 
+  if (!name || !email || !pass) return toast("Fill all fields");
+
+  const newRef = db.ref("users").push();
+  const uid = newRef.key;
+
+  newRef.set({
+    uid: uid,
+    name: name,
+    email: email,
+    password: pass, // for project demo only
+    role: "teacher",
+    approved: true
+  }).then(() => {
+    toast("Teacher added successfully 👨‍🏫");
+    closePanel("addTeacherPanel");
+  });
+}
 /********************************
  ✅ APPROVALS
 *********************************/
