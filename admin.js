@@ -333,9 +333,32 @@ function createTeacher() {
     role: "teacher",
     approved: true
   }).then(() => {
+   $("newTeacherName").value = "";
+$("newTeacherEmail").value = "";
+$("newTeacherPass").value = "";
     toast("Teacher added successfully 👨‍🏫");
     closePanel("addTeacherPanel");
   });
+}
+function openAddTeacher() {
+
+  $("addTeacherPanel").innerHTML = `
+    <h2>Add New Teacher</h2>
+
+    <label>Name</label>
+    <input id="newTeacherName" placeholder="Enter teacher name">
+
+    <label>Email</label>
+    <input id="newTeacherEmail" type="email" placeholder="Enter email">
+
+    <label>Password</label>
+    <input id="newTeacherPass" type="password" placeholder="Enter password">
+
+    <button onclick="createTeacher()">Create Teacher</button>
+    <button class="ghost" onclick="closePanel('addTeacherPanel')">Cancel</button>
+  `;
+
+  openPanel("addTeacherPanel");
 }
 /********************************
  ✅ APPROVALS
