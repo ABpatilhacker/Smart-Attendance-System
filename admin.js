@@ -267,6 +267,24 @@ function assignTeacher(classId, subId, teacherId) {
       toast("Teacher updated 🎯");
     });
 }
+function saveClassEdit(classId) {
+
+  const newName = $("editClassName").value.trim();
+
+  if (!newName)
+    return toast("Class name cannot be empty");
+
+  db.ref("classes/" + classId + "/name")
+    .set(newName)
+    .then(() => {
+
+      toast("Class updated successfully ✅");
+
+      closePanel("classPanel");
+
+    });
+
+}
 /********************************
  👨‍🏫 TEACHERS
 *********************************/
@@ -276,14 +294,29 @@ function loadTeachers() {
 
   db.ref("users").on("value", snap => {
     list.innerHTML = "";
+
     snap.forEach(u => {
       const d = u.val();
+
       if (d.role === "teacher" && d.approved) {
+
         list.innerHTML += `
           <li>
             <strong>${d.name}</strong>
-            <button onclick="openTeacherPanel('${u.key}')">View</button>
-          </li>`;
+
+            <div class="actions">
+              <button onclick="openTeacherPanel('${u.key}')">
+                View
+              </button>
+
+              <button class="danger"
+                onclick="deleteTeacher('${u.key}')">
+                🗑 Delete
+              </button>
+            </div>
+
+          </li>
+        `;
       }
     });
   });
@@ -315,6 +348,23 @@ function openTeacherPanel(uid) {
     openPanel("teacherPanel");
   });
 }
+function deleteTeacher(uid) {
+
+  confirmModal(
+    "Delete Teacher",
+    "This will permanently delete this teacher",
+    () => {
+
+      db.ref("users/" + uid).remove()
+        .then(() => {
+          toast("Teacher deleted successfully 🗑️");
+        });
+
+    }
+  );
+
+}
+
 function createTeacher() {
   const name = $("newTeacherName").value.trim();
   const email = $("newTeacherEmail").value.trim();
