@@ -264,6 +264,7 @@ function exportPDF() {
 }
     
 function filterByDate() {
+
   const date = document.getElementById("dateFilter").value;
   if (!date || !selectedSubjectId) return;
 
@@ -272,24 +273,46 @@ function filterByDate() {
   db.ref(`attendance/${currentClassId}/${selectedSubjectId}/${date}`)
     .once("value")
     .then(snap => {
+
       if (!snap.exists()) {
         attendanceTableBody.innerHTML =
           `<tr><td colspan="2">No record for selected date</td></tr>`;
         return;
       }
 
-      const status = snap.val()[currentUser.uid];
+      // 🔥 Get student roll once
+      db.ref("users/" + currentUser.uid).once("value").then(userSnap => {
 
-      attendanceTableBody.innerHTML = `
-        <tr>
-          <td>${new Date(date).toDateString()}</td>
-          <td class="${status === "P" ? "present" : "absent"}">
-            ${status === "P" ? "Present" : "Absent"}
-          </td>
-        </tr>
-      `;
+        const roll = userSnap.val().roll;
+        const dayData = snap.val() || {};
+
+        // Try UID first
+        let status = dayData[currentUser.uid];
+
+        // If not found → try roll (old format)
+        if (!status) {
+          status = dayData[roll];
+        }
+
+        // Convert old values
+        if (status === "present") status = "P";
+        if (status === "absent") status = "A";
+
+        status = status || "-";
+
+        attendanceTableBody.innerHTML = `
+          <tr>
+            <td>${new Date(date).toDateString()}</td>
+            <td class="${status === "P" ? "present" : "absent"}">
+              ${status === "P" ? "Present" :
+                status === "A" ? "Absent" : "-"}
+            </td>
+          </tr>
+        `;
+      });
+
     });
-} 
+}
 function logout() {
   auth.signOut().then(() => {
     window.location.href = "index.html";
