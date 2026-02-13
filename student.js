@@ -17,7 +17,7 @@ function updatePercent(percent) {
   attendancePercent.innerText = percent + "%";
 }
 /* 🔔 Minimum attendance realtime */
-db.ref("settings/minimumAttendance").on("value", s => {
+db.ref("settings/minAttendance").on("value", s => {
   if (s.exists()) MIN_ATTENDANCE = Number(s.val());
 });
 
@@ -49,27 +49,46 @@ function calculateOverallAttendance() {
       return;
     }
 
-    snap.forEach(subjectSnap => {
+    // Get student roll once
+    db.ref("users/" + currentUser.uid).once("value").then(userSnap => {
 
-      subjectSnap.forEach(dateSnap => {
+      const roll = userSnap.val().roll;
 
-        const status = dateSnap.val()[currentUser.uid];
+      snap.forEach(subjectSnap => {
 
-        if (status) {
-          total++;
-          if (status === "P") present++;
-        }
+        subjectSnap.forEach(dateSnap => {
+
+          const dayData = dateSnap.val();
+
+          // Try UID first
+          let status = dayData[currentUser.uid];
+
+          // If not found → try roll (old data)
+          if (!status) {
+            status = dayData[roll];
+          }
+
+          // Convert old format
+          if (status === "present") status = "P";
+          if (status === "absent") status = "A";
+
+          if (status) {
+            total++;
+            if (status === "P") present++;
+          }
+
+        });
 
       });
 
+      const percent = total
+        ? Math.round((present / total) * 100)
+        : 0;
+
+      updatePercent(percent);
+      showDefaulterAlert(percent);
+
     });
-
-    const percent = total
-      ? Math.round((present / total) * 100)
-      : 0;
-
-    updatePercent(percent);
-    showDefaulterAlert(percent);
 
   });
 }
@@ -111,10 +130,12 @@ function loadSubjectAttendance() {
   if (!selectedSubjectId) return;
 
   attendanceTableBody.innerHTML = "";
-  let present = 0, total = 0;
-  const labels = [], data = [];
+  let present = 0;
+  let total = 0;
+  const labels = [];
+  const data = [];
 
-  // 🔥 REMOVE OLD LISTENER
+  // Remove old listener
   if (subjectAttendanceRef) subjectAttendanceRef.off();
 
   subjectAttendanceRef =
@@ -137,35 +158,58 @@ function loadSubjectAttendance() {
 
     const dates = Object.keys(snap.val()).sort();
 
-    dates.forEach(date => {
-      const status = snap.val()[date][currentUser.uid] || "-";
+    // 🔥 Get student roll once
+    db.ref("users/" + currentUser.uid).once("value").then(userSnap => {
 
-      if (status !== "-") {
-        total++;
-        if (status === "P") present++;
-      }
+      const roll = userSnap.val().roll;
 
-      labels.push(date);
-      data.push(status === "P" ? 1 : 0);
+      dates.forEach(date => {
 
-      attendanceTableBody.innerHTML += `
-        <tr>
-          <td>${new Date(date).toDateString()}</td>
-          <td class="${status === "P" ? "present" : "absent"}">
-            ${status === "P" ? "Present" :
-              status === "A" ? "Absent" : "-"}
-          </td>
-        </tr>
-      `;
+        const dayData = snap.val()[date] || {};
+
+        // Try UID first (new format)
+        let status = dayData[currentUser.uid];
+
+        // If not found → try roll (old format)
+        if (!status) {
+          status = dayData[roll];
+        }
+
+        // Convert old values
+        if (status === "present") status = "P";
+        if (status === "absent") status = "A";
+
+        status = status || "-";
+
+        if (status !== "-") {
+          total++;
+          if (status === "P") present++;
+        }
+
+        labels.push(date);
+        data.push(status === "P" ? 1 : 0);
+
+        attendanceTableBody.innerHTML += `
+          <tr>
+            <td>${new Date(date).toDateString()}</td>
+            <td class="${status === "P" ? "present" : "absent"}">
+              ${status === "P" ? "Present" :
+                status === "A" ? "Absent" : "-"}
+            </td>
+          </tr>
+        `;
+      });
+
+      const percent = total
+        ? Math.round((present / total) * 100)
+        : 0;
+
+      updatePercent(percent);
+      drawChart(labels, data);
+      showDefaulterAlert(percent);
+
     });
 
-    const percent = total
-      ? Math.round((present / total) * 100)
-      : 0;
-
-    updatePercent(percent);
-    drawChart(labels, data);
-    showDefaulterAlert(percent);
   });
 }
 // ✅ THIS LINE
