@@ -39,7 +39,7 @@ function calculateOverallAttendance() {
   let present = 0;
   let total = 0;
 
-  db.ref("attendance/" + currentClassId).on("value", snap => {
+  db.ref("attendance").on("value", snap => {
 
     present = 0;
     total = 0;
@@ -56,9 +56,12 @@ function calculateOverallAttendance() {
 
       snap.forEach(subjectSnap => {
 
+        // 🔥 VERY IMPORTANT FILTER
+        if (!subjectSnap.key.startsWith(currentClassId + "_")) return;
+
         subjectSnap.forEach(dateSnap => {
 
-          const dayData = dateSnap.val();
+          const dayData = dateSnap.val() || {};
 
           // Try UID first
           let status = dayData[currentUser.uid];
@@ -139,7 +142,7 @@ function loadSubjectAttendance() {
   if (subjectAttendanceRef) subjectAttendanceRef.off();
 
   subjectAttendanceRef =
-    db.ref(`attendance/${currentClassId}/${selectedSubjectId}`);
+  db.ref(`attendance/${currentClassId}_${selectedSubjectId}`);
 
   subjectAttendanceRef.on("value", snap => {
 
@@ -270,7 +273,7 @@ function filterByDate() {
 
   attendanceTableBody.innerHTML = "";
 
-  db.ref(`attendance/${currentClassId}/${selectedSubjectId}/${date}`)
+db.ref(`attendance/${currentClassId}_${selectedSubjectId}/${date}`)
     .once("value")
     .then(snap => {
 
