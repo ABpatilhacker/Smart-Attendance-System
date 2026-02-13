@@ -9,6 +9,7 @@ let currentUser, currentClassId, selectedSubjectId;
 let attendanceChart = null;
 let MIN_ATTENDANCE = 75;
 let alertTimer = null;
+let subjectAttendanceRef = null;
 
 function updatePercent(percent) {
   const attendancePercent = document.getElementById("attendancePercent");
@@ -34,21 +35,42 @@ loadDashboard();
   });
 });
 function calculateOverallAttendance() {
-  let present = 0, total = 0;
 
-  db.ref("attendance/" + currentClassId).on("value", snap => { =>
-      subject.forEach(date => {
-        const st = date.val()[currentUser.uid];
-        if (st) {
+  let present = 0;
+  let total = 0;
+
+  db.ref("attendance/" + currentClassId).on("value", snap => {
+
+    present = 0;
+    total = 0;
+
+    if (!snap.exists()) {
+      updatePercent(0);
+      return;
+    }
+
+    snap.forEach(subjectSnap => {
+
+      subjectSnap.forEach(dateSnap => {
+
+        const status = dateSnap.val()[currentUser.uid];
+
+        if (status) {
           total++;
-          if (st === "P") present++;
+          if (status === "P") present++;
         }
-      })
-    );
 
-    const percent = total ? Math.round((present / total) * 100) : 0;
+      });
+
+    });
+
+    const percent = total
+      ? Math.round((present / total) * 100)
+      : 0;
+
     updatePercent(percent);
     showDefaulterAlert(percent);
+
   });
 }
 
