@@ -29,15 +29,14 @@ auth.onAuthStateChanged(user => {
     const u = snap.val();
     if (!u || u.role !== "student") return auth.signOut();
     currentClassId = u.classId;
-    loadDashboard();
     loadSubjects();
+loadDashboard();
   });
 });
 function calculateOverallAttendance() {
   let present = 0, total = 0;
 
-  db.ref("attendance/" + currentClassId).once("value").then(snap => {
-    snap.forEach(subject =>
+  db.ref("attendance/" + currentClassId).on("value", snap => { =>
       subject.forEach(date => {
         const st = date.val()[currentUser.uid];
         if (st) {
@@ -85,6 +84,7 @@ function openSubject(id) {
 
 /* 📝 SUBJECT ATTENDANCE */
 function loadSubjectAttendance() {
+
   selectedSubjectId = subjectSelect.value;
   if (!selectedSubjectId) return;
 
@@ -92,51 +92,60 @@ function loadSubjectAttendance() {
   let present = 0, total = 0;
   const labels = [], data = [];
 
-  db.ref(`attendance/${currentClassId}/${selectedSubjectId}`)
-    .once("value")
-    .then(snap => {
+  // 🔥 REMOVE OLD LISTENER
+  if (subjectAttendanceRef) subjectAttendanceRef.off();
 
-      if (!snap.exists()) {
-        attendanceTableBody.innerHTML =
-          `<tr><td colspan="2">No attendance recorded</td></tr>`;
-        return;
+  subjectAttendanceRef =
+    db.ref(`attendance/${currentClassId}/${selectedSubjectId}`);
+
+  subjectAttendanceRef.on("value", snap => {
+
+    attendanceTableBody.innerHTML = "";
+    present = 0;
+    total = 0;
+    labels.length = 0;
+    data.length = 0;
+
+    if (!snap.exists()) {
+      attendanceTableBody.innerHTML =
+        `<tr><td colspan="2">No attendance recorded</td></tr>`;
+      updatePercent(0);
+      return;
+    }
+
+    const dates = Object.keys(snap.val()).sort();
+
+    dates.forEach(date => {
+      const status = snap.val()[date][currentUser.uid] || "-";
+
+      if (status !== "-") {
+        total++;
+        if (status === "P") present++;
       }
 
-      // ✅ Sort dates properly
-      const dates = Object.keys(snap.val()).sort();
+      labels.push(date);
+      data.push(status === "P" ? 1 : 0);
 
-      dates.forEach(date => {
-        const status = snap.val()[date][currentUser.uid] || "-";
-
-        if (status !== "-") {
-          total++;
-          if (status === "P") present++;
-        }
-
-        labels.push(date);
-        data.push(status === "P" ? 1 : 0);
-
-        attendanceTableBody.innerHTML += `
-          <tr>
-            <td>${new Date(date).toDateString()}</td>
-            <td class="${status === "P" ? "present" : "absent"}">
-              ${status === "P" ? "Present" : status === "A" ? "Absent" : "-"}
-            </td>
-          </tr>
-        `;
-      });
-
-      const percent = total
-        ? Math.round((present / total) * 100)
-        : 0;
-
-      updatePercent(percent);
-
-      drawChart(labels, data);
-      showDefaulterAlert(percent);
+      attendanceTableBody.innerHTML += `
+        <tr>
+          <td>${new Date(date).toDateString()}</td>
+          <td class="${status === "P" ? "present" : "absent"}">
+            ${status === "P" ? "Present" :
+              status === "A" ? "Absent" : "-"}
+          </td>
+        </tr>
+      `;
     });
-}
 
+    const percent = total
+      ? Math.round((present / total) * 100)
+      : 0;
+
+    updatePercent(percent);
+    drawChart(labels, data);
+    showDefaulterAlert(percent);
+  });
+}
 // ✅ THIS LINE
 function showDefaulterAlert(percent) {
   const banner = document.getElementById("alertBanner");
